@@ -1,0 +1,26 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1173" height="610" viewBox="0 0 1173 610">
+  <g id="Lines" transform="translate(-498.5 -266.5)">
+    <line id="Line_1" data-name="Line 1" y2="194.5" transform="translate(585.5 594)" fill="none" stroke="#707070" stroke-linecap="round" stroke-width="6"/>
+    <line id="Line_2" data-name="Line 2" y2="84.5" transform="translate(501.5 789)" fill="none" stroke="#707070" stroke-linecap="round" stroke-width="6"/>
+    <line id="Line_3" data-name="Line 3" y2="84.5" transform="translate(668.5 789)" fill="none" stroke="#707070" stroke-linecap="round" stroke-width="6"/>
+    <line id="Line_4" data-name="Line 4" y2="84.5" transform="translate(835.5 789)" fill="none" stroke="#707070" stroke-linecap="round" stroke-width="6"/>
+    <line id="Line_5" data-name="Line 5" y2="194.5" transform="translate(918.5 594)" fill="none" stroke="#707070" stroke-linecap="round" stroke-width="6"/>
+    <line id="Line_6" data-name="Line 6" y2="84.5" transform="translate(1001.5 789)" fill="none" stroke="#707070" stroke-linecap="round" stroke-width="6"/>
+    <line id="Line_7" data-name="Line 7" y2="200" transform="translate(750.5 393.5)" fill="none" stroke="#707070" stroke-linecap="round" stroke-width="6"/>
+    <line id="Line_8" data-name="Line 8" y2="84.5" transform="translate(1168.5 789)" fill="none" stroke="#707070" stroke-linecap="round" stroke-width="6"/>
+    <line id="Line_9" data-name="Line 9" y2="194.5" transform="translate(1251.5 594)" fill="none" stroke="#707070" stroke-linecap="round" stroke-width="6"/>
+    <line id="Line_10" data-name="Line 10" y2="194.5" transform="translate(1584.5 594)" fill="none" stroke="#707070" stroke-linecap="round" stroke-width="6"/>
+    <line id="Line_11" data-name="Line 11" y2="84.5" transform="translate(1334.5 789)" fill="none" stroke="#707070" stroke-linecap="round" stroke-width="6"/>
+    <line id="Line_12" data-name="Line 12" y2="84.5" transform="translate(1501.5 789)" fill="none" stroke="#707070" stroke-linecap="round" stroke-width="6"/>
+    <line id="Line_13" data-name="Line 13" y2="84.5" transform="translate(1668.5 789)" fill="none" stroke="#707070" stroke-linecap="round" stroke-width="6"/>
+    <line id="Line_14" data-name="Line 14" y2="200" transform="translate(1418.5 393.5)" fill="none" stroke="#707070" stroke-linecap="round" stroke-width="6"/>
+    <line id="Line_15" data-name="Line 15" y2="124" transform="translate(1084.5 269.5)" fill="none" stroke="#707070" stroke-linecap="round" stroke-width="6"/>
+    <line id="Line_16" data-name="Line 16" x2="668" transform="translate(750.5 393.5)" fill="none" stroke="#707070" stroke-linecap="round" stroke-width="6"/>
+    <line id="Line_17" data-name="Line 17" x2="333" transform="translate(585.5 593.5)" fill="none" stroke="#707070" stroke-linecap="round" stroke-width="6"/>
+    <line id="Line_18" data-name="Line 18" x2="333" transform="translate(1251.5 593.5)" fill="none" stroke="#707070" stroke-linecap="round" stroke-width="6"/>
+    <line id="Line_19" data-name="Line 19" x2="167" transform="translate(501.5 788.5)" fill="none" stroke="#707070" stroke-linecap="round" stroke-width="6"/>
+    <line id="Line_20" data-name="Line 20" x2="166" transform="translate(835.5 788.5)" fill="none" stroke="#707070" stroke-linecap="round" stroke-width="6"/>
+    <line id="Line_21" data-name="Line 21" x2="166" transform="translate(1168.5 788.5)" fill="none" stroke="#707070" stroke-linecap="round" stroke-width="6"/>
+    <line id="Line_22" data-name="Line 22" x2="167" transform="translate(1501.5 788.5)" fill="none" stroke="#707070" stroke-linecap="round" stroke-width="6"/>
+  </g>
+</svg>
