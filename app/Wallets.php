@@ -4,16 +4,15 @@ namespace App;
 
 use Illuminate\Database\Eloquent\Model;
 
-class Notifications extends Model
+class Wallets extends Model
 {
-    protected $table = 'notifications';
+    protected $table = 'wallets';
     public $primaryKey = 'id';
     public $timestamps = true;
 
     protected $fillable = [
         'user_id',
-        'type',
-        'data',
-        'read_at'
+        'total_earnings',
+        'current_balance',
     ];
 }

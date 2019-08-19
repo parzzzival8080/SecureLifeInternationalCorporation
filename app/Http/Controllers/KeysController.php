@@ -2,33 +2,23 @@
 
 namespace App\Http\Controllers;
 
-use App\Key;
-use App\Queue;
-use App\User;
-use App\Bracket;
-use App\Wallet;
-use App\Notif;
-
+use App\CurrentQueue;
+use App\Diamond_Queues;
+use App\Keys;
+use App\Wallets;
 use Illuminate\Http\Request;
 
-use App\Http\Controllers\NotifController;
-
-class KeyController extends Controller
+class KeysController extends Controller
 {
-    public function index()
-    {
-        //
-    }
-
     public function checkKey(Request $request)
     {
-        $keys= Key::where('key', '=', $request['key'])
+        $keys= Keys::where('key', '=', $request['key'])
         ->where('status', '=', 'Inactive')
         ->where('user_id', '=', $request['userid'])
         ->get();
         $msg = false;
         if ($keys->isEmpty()){
-            $keys= Key::where('key', '=', $request['key'])
+            $keys= Keys::where('key', '=', $request['key'])
             ->where('status', '=', 'Inactive')
             ->where('user_id', '=', '1')
             ->get();
@@ -67,7 +57,7 @@ class KeyController extends Controller
             $this->activateKey($request);
             $msg = true;
         }
-        Key::where('key', '=', $request['key'])
+        Keys::where('key', '=', $request['key'])
             ->where('status', '=', 'Inactive')
             ->update(['user_id'=>$request['userid']]);
         
@@ -77,11 +67,11 @@ class KeyController extends Controller
     public function activateKey(Request $request)
     {
         $msg=false;
-        Queue::create(['user_id' => $request['userid'], 'exit' => $request['exit']]);
+        Diamond_Queues::create(['user_id' => $request['userid'], 'exit' => $request['exit']]);
         User::findOrFail($request['userid'])->update(['status' => 'Active']);
-        $brackets = Bracket::all();
+        $brackets = CurrentQueue::all();
         if ($brackets->isEmpty()){
-            Bracket::create([
+            CurrentQueue::create([
                 'currentBracket' => '1',
                 'bracketCount' => '0',
                 'exit' => $request['exit']
@@ -92,7 +82,7 @@ class KeyController extends Controller
                 $chck= $bracket->bracketCount + ($request['exit']/5);
                 if ($chck >= $bracket->exit){
                     $newexit = 0;
-                    $allqueues = Queue::where('id', '>=', $bracket->currentBracket)->get();
+                    $allqueues = Diamond_Queues::where('id', '>=', $bracket->currentBracket)->get();
                     foreach($allqueues as $allqueues){
                         if ($chck>=$allqueues->exit){
                             
@@ -109,10 +99,10 @@ class KeyController extends Controller
                                 $ctrler->store($notif);
                             }
 
-                            Queue::where('id', '=', $allqueues->id)->update(['exited' => '1']);
-                            Queue::create(['user_id' => $allqueues->user_id, 'exit' => $allqueues->exit]);
+                            Diamond_Queues::where('id', '=', $allqueues->id)->update(['exited' => '1']);
+                            Diamond_Queues::create(['user_id' => $allqueues->user_id, 'exit' => $allqueues->exit]);
                             $newexit = $newexit + ($allqueues->exit/5);
-                            Wallet::create([
+                            Wallets::create([
                                 'user_id' => $allqueues->user_id,
                                 'amount' => ($allqueues->exit/5) * 30000,
                                 'remarks' => 'Exit',
@@ -136,14 +126,9 @@ class KeyController extends Controller
         return response()->json(['data'=>$msg]);
     }
 
-    public function create()
-    {
-        //
-    }
-
     public function store(Request $request)
     {
-        $key=Key::create([
+        $key=Keys::create([
             'user_id' => $request['user_id'],
             'key' => $request['key'],
             'status' => $request['status'],
@@ -153,20 +138,10 @@ class KeyController extends Controller
         return $key->id;
     }
 
-    public function show(Key $key)
-    {
-        //
-    }
-
-    public function edit(Key $key)
-    {
-        //
-    }
-
     public function destroy($id)
     {
         
-        $key = Key::findOrFail($id);
+        $key = Keys::findOrFail($id);
 
         $key->delete();
 
@@ -176,17 +151,17 @@ class KeyController extends Controller
     //get all keys for Keys.vue
     public function getAllKeys()
     {
-        return Key::select('id', 'key', 'investment', 'status')->where('key', '<>', 'lala')->get();
+        return Keys::select('id', 'key', 'investment', 'status')->where('key', '<>', 'lala')->get();
     }
 
     //get available keys for Activate.vue
     public function getMyKeys(Request $request)
     {
-        return Key::where('user_id', '=', $request['id'])->get();
+        return Keys::where('user_id', '=', $request['id'])->get();
     }
     
     public function myAccounts(Request $request)
     {
-        return response()->json(['count'=>Key::where('user_id', '=', $request['id'])->where('status', '=', 'Active')->sum('investment')/20000]);
+        return response()->json(['count'=>Keys::where('user_id', '=', $request['id'])->where('status', '=', 'Active')->sum('investment')/20000]);
     }
 }

@@ -4,16 +4,15 @@ namespace App;
 
 use Illuminate\Database\Eloquent\Model;
 
-class Notifications extends Model
+class CurrentQueue extends Model
 {
-    protected $table = 'notifications';
+    protected $table = 'current_queues';
     public $primaryKey = 'id';
     public $timestamps = true;
 
     protected $fillable = [
-        'user_id',
-        'type',
-        'data',
-        'read_at'
+        'queue_id',
+        'queue_count',
+        'exit'
     ];
 }

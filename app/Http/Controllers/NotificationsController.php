@@ -2,21 +2,16 @@
 
 namespace App\Http\Controllers;
 
-use App\Notif;
+use App\Notifications;
 use App\User;
 use Illuminate\Http\Request;
 
-class NotifController extends Controller
+class NotificationsController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
     public function index(Request $request)
     {
         $toReturn = array();
-        $notif = Notif::where('notifiable_id', '=', $request['id'])->orderBy('created_at', 'desc')->get();
+        $notif = Notifications::where('notifiable_id', '=', $request['id'])->orderBy('created_at', 'desc')->get();
         foreach ($notif as $notif)
         {
             $notif->data = (array) json_decode($notif->data);
@@ -25,70 +20,9 @@ class NotifController extends Controller
         return response()->json(['dta'=>$toReturn]);
     }
 
-    /**
-     * Show the form for creating a new resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
-    public function create()
-    {
-        //
-    }
-
-    /**
-     * Store a newly created resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\Response
-     */
     public function store($request)
     {
-        Notif::create($request);
-    }
-
-    /**
-     * Display the specified resource.
-     *
-     * @param  \App\Notif  $notif
-     * @return \Illuminate\Http\Response
-     */
-    public function show(Notif $notif)
-    {
-        //
-    }
-
-    /**
-     * Show the form for editing the specified resource.
-     *
-     * @param  \App\Notif  $notif
-     * @return \Illuminate\Http\Response
-     */
-    public function edit(Notif $notif)
-    {
-        //
-    }
-
-    /**
-     * Update the specified resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  \App\Notif  $notif
-     * @return \Illuminate\Http\Response
-     */
-    public function update(Request $request, Notif $notif)
-    {
-        //
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     *
-     * @param  \App\Notif  $notif
-     * @return \Illuminate\Http\Response
-     */
-    public function destroy(Notif $notif)
-    {
-        //
+        Notifications::create($request);
     }
 
     public function KeyDisapproved(Request $request)
@@ -100,7 +34,7 @@ class NotifController extends Controller
             $this->store($notif);
         }
         
-        $thisnotif = Notif::where('type', '=', 'KeyRequest')->get();
+        $thisnotif = Notifications::where('type', '=', 'KeyRequest')->get();
         
         if (!is_null($thisnotif))
         {
@@ -113,7 +47,7 @@ class NotifController extends Controller
                     if ($data->proof_id == $request['proof_id'])
                     {
                         $data->status= 'disapproved';
-                        Notif::where('id', '=', $thisnotif->id)->update(['data'=>json_encode($data)]);
+                        Notifications::where('id', '=', $thisnotif->id)->update(['data'=>json_encode($data)]);
                     }
                 }
             }
@@ -129,7 +63,7 @@ class NotifController extends Controller
             $this->store($notif);
         }
         
-        $thisnotif = Notif::where('type', '=', 'KeyRequest')->get();
+        $thisnotif = Notifications::where('type', '=', 'KeyRequest')->get();
         
         if (!is_null($thisnotif))
         {
@@ -142,7 +76,7 @@ class NotifController extends Controller
                     if ($data->proof_id == $request['proof_id'])
                     {
                         $data->status= 'approved';
-                        Notif::where('id', '=', $thisnotif->id)->update(['data'=>json_encode($data)]);
+                        Notifications::where('id', '=', $thisnotif->id)->update(['data'=>json_encode($data)]);
                     }
                 }
             }
@@ -151,7 +85,7 @@ class NotifController extends Controller
     
     public function read(Request $request)
     {
-        Notif::where('notifiable_id', '=', $request['id'])->update(['read_at'=>now()]);
+        Notifications::where('notifiable_id', '=', $request['id'])->update(['read_at'=>now()]);
     }
 
     public function userActivated($request)
@@ -191,7 +125,7 @@ class NotifController extends Controller
     public function getUnreadNotifs(Request $request)
     {
         $toReturn = array();
-        $notif = Notif::where('notifiable_id', '=', $request['id'])->where('read_at', '=', NULL)->orderBy('created_at', 'desc')->get();
+        $notif = Notifications::where('notifiable_id', '=', $request['id'])->where('read_at', '=', NULL)->orderBy('created_at', 'desc')->get();
         foreach ($notif as $notif)
         {
             $notif->data = (array) json_decode($notif->data);
@@ -215,7 +149,7 @@ class NotifController extends Controller
     {
         $returnproofs = array();
         $data = array();
-        $requests = Notif::where('type','=','EncashRequest')->get();
+        $requests = Notifications::where('type','=','EncashRequest')->get();
         
         foreach ($requests as $requests)
         {
@@ -232,14 +166,14 @@ class NotifController extends Controller
         $notif = ['type'=>'EncashApproved', 'notifiable_id' => $request['user_id'], 'data'=> json_encode($data)];
         $this->store($notif);
 
-        $thisnotif = Notif::where('id', '=', $request['notif_id'])->get();
+        $thisnotif = Notifications::where('id', '=', $request['notif_id'])->get();
         
-            foreach ($thisnotif as $thisnotif)
-            {
-                $data = json_decode($thisnotif->data);
+        foreach ($thisnotif as $thisnotif)
+        {
+            $data = json_decode($thisnotif->data);
 
-                $data->status= 'approved';
-                Notif::where('id', '=', $request['notif_id'])->update(['data'=>json_encode($data)]);
-            }
+            $data->status= 'approved';
+            Notifications::where('id', '=', $request['notif_id'])->update(['data'=>json_encode($data)]);
         }
+    }
 }

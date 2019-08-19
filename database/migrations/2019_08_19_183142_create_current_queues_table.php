@@ -4,7 +4,7 @@ use Illuminate\Support\Facades\Schema;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
 
-class CreateCurrentQueueTable extends Migration
+class CreateCurrentQueuesTable extends Migration
 {
     /**
      * Run the migrations.
@@ -13,7 +13,7 @@ class CreateCurrentQueueTable extends Migration
      */
     public function up()
     {
-        Schema::create('current_queue', function (Blueprint $table) {
+        Schema::create('current_queues', function (Blueprint $table) {
             $table->bigIncrements('id');
             $table->bigInteger('queue_id')->unsigned();
             $table->Integer('queue_count');
@@ -34,6 +34,6 @@ class CreateCurrentQueueTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('current_queue');
+        Schema::dropIfExists('current_queues');
     }
 }

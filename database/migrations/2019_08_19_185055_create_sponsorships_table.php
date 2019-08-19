@@ -4,7 +4,7 @@ use Illuminate\Support\Facades\Schema;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
 
-class CreateWalletLogsTable extends Migration
+class CreateSponsorshipsTable extends Migration
 {
     /**
      * Run the migrations.
@@ -13,16 +13,20 @@ class CreateWalletLogsTable extends Migration
      */
     public function up()
     {
-        Schema::create('wallet_logs', function (Blueprint $table) {
+        Schema::create('sponsorships', function (Blueprint $table) {
             $table->bigIncrements('id');
-            $table->bigInteger('wallet_id')->unsigned();
-            $table->bigInteger('amount');
-            $table->string('remarks');
+            $table->bigInteger('user_id')->unsigned();
+            $table->bigInteger('sponsor_id')->unsigned();
             $table->timestamps();
             
-            $table->foreign('wallet_id')
+            $table->foreign('user_id')
             ->references('id')
-            ->on('wallet')
+            ->on('users')
+            ->onDelete('cascade');
+
+            $table->foreign('sponsor_id')
+            ->references('id')
+            ->on('users')
             ->onDelete('cascade');
         });
     }
@@ -34,6 +38,6 @@ class CreateWalletLogsTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('wallet_logs');
+        Schema::dropIfExists('sponsorships');
     }
 }

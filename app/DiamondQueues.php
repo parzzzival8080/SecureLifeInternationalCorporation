@@ -4,16 +4,15 @@ namespace App;
 
 use Illuminate\Database\Eloquent\Model;
 
-class Notifications extends Model
+class DiamondQueues extends Model
 {
-    protected $table = 'notifications';
+    protected $table = 'diamond_queues';
     public $primaryKey = 'id';
     public $timestamps = true;
 
     protected $fillable = [
         'user_id',
-        'type',
-        'data',
-        'read_at'
+        'exit',
+        'exited'
     ];
 }
