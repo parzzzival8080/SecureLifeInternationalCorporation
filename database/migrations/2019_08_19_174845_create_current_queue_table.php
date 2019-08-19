@@ -4,7 +4,7 @@ use Illuminate\Support\Facades\Schema;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
 
-class CreateBracketsTable extends Migration
+class CreateCurrentQueueTable extends Migration
 {
     /**
      * Run the migrations.
@@ -13,12 +13,17 @@ class CreateBracketsTable extends Migration
      */
     public function up()
     {
-        Schema::create('brackets', function (Blueprint $table) {
+        Schema::create('current_queue', function (Blueprint $table) {
             $table->bigIncrements('id');
-            $table->Integer('currentBracket');
-            $table->Integer('bracketCount');
+            $table->bigInteger('queue_id')->unsigned();
+            $table->Integer('queue_count');
             $table->Integer('exit');
             $table->timestamps();
+            
+            $table->foreign('queue_id')
+            ->references('id')
+            ->on('diamond_queues')
+            ->onDelete('cascade');
         });
     }
 
@@ -29,6 +34,6 @@ class CreateBracketsTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('brackets');
+        Schema::dropIfExists('current_queue');
     }
 }

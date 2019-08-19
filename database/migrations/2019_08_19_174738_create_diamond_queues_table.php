@@ -4,7 +4,7 @@ use Illuminate\Support\Facades\Schema;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
 
-class CreateBronzeWalletLogsTable extends Migration
+class CreateDiamondQueuesTable extends Migration
 {
     /**
      * Run the migrations.
@@ -13,14 +13,17 @@ class CreateBronzeWalletLogsTable extends Migration
      */
     public function up()
     {
-        Schema::create('bronze_wallet_logs', function (Blueprint $table) {
+        Schema::create('diamond_queues', function (Blueprint $table) {
             $table->bigIncrements('id');
-            $table->unsignedBigInteger('wallet_id');
-            $table->bigInteger('amount');
-            $table->string('remarks');
+            $table->bigInteger('user_id')->unsigned();
+            $table->Integer('exit');
+            $table->tinyInteger('exited')->default(0);
             $table->timestamps();
 
-            $table->foreign('wallet_id')->references('id')->on('bronze_wallets')->onDelete('cascade');
+            $table->foreign('user_id')
+            ->references('id')
+            ->on('users')
+            ->onDelete('cascade');
         });
     }
 
@@ -31,6 +34,6 @@ class CreateBronzeWalletLogsTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('bronze_wallet_logs');
+        Schema::dropIfExists('diamond_queues');
     }
 }
