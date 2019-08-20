@@ -15,4 +15,8 @@ class WalletLogs extends Model
         'amount',
         'remarks',
     ];
+
+    public function wallet() {
+        return $this->belongsTo('App\Wallets', 'wallet_id');
+    }
 }

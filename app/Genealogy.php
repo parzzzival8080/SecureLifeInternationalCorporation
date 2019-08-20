@@ -30,8 +30,8 @@ class Genealogy extends Model
         return $this->hasMany('App\GenealogyMatchLog');
     }
 
-    public function bronzeWallet() {
-        return $this->hasOne('App\BronzeWallet');
+    public function wallet() {
+        return $this->hasOne('App\Wallets');
     }
 
     public function groupSalesLog() {

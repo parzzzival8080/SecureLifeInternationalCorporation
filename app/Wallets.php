@@ -15,4 +15,12 @@ class Wallets extends Model
         'total_earnings',
         'current_balance',
     ];
+
+    public function user() {
+        return $this->belongsTo('App\Users', 'user_id');
+    }
+
+    public function walletLog() {
+        return $this->hasMany('App\WalletLogs', 'wallet_id', 'id');
+    }
 }

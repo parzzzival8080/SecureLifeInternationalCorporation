@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Bronze;
 
 use App\User;
+use App\Informations;
 use App\UserAccountStatus;
 
 use Illuminate\Http\Request;
@@ -243,28 +244,33 @@ class SampleController extends Controller
         ];
         $id = 1;
         foreach($samples as $item) {
-            $user = new User;
-            $user->name = $item['name'];
-            $user->firstname = 'A';
-            $user->lastname = 'B';
-            $user->mi = 'C';
-            $user->email = $item['email'];
-            $user->password = bcrypt('12341234');
-            $user->type = 'user';
-            $user->photo = 'user.png';
-            $user->status = 'inactive';
-            $user->address = 'null';
-            $user->sponsor = 'securelife';
-            $user->birthdate = '2019-01-13';
-            $user->contact = '+63999999999';
-            $user->code = 'SLB-'.(1000 + $id);
-            $user->save();
+            $user = User::create([
+                'name' => $item['name'],
+                'email' => $item['email'],
+                'username' => $item['name'],
+                'role_id' => 2,
+                'type' => 'bronze',
+                'status' => 'active',
+                'code' => 'SLB-'.(1000 + $id),
+                'password' => bcrypt('12341234'),
+            ]);
 
-            $userAccountStatus = new UserAccountStatus;
-            $userAccountStatus->user_id = $id;
-            $userAccountStatus->status = 'active';
-            $userAccountStatus->save();
-            $id++;
+            $name = explode(" ", $item['name']);
+            $information = Informations::create([
+                'user_id' => $user->id,
+                'firstname' => $name[0],
+                'lastname' => $name[0],
+                'mi' => '',
+                'photo' => 'utin.png',
+                'address' => '',
+                'birthdate' => '',
+                'contact' => '',
+            ]);
+
+            $userAccountStatus = UserAccountStatus::create([
+                'user_id' => $user->id, 
+                'status' => 'active',
+            ]);
         }
     }
 }

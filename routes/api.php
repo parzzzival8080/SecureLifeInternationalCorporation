@@ -130,5 +130,7 @@ Route::get('bronze/dashboard', 'Bronze\BronzeController@dashboard');
 Route::get('bronze/wallet', 'Bronze\BronzeController@wallet');
 // GET API for viewing current user's points
 Route::get('bronze/points', 'Bronze\BronzeController@points');
-
+// POST API for calculating product points of user
+// Needs 4 parameters user_id, product_id and quantity
+// Returns a user product log object
 Route::post('bronze/product-purchase', 'Bronze\BronzeController@product_purchase');

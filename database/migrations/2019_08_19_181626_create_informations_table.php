@@ -16,13 +16,13 @@ class CreateInformationsTable extends Migration
         Schema::create('informations', function (Blueprint $table) {
             $table->bigIncrements('id');
             $table->bigInteger('user_id')->unsigned();
-            $table->string('firstname');
-            $table->string('lastname');
-            $table->string('mi');
+            $table->string('firstname')->nullable();
+            $table->string('lastname')->nullable();
+            $table->string('mi')->nullable();
             $table->text('photo');
-            $table->string('address');
-            $table->string('birthdate');
-            $table->string('contact');
+            $table->string('address')->nullable();
+            $table->string('birthdate')->nullable();
+            $table->string('contact')->nullable();
             $table->timestamps();
             
             $table->foreign('user_id')

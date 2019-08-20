@@ -9,8 +9,8 @@ use App\Product;
 use App\UserProductLog;
 use App\GroupSalesLog;
 use App\GenealogyMatchLog;
-use App\BronzeWallet as Wallet;
-use App\BronzeWalletLog as WalletLog;
+use App\Wallets as Wallet;
+use App\WalletLogs as WalletLog;
 
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
@@ -36,9 +36,10 @@ class BronzeController extends Controller
     // GET API
     public function wallet() {
         $user = User::find(1); // auth()->user->id; // Get current user object
-        $genealogy = $user->genealogy; // Get genealogy object of current user
-        $wallet = $genealogy->bronzeWallet; // Get wallet object of current user
-        $walletLog = $wallet->bronzeWalletLog; // Get all wallet logs of current user
+        // $genealogy = $user->genealogy; // Get genealogy object of current user
+        // $wallet = $genealogy->bronzeWallet; // Get wallet object of current user
+        $wallet = $user->wallet; // Get wallet object of current user
+        $walletLog = $wallet->walletLog; // Get all wallet logs of current user
     
         $data = [
             'current_balance' => $wallet->current_balance, // Add user current balance to $data
@@ -57,14 +58,14 @@ class BronzeController extends Controller
 
         $total_referal = Genealogy::where('referal_id', $genealogy->id)->get()->count();
         $product_points = $genealogy->genealogyMatchPoint->product_points;
-        $total_earnings = $genealogy->bronzeWallet->total_earnings;
-        $total_balance = $genealogy->bronzeWallet->current_balance;
+        $total_earnings = $user->wallet->total_earnings;
+        $total_balance = $user->wallet->current_balance;
         $left_downline = $checkMatchResult[0]['left'];
         $right_downline = $checkMatchResult[0]['right'];
         $match_count = $checkMatchResult[0]['matches'];
 
         $data = [
-            'total_earnings' => $total_earnings, // Add user total earnings to $data  
+            'total_referal' => $total_referal, // Add user total earnings to $data  
             'product_points' => $product_points, // Add user product points to $data
             'total_earnings' => $total_earnings, // Add user total earnings to $data
             'total_balance' => $total_balance, // Add user total balance to $data
@@ -121,12 +122,12 @@ class BronzeController extends Controller
             $user = User::find($request->user_id);
             if($user->userAccountStatus->status == 'cd') {
                 $wallet = Wallet::create([
-                    'genealogy_id' => $genealogy->id,
+                    'user_id' => $genealogy->user->id,
                     'current_balance' => -3995,
                 ]);
             } else {
                 $wallet = Wallet::create([
-                    'genealogy_id' => $genealogy->id,
+                    'user_id' => $genealogy->user->id,
                 ]);
             }
 
@@ -139,7 +140,8 @@ class BronzeController extends Controller
 
                 // Retrieve genea wallet
                 // $referalReward = 500;
-                $referalWallet = Wallet::where('genealogy_id', $referalGenea->id)->first(); // Retrieve wallet of referalGenea
+                // $referalWallet = Wallet::where('genealogy_id', $referalGenea->id)->first(); // Retrieve wallet of referalGenea
+                $referalWallet = $referalGenea->user->wallet; // Retrieve wallet of referalGenea
 
                 // Retrieve user account status
                 $userAccountStatus = $referalGenea->user->userAccountStatus; // Get user account status
@@ -289,6 +291,22 @@ class BronzeController extends Controller
                 $geneaMatchPoint->group_sales_points = (int) $geneaMatchPoint->group_sales_points + (int) $salesMatches; // Add total recent group sales to old group sales
                 $geneaMatchPoint->save(); // Save updates
 
+                // $geneaWallet = $genea->bronzeWallet; // $geneaWallet = Wallet::where('genealogy_id', $genea->id)->first();
+                $geneaWallet = $genea->user->wallet; // $geneaWallet = Wallet::where('genealogy_id', $genea->id)->first();
+
+                // Retrieve user account status
+                $userAccountStatus = $genea->user->userAccountStatus; // Get user account status
+                $geneaWallet->current_balance = (int) $geneaWallet->current_balance + ((int) $salesMatches * 900);
+                $geneaWallet->total_earnings = (int) $geneaWallet->total_earnings + ((int) $salesMatches * 1000); // Add 1000 to total earnings
+                $geneaWallet->save();
+
+                // Add wallet log
+                WalletLog::create([
+                    'wallet_id' => $geneaWallet->id,
+                    'amount' => 1000,
+                    'remarks' => 'Group Sales Match Reward'
+                ]);
+
                 // Create group sales log
                 GroupSalesLog::create([
                     'genealogy_id' => $genea->id,
@@ -414,7 +432,8 @@ class BronzeController extends Controller
 
                     // Retrieve Wallet object of current genea and add match point reward/incentives
                     // $referalReward = 750;
-                    $geneaWallet = $genea->bronzeWallet; // $geneaWallet = Wallet::where('genealogy_id', $genea->id)->first();
+                    // $geneaWallet = $genea->bronzeWallet; // $geneaWallet = Wallet::where('genealogy_id', $genea->id)->first();
+                    $geneaWallet = $genea->user->wallet; // $geneaWallet = Wallet::where('genealogy_id', $genea->id)->first();
 
                     // Retrieve user account status
                     $userAccountStatus = $genea->user->userAccountStatus; // Get user account status
