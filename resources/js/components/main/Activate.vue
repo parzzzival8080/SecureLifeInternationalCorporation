@@ -91,7 +91,7 @@
             },
             openRequest(data){
                 this.PicDialog = true
-                this.pic = data.image
+                this.pic = data.request_image
                 this.requestinvestment = data.investment
             },
             openFileDialog(){
@@ -111,21 +111,21 @@
                 //check if key entered is not yet activated
                 axios.get('api/key/checkKey/', {
                     params: {
-                        userid: localStorage.getItem('id'),
+                        userid: sessionStorage.getItem('id'),
                         key: this.code,
-                        name: localStorage.getItem('name'),
-                        email: localStorage.getItem('email'),
+                        name: sessionStorage.getItem('name'),
+                        email: sessionStorage.getItem('email'),
                     }
                 }).then(response => {
                 //check if key entered is bought by user
                     if(response.data.data){
                         axios.post('api/wallet/referralActivated',
                         {
-                            id: localStorage.getItem('id'),
+                            id: sessionStorage.getItem('id'),
                             code: this.code,
-                            name: localStorage.getItem('name')
+                            name: sessionStorage.getItem('name')
                         })
-                        localStorage.setItem('status', 'Active')
+                        sessionStorage.setItem('status', 'Active')
                         swal.fire({
                             allowOutsideClick: false,
                             title: 'Congratulations!',
@@ -163,8 +163,8 @@
                 }
                 //check if key entered is not yet activated
                 axios.post('api/proof',{
-                    name: localStorage.getItem('name'),
-                    user_id: localStorage.getItem('id'),
+                    name: sessionStorage.getItem('name'),
+                    user_id: sessionStorage.getItem('id'),
                     image: this.image,
                     investment: this.investment,
                     status: 'pending',
@@ -198,7 +198,7 @@
             axios.get('api/key/getMyKeys',
             {
                 params:{
-                    id: localStorage.getItem('id')
+                    id: sessionStorage.getItem('id')
                 }
             })
             .then(response =>
@@ -208,7 +208,7 @@
             axios.get('api/proof/getMyRequests',
             {
                 params:{
-                    id: localStorage.getItem('id')
+                    id: sessionStorage.getItem('id')
                 }
             })
             .then(response =>
@@ -217,10 +217,10 @@
             })
         },
         beforeRouteEnter (to, from, next) {
-            if (localStorage.getItem('status') == 'Active'){
+            if (sessionStorage.getItem('status') == 'Active'){
                 return next('/dashboard');
             }
-            else if (!localStorage.getItem('id'))
+            else if (!sessionStorage.getItem('id'))
             {
                 return next('/');
             }

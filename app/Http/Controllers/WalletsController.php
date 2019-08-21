@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use App\Roles;
+use App\Sponsorships;
 use App\User;
 use App\Wallets;
 use Illuminate\Http\Request;
@@ -32,11 +34,10 @@ class WalletsController extends Controller
 
     public function referralActivated(Request $request)
     {
-        $sponsor = User::where('id', '=', $request['id'])->value('sponsor');
-        $sponsor_type = User::where('code', '=', $sponsor)->value('type');
+        $sponsor_id = Sponsorships::where('user_id', '=', $request['id'])->value('sponsor_id');
+        $sponsor_type = Roles::where('id', '=', User::where('id', '=', $sponsor_id)->value('role_id'))->value('name');
         if (strtoupper($sponsor_type) != 'ADMIN')
         {
-            $sponsor_id = User::where('code', '=', $sponsor)->value('id');
             $investment = Key::where('key', '=', $request['code'])->value('investment');
             Wallets::create([
                 'user_id' => $sponsor_id,
@@ -46,7 +47,7 @@ class WalletsController extends Controller
             ]);
         }
 
-        $notifcontroller = new NotifController;
+        $notifcontroller = new NotificationsController;
         $notifcontroller->userActivated($request);
     }
 }

@@ -49,7 +49,7 @@
       return {
         Newdialog: false,
         keys: [],
-        thisid: localStorage.getItem('id'),
+        thisid: sessionStorage.getItem('id'),
         investment: '',
         key: '',
         //For data table headers

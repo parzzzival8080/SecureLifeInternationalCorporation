@@ -1,22 +1,23 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\Diamond;
 
 use App\CurrentQueue;
 use App\DiamondQueues;
 use Illuminate\Http\Request;
+use App\Http\Controllers\Controller;
 
 class DiamondQueuesController extends Controller
 {
     public function index(Request $request)
     {
         if ($request['datefrom']=='' && $request['dateto']==''){
-            $queue = DiamondQueues::join('users', 'queues.user_id', '=', 'users.id')
-            ->select('users.name', 'queues.id', 'queues.exit', 'queues.exited')->orderBy('queues.id', 'ASC')->paginate(5);
+            $queue = DiamondQueues::join('users', 'diamond_queues.user_id', '=', 'users.id')
+            ->select('users.name', 'diamond_queues.id', 'diamond_queues.exit', 'diamond_queues.exited')->orderBy('diamond_queues.id', 'ASC')->paginate(5);
         }
         else{
-            $queue =  DiamondQueues::join('users', 'queues.user_id', '=', 'users.id')
-            ->select('users.name', 'queues.id', 'queues.exit', 'queues.exited')->whereDate('queues.created_at', '>=', $request['datefrom'])->whereDate('queues.id', '<=', $request['dateto'])->orderBy('queues.created_at', 'ASC')->paginate(5);
+            $queue =  DiamondQueues::join('users', 'diamond_queues.user_id', '=', 'users.id')
+            ->select('users.name', 'diamond_queues.id', 'diamond_queues.exit', 'diamond_queues.exited')->whereDate('diamond_queues.created_at', '>=', $request['datefrom'])->whereDate('diamond_queues.id', '<=', $request['dateto'])->orderBy('diamond_queues.created_at', 'ASC')->paginate(5);
         }
         return response()->json(['data'=>$queue]);
     }

@@ -60,13 +60,13 @@
         }),
         methods:{
             logout(){
-                localStorage.clear();
+                sessionStorage.clear();
                 window.location.replace('/')
             },
             refresh(){
                 setTimeout(function()
                 {
-                    localStorage.clear();
+                    sessionStorage.clear();
                     window.location.replace('/')
                 },30000)
             }

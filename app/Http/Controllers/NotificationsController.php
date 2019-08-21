@@ -3,6 +3,8 @@
 namespace App\Http\Controllers;
 
 use App\Notifications;
+use App\Roles;
+use App\Sponsorships;
 use App\User;
 use Illuminate\Http\Request;
 
@@ -11,7 +13,7 @@ class NotificationsController extends Controller
     public function index(Request $request)
     {
         $toReturn = array();
-        $notif = Notifications::where('notifiable_id', '=', $request['id'])->orderBy('created_at', 'desc')->get();
+        $notif = Notifications::where('user_id', '=', $request['id'])->orderBy('created_at', 'desc')->get();
         foreach ($notif as $notif)
         {
             $notif->data = (array) json_decode($notif->data);
@@ -30,7 +32,7 @@ class NotificationsController extends Controller
         if ($request['notify'] == true)
         {
             $data = ['disapproved_by'=>'Admin'];
-            $notif = ['type'=>'KeyDisapproved', 'notifiable_id' => $request['user_id'], 'data'=> json_encode($data)];
+            $notif = ['type'=>'KeyDisapproved', 'user_id' => $request['user_id'], 'data'=> json_encode($data)];
             $this->store($notif);
         }
         
@@ -59,7 +61,7 @@ class NotificationsController extends Controller
         if ($request['notify'] == true)
         {
             $data = ['key'=>$request['key'] ,'approved_by'=>$request['thisid'], 'message'=>'Your request has been approved'];
-            $notif = ['type'=>'KeyApproved', 'notifiable_id' => $request['user_id'], 'data'=> json_encode($data)];
+            $notif = ['type'=>'KeyApproved', 'user_id' => $request['user_id'], 'data'=> json_encode($data)];
             $this->store($notif);
         }
         
@@ -85,7 +87,7 @@ class NotificationsController extends Controller
     
     public function read(Request $request)
     {
-        Notifications::where('notifiable_id', '=', $request['id'])->update(['read_at'=>now()]);
+        Notifications::where('user_id', '=', $request['id'])->update(['read_at'=>now()]);
     }
 
     public function userActivated($request)
@@ -95,29 +97,28 @@ class NotificationsController extends Controller
         foreach($adminsID as $thisAdmin)
         {
             $data = ['UserActivatedID'=>$request['id'] ,'UserActivatedName'=>$request['name']]; //fill data array
-            $notif = ['type'=>'UserActivated', 'notifiable_id' => $thisAdmin->id, 'data'=> json_encode($data)]; //fill notif array
+            $notif = ['type'=>'UserActivated', 'user_id' => $thisAdmin->id, 'data'=> json_encode($data)]; //fill notif array
             $this->store($notif); //call store function
         }
 
         //notify sponsor
-        $sponsor = User::where('id', '=', $request['id'])->value('sponsor');
-        $sponsor_type = User::where('code', '=', $sponsor)->value('type');
+        $sponsor_id = Sponsorships::where('user_id', '=', $request['id'])->value('sponsor_id');
+        $sponsor_type = Roles::where('id', '=', User::where('id', '=', $sponsor_id)->value('role_id'))->value('name');
         if (strtoupper($sponsor_type) != 'ADMIN')
         {
-            $sponsorID = User::where('code', '=', $sponsor)->value('id');
             $data = ['UserActivatedID'=>$request['id'] ,'UserActivatedName'=>$request['name']]; //fill data array
-            $notif = ['type'=>'UserActivated', 'notifiable_id' => $sponsorID, 'data'=> json_encode($data)]; //fill notif array
+            $notif = ['type'=>'UserActivated', 'user_id' => $sponsor_id, 'data'=> json_encode($data)]; //fill notif array
             $this->store($notif); //call store function
         }
     }
 
     public function KeyRequest($request)
     {
-        $adminsID = User::select('id')->where('type', '=', 'admin')->get();
+        $adminsID = User::select('id')->where('role_id', '=', Roles::where('name', '=', 'admin')->value('id'))->get();
         foreach($adminsID as $adminsID)
         {
                 $data = ['user_id'=>$request['id'] ,'user_name'=>$request['name'], 'user_investment'=> $request['investment'], 'status'=>'pending', 'message'=>$request['name'].' invested amount of '.$request['investment'], 'proof_id'=>$request['proof_id']];
-                $notif = ['type'=>'KeyRequest', 'notifiable_id' => $adminsID->id, 'data'=> json_encode($data)];
+                $notif = ['type'=>'KeyRequest', 'user_id' => $adminsID->id, 'data'=> json_encode($data)];
                 $this->store($notif);
         }
     }
@@ -125,7 +126,7 @@ class NotificationsController extends Controller
     public function getUnreadNotifs(Request $request)
     {
         $toReturn = array();
-        $notif = Notifications::where('notifiable_id', '=', $request['id'])->where('read_at', '=', NULL)->orderBy('created_at', 'desc')->get();
+        $notif = Notifications::where('user_id', '=', $request['id'])->where('read_at', '=', NULL)->orderBy('created_at', 'desc')->get();
         foreach ($notif as $notif)
         {
             $notif->data = (array) json_decode($notif->data);
@@ -140,7 +141,7 @@ class NotificationsController extends Controller
         foreach($adminsID as $adminsID)
         {
                 $data = ['user_id'=>$request['id'] ,'user_name'=>$request['name'], 'encash_amt'=> $request['amount'], 'encash_type'=> $request['type'], 'status'=>'pending', 'message'=>$request['name'].' requested an encashment of '.$request['amount'].' via '.$request['type']];
-                $notif = ['type'=>'EncashRequest', 'notifiable_id' => $adminsID->id, 'data'=> json_encode($data)];
+                $notif = ['type'=>'EncashRequest', 'user_id' => $adminsID->id, 'data'=> json_encode($data)];
                 $this->store($notif);
         }
     }
@@ -163,7 +164,7 @@ class NotificationsController extends Controller
     public function encashmentApproved(Request $request)
     {
         $data = ['approved_by'=>$request['id'], 'message'=>'Your encashment has been approved'];
-        $notif = ['type'=>'EncashApproved', 'notifiable_id' => $request['user_id'], 'data'=> json_encode($data)];
+        $notif = ['type'=>'EncashApproved', 'user_id' => $request['user_id'], 'data'=> json_encode($data)];
         $this->store($notif);
 
         $thisnotif = Notifications::where('id', '=', $request['notif_id'])->get();

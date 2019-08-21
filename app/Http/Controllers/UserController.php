@@ -8,9 +8,10 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 
 use App\Http\Controllers\Controller;
-use App\Http\Controllers\NotifController;
+use App\Http\Controllers\NotificationsController;
 use App\Informations;
 use App\Roles;
+use App\Sponsorships;
 use App\User;
 
 use Cloudder;
@@ -65,12 +66,22 @@ class UserController extends Controller
             //save in User database
             $user = User::create($request->all());
 
+            //save in Information database
             $request['user_id']=$user->id;
             $request['firstname']=strtoupper($request['firstname']);
             $request['lastname']=strtoupper($request['lastname']);
             $request['mi']=strtoupper($request['mi']);
             $info = Informations::create($request->all());
 
+            //save in Sponsorships database
+            foreach($sponsor as $sponsor)
+            {
+                Sponsorships::create([
+                    'user_id'=>$user->id,
+                    'sponsor_id'=>$sponsor->id
+                ]);
+            }
+            
             //for return
             $success['name'] = $user->name;
             $success['id'] = $user->id;
@@ -85,9 +96,9 @@ class UserController extends Controller
             foreach($adminsID as $thisAdmin)
             {
                 $data = ['UserCreatedID'=>$success['id'] ,'UserCreatedName'=>$success['name']]; //fill data array
-                $notif = ['type'=>'UserRegistered', 'notifiable_id' => $thisAdmin->id, 'data'=> json_encode($data)]; //fill notif array
-                $notifcontroller= new NotifController; //initialize NotifController
-                $notifcontroller->store($notif); //call store function of NotifController
+                $notif = ['type'=>'UserRegistered', 'user_id' => $thisAdmin->id, 'data'=> json_encode($data)]; //fill notif array
+                $notifcontroller= new NotificationsController; //initialize NotificationsController
+                $notifcontroller->store($notif); //call store function of NotificationsController
             }
             
             return response()->json(['success' => $success]);
@@ -105,13 +116,14 @@ class UserController extends Controller
 
             $user = User::create($request->all());
             
+            //save in Information database
             $request['user_id']=$user->id;
             $request['firstname']=strtoupper($request['firstname']);
             $request['lastname']=strtoupper($request['lastname']);
             $request['mi']=strtoupper($request['mi']);
             $request['sponsor'] = 'securelife';
             $info=Informations::create($request->all());
-
+            
             $success['name'] = $user->name;
             $success['id'] = $user->id;
             $success['type'] = 'admin';
@@ -157,11 +169,18 @@ class UserController extends Controller
             //save in User database
             $user = User::create($request->all());
 
+            //save in Information database
             $request['user_id']=$user->id;
             $request['firstname']=strtoupper($request['firstname']);
             $request['lastname']=strtoupper($request['lastname']);
             $request['mi']=strtoupper($request['mi']);
             $info = Informations::create($request->all());
+
+            //save in Sponsorships database
+            Sponsorships::create([
+                'user_id'=>$user->id,
+                'sponsor_id'=>$sponsor->id
+            ]);
 
             //for return
             $success['name'] = $user->name;
@@ -177,9 +196,9 @@ class UserController extends Controller
             foreach($adminsID as $thisAdmin)
             {
                 $data = ['UserCreatedID'=>$success['id'] ,'UserCreatedName'=>$success['name']]; //fill data array
-                $notif = ['type'=>'UserRegistered', 'notifiable_id' => $thisAdmin->id, 'data'=> json_encode($data)]; //fill notif array
-                $notifcontroller= new NotifController; //initialize NotifController
-                $notifcontroller->store($notif); //call store function of NotifController
+                $notif = ['type'=>'UserRegistered', 'user_id' => $thisAdmin->id, 'data'=> json_encode($data)]; //fill notif array
+                $notifcontroller= new NotificationsController; //initialize NotificationsController
+                $notifcontroller->store($notif); //call store function of NotificationsController
             }
             
             return response()->json(['success' => $success]);

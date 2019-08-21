@@ -335,7 +335,7 @@
     created() {
         this.retrieveGenealogyTree();
 
-        if (localStorage.getItem('type') == "admin"){
+        if (sessionStorage.getItem('type') == "admin"){
           this.admin = true
         }
         else{
@@ -345,7 +345,7 @@
     },
     
     beforeRouteEnter (to, from, next) {
-        if(localStorage.getItem('type') == "admin"){
+        if(sessionStorage.getItem('type') == "admin"){
           return next('/numbers')
         }
         next();
