@@ -93,7 +93,7 @@ class NotificationsController extends Controller
     public function userActivated($request)
     {
         //get all admin to notify
-        $adminsID = User::select('id')->where('type', '=', 'admin')->get();
+        $adminsID = User::select('id')->where('role_id', '=', Roles::where('name', '=', 'admin')->value('id'))->get();
         foreach($adminsID as $thisAdmin)
         {
             $data = ['UserActivatedID'=>$request['id'] ,'UserActivatedName'=>$request['name']]; //fill data array
@@ -137,7 +137,7 @@ class NotificationsController extends Controller
     
     public function requestEncash(Request $request)
     {
-        $adminsID = User::select('id')->where('type', '=', 'admin')->get();
+        $adminsID = User::select('id')->where('role_id', '=', Roles::where('name', '=', 'admin')->value('id'))->get();
         foreach($adminsID as $adminsID)
         {
                 $data = ['user_id'=>$request['id'] ,'user_name'=>$request['name'], 'encash_amt'=> $request['amount'], 'encash_type'=> $request['type'], 'status'=>'pending', 'message'=>$request['name'].' requested an encashment of '.$request['amount'].' via '.$request['type']];

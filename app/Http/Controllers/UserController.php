@@ -91,7 +91,7 @@ class UserController extends Controller
             $success['status'] = $user->status;
 
             //get all admin to notify
-            $adminsID = User::select('id')->where('type', '=', 'admin')->get();
+        $adminsID = User::select('id')->where('role_id', '=', Roles::where('name', '=', 'admin')->value('id'))->get();
 
             foreach($adminsID as $thisAdmin)
             {
