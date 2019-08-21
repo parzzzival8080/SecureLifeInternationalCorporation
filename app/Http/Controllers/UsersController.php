@@ -9,6 +9,7 @@ use Illuminate\Support\Facades\Hash;
 
 use App\Http\Controllers\Controller;
 use App\Http\Controllers\NotifController;
+use App\Informations;
 use App\Roles;
 use App\User;
 
@@ -57,21 +58,24 @@ class UserController extends Controller
 
             //encrypt password
             $request['name']=strtoupper($request['name']);
-            $request['firstname']=strtoupper($request['firstname']);
-            $request['lastname']=strtoupper($request['lastname']);
-            $request['mi']=strtoupper($request['mi']);
             $request['account_type']='diamond';
             $request['password'] = bcrypt($request['password']);
             $request['role_id']=Roles::where('name', '=', 'user')->value('id');
             
-            //save in database
+            //save in User database
             $user = User::create($request->all());
+
+            $request['user_id']=$user->id;
+            $request['firstname']=strtoupper($request['firstname']);
+            $request['lastname']=strtoupper($request['lastname']);
+            $request['mi']=strtoupper($request['mi']);
+            $info = Informations::create($request->all());
 
             //for return
             $success['name'] = $user->name;
             $success['id'] = $user->id;
-            // $success['type'] = $user->type;
-            $success['photo'] = $user->photo;
+            $success['type'] = 'user';
+            $success['photo'] = $info->photo;
             $success['code'] = $user->code;
             $success['status'] = $user->status;
 
@@ -89,25 +93,29 @@ class UserController extends Controller
             return response()->json(['success' => $success]);
         }
 
-        //if sponsor is SL123456, default admin
+        //if sponsor is SECUREDREAM123456, default admin
         else if (strtoupper($request['sponsor'])=='SECUREDREAM123456'){
             $request['password'] = bcrypt($request['password']); //encrypt password
             
             $request['name']=strtoupper($request['name']);
-            $request['firstname']=strtoupper($request['firstname']);
-            $request['lastname']=strtoupper($request['lastname']);
-            $request['mi']=strtoupper($request['mi']);
             $request['role_id']=Roles::where('name', '=', 'admin')->value('id');
             $request['code']='securelife';
             $request['status']='Active';
-            $request['sponsor'] = 'securelife';
             $request['account_type']='none';
 
             $user = User::create($request->all());
+            
+            $request['user_id']=$user->id;
+            $request['firstname']=strtoupper($request['firstname']);
+            $request['lastname']=strtoupper($request['lastname']);
+            $request['mi']=strtoupper($request['mi']);
+            $request['sponsor'] = 'securelife';
+            $info=Informations::create($request->all());
+
             $success['name'] = $user->name;
             $success['id'] = $user->id;
-            // $success['type'] = $user->type;
-            $success['photo'] = $user->photo;
+            $success['type'] = 'admin';
+            $success['photo'] = $info->photo;
             $success['code'] = $user->code;
             $success['status'] = $user->status;
 
@@ -142,20 +150,24 @@ class UserController extends Controller
 
             //encrypt password
             $request['name']=strtoupper($request['name']);
+            $request['account_type']='bronze';
+            $request['password'] = bcrypt($request['password']);
+            $request['role_id']=Roles::where('name', '=', 'user')->value('id');
+            
+            //save in User database
+            $user = User::create($request->all());
+
+            $request['user_id']=$user->id;
             $request['firstname']=strtoupper($request['firstname']);
             $request['lastname']=strtoupper($request['lastname']);
             $request['mi']=strtoupper($request['mi']);
-            $request['account_type']='bronze';
-            $request['password'] = bcrypt($request['password']);
-            
-            //save in database
-            $user = User::create($request->all());
+            $info = Informations::create($request->all());
 
             //for return
             $success['name'] = $user->name;
             $success['id'] = $user->id;
-            $success['type'] = $user->type;
-            $success['photo'] = $user->photo;
+            $success['type'] = 'user';
+            $success['photo'] = $info->photo;
             $success['code'] = $user->code;
             $success['status'] = $user->status;
 
@@ -180,7 +192,6 @@ class UserController extends Controller
     public function login()
     {
         $user = User::where('username', '=', request('username'))->get();
-        $code = User::where('code', '=', request('username'))->get();
         $email = User::where('email', '=', request('username'))->get();
         //check if credentials are valid
         if (!$user->isEmpty()) {
@@ -194,8 +205,8 @@ class UserController extends Controller
             if (Auth::attempt($credentials)) {
                 $success['name'] = Auth::user()->name;
                 $success['id'] = Auth::user()->id;
-                $success['type'] = Auth::user()->type;
-                $success['photo'] = Auth::user()->photo;
+                $success['type'] = Roles::where('id', '=', Auth::user()->role_id)->value('name');
+                $success['photo'] = Informations::where('user_id', '=', Auth::user()->id)->value('photo');
                 $success['code'] = Auth::user()->code;
                 $success['status'] = Auth::user()->status;
                 // $success['token'] = Auth::user()->createToken('MyApp')->accessToken; //keep this for sample
@@ -214,8 +225,8 @@ class UserController extends Controller
             if (Auth::attempt($credentials)) {
                 $success['name'] = Auth::user()->name;
                 $success['id'] = Auth::user()->id;
-                $success['type'] = Auth::user()->type;
-                $success['photo'] = Auth::user()->photo;
+                $success['type'] = Roles::where('id', '=', Auth::user()->role_id)->value('name');
+                $success['photo'] = Informations::where('user_id', '=', Auth::user()->id)->value('photo');
                 $success['code'] = Auth::user()->code;
                 $success['status'] = Auth::user()->status;
                 // $success['token'] = Auth::user()->createToken('MyApp')->accessToken; //keep this for sample
