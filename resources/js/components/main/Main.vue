@@ -70,6 +70,7 @@
             }
         },
         created(){
+            axios.post('api/roles');
             // this.refresh()
             // document.addEventListener('click', this.refresh)
             // document.addEventListener('mousemove', this.refresh)

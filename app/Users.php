@@ -28,6 +28,10 @@ class User extends Authenticatable
         'email_verified_at' => 'datetime',
     ];
 
+    public function roles() {
+        return $this->belongsTo('App\Roles', 'role_id', 'id');
+    }
+
     // Bronze Package Model Relations
     public function genealogy() {
         return $this->hasOne('App\Genealogy', 'user_id', 'id');
@@ -51,5 +55,29 @@ class User extends Authenticatable
 
     public function wallet() {
         return $this->hasOne('App\Wallets');
+    }
+
+    public function informations() {
+        return $this->hasOne('App\Informations');
+    }
+
+    public function keys() {
+        return $this->hasMany('App\Keys');
+    }
+
+    public function diamondQueues() {
+        return $this->hasMany('App\DiamondQueues');
+    }
+
+    public function notifications() {
+        return $this->hasMany('App\Notifications');
+    }
+
+    public function requests() {
+        return $this->hasMany('App\Requests');
+    }
+
+    public function sponsorships() {
+        return $this->hasMany('App\Sponsorships');
     }
 }

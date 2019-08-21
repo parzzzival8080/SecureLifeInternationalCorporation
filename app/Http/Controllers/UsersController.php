@@ -9,7 +9,7 @@ use Illuminate\Support\Facades\Hash;
 
 use App\Http\Controllers\Controller;
 use App\Http\Controllers\NotifController;
-
+use App\Roles;
 use App\User;
 
 use Cloudder;
@@ -62,6 +62,7 @@ class UserController extends Controller
             $request['mi']=strtoupper($request['mi']);
             $request['account_type']='diamond';
             $request['password'] = bcrypt($request['password']);
+            $request['role_id']=Roles::where('name', '=', 'user')->value('id');
             
             //save in database
             $user = User::create($request->all());
@@ -69,7 +70,7 @@ class UserController extends Controller
             //for return
             $success['name'] = $user->name;
             $success['id'] = $user->id;
-            $success['type'] = $user->type;
+            // $success['type'] = $user->type;
             $success['photo'] = $user->photo;
             $success['code'] = $user->code;
             $success['status'] = $user->status;
@@ -96,7 +97,7 @@ class UserController extends Controller
             $request['firstname']=strtoupper($request['firstname']);
             $request['lastname']=strtoupper($request['lastname']);
             $request['mi']=strtoupper($request['mi']);
-            $request['type']='admin';
+            $request['role_id']=Roles::where('name', '=', 'admin')->value('id');
             $request['code']='securelife';
             $request['status']='Active';
             $request['sponsor'] = 'securelife';
@@ -105,7 +106,7 @@ class UserController extends Controller
             $user = User::create($request->all());
             $success['name'] = $user->name;
             $success['id'] = $user->id;
-            $success['type'] = $user->type;
+            // $success['type'] = $user->type;
             $success['photo'] = $user->photo;
             $success['code'] = $user->code;
             $success['status'] = $user->status;

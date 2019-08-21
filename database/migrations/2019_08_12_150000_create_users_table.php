@@ -18,7 +18,7 @@ class CreateUsersTable extends Migration
             $table->string('name');
             $table->string('email')->unique()->nullable();
             $table->string('username')->unique()->nullable();
-            $table->integer('role_id');
+            $table->biginteger('role_id')->unsigned();
             $table->string('type');
             $table->string('status');
             $table->string('code');
@@ -26,6 +26,11 @@ class CreateUsersTable extends Migration
             $table->string('password');
             $table->rememberToken();
             $table->timestamps();
+            
+            $table->foreign('role_id')
+            ->references('id')
+            ->on('roles')
+            ->onDelete('cascade');
         });
     }
 
