@@ -58,7 +58,7 @@ class UserController extends Controller
 
             //encrypt password
             $request['name']=strtoupper($request['name']);
-            $request['account_type']='diamond';
+            $request['type']='diamond';
             $request['password'] = bcrypt($request['password']);
             $request['role_id']=Roles::where('name', '=', 'user')->value('id');
             
@@ -101,7 +101,7 @@ class UserController extends Controller
             $request['role_id']=Roles::where('name', '=', 'admin')->value('id');
             $request['code']='securelife';
             $request['status']='Active';
-            $request['account_type']='none';
+            $request['type']='none';
 
             $user = User::create($request->all());
             
