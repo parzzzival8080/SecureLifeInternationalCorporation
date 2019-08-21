@@ -20,7 +20,8 @@ class CreateGenealogyMatchPointsTable extends Migration
             $table->bigInteger('flushed_out_matches')->default(0);
             $table->bigInteger('product_points')->default(0);
             $table->bigInteger('incentives_points')->default(0);
-            $table->bigInteger('group_sales_points')->default(0);
+            $table->bigInteger('left_group_sales_points')->default(0);
+            $table->bigInteger('right_group_sales_points')->default(0);
             $table->timestamps();
 
             $table->foreign('genealogy_id')->references('id')->on('genealogies')->onDelete('cascade');

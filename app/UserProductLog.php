@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 class UserProductLog extends Model
 {
     protected $fillable = [
-        'user_id', 'product_id', 'remarks', 'points',
+        'user_id', 'product_id', 'remarks', 'points', 'total'
     ];
 
     public function user() {

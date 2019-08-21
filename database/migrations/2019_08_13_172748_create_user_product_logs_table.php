@@ -17,7 +17,8 @@ class CreateUserProductLogsTable extends Migration
             $table->bigIncrements('id');
             $table->unsignedBigInteger('user_id');
             $table->unsignedBigInteger('product_id');
-            $table->unsignedBigInteger('points')->default(0);
+            $table->bigInteger('points')->default(0);
+            $table->bigInteger('total')->default(0);
             $table->string('remarks')->default('None');
             $table->timestamps();
 
