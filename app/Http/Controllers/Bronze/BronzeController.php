@@ -283,6 +283,7 @@ class BronzeController extends Controller
 
     private function check_upstream_group_sales_2($genea, $points) {
         $upstreams = $this->retrieve_upstream_genea($genea); // Retrieve upstream genea
+        $upstreams = (count($upstreams) > 15) ? array_slice($upstreams, 0, 15) : $upstreams;
         // Iterate over upstream with index
         foreach ($upstreams as $key => $value) {
             // Check if upstream is first item
