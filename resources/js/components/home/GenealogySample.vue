@@ -9,7 +9,7 @@
                 <v-spacer></v-spacer>
               </v-toolbar>
               <v-card-text pa-0 ma-0> 
-                <v-img v-show="Bronze" class="white--text" size="100%" :src="imagesrc">
+                <v-img v-if="Bronze" class="white--text" size="100%" :src="imagesrc">
                     <v-container fill-height fluid pa-0 ma-0>
                         <v-layout fill-height pa-0 ma-0>
                         <v-flex xs12 align-end flexbox>
@@ -239,7 +239,7 @@
                         </v-layout>
                     </v-container>
                 </v-img>
-                <v-layout v-show="!Bronze" xs12 md10 lg10 justify-center>
+                <v-layout v-else xs12 md10 lg10 justify-center>
                     <v-card width="600px">
                         <v-toolbar color="amber darken-3">
                             <v-icon color="white" medium>lock</v-icon>
@@ -251,11 +251,11 @@
                                 <v-container grid-list-sm bt-0>
                                     <!-- Pin Code -->
                                     <v-flex xs12 md12>
-                                        <v-text-field outline id="sponsor" type="text" label="Pin Code" v-model="sponsor" required prepend-inner-icon="group_add"/>
+                                        <v-text-field outline id="sponsor" type="text" label="Pin Code" v-model="sponsor" required prepend-inner-icon="dialpad"/>
                                     </v-flex>
                                      <!-- Activation Code -->
                                     <v-flex xs12 md12>
-                                        <v-text-field outline id="sponsor" type="text" label="Activitaion Code" v-model="sponsor" required prepend-inner-icon="group_add"/>
+                                        <v-text-field outline id="sponsor" type="text" label="Activitaion Code" v-model="sponsor" required prepend-inner-icon="dialpad"/>
                                     </v-flex>
                                      <!-- Sponsor ID -->
                                     <v-flex xs12 md12>
@@ -270,13 +270,12 @@
 
                                             <v-flex xs12 md6>
                                                 <v-select outline id="position" label="Position" :items="items" required prepend-inner-icon="code"/>
-                                                    <!-- <v-select :items="items" label="Outline style" outline required prepend-inner-icon="code"></v-select> -->
                                             </v-flex>
                                         </v-layout>
                                     </v-flex>
 
                                     <v-flex xs12 md12>
-                                        <v-btn large round outline type="submit" color="amber darken-3" @click="">Unlock Bronze</v-btn>
+                                        <v-btn large round outline type="submit" color="amber darken-3">Unlock Bronze</v-btn>
                                     </v-flex>
                                 </v-container>
                             </v-form>
@@ -297,6 +296,7 @@
         sponsor: '',
         email: '',
         Bronze: false,
+        items: ['Left', 'Right']
     }),
 
     computed: {
@@ -335,7 +335,7 @@
     created() {
         this.retrieveGenealogyTree();
 
-        if (sessionStorage.getItem('type') == "admin"){
+        if (localStorage.getItem('type') == "admin"){
           this.admin = true
         }
         else{
@@ -345,7 +345,7 @@
     },
     
     beforeRouteEnter (to, from, next) {
-        if(sessionStorage.getItem('type') == "admin"){
+        if(localStorage.getItem('type') == "admin"){
           return next('/numbers')
         }
         next();
