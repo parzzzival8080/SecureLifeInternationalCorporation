@@ -4,9 +4,12 @@ namespace App\Http\Controllers;
 
 use App\CurrentQueue;
 use App\DiamondQueues;
+use App\Genealogy;
+use App\Http\Controllers\Bronze\BronzeController;
 use App\Keys;
 use App\Roles;
 use App\User;
+use App\UserAccountStatus;
 use App\WalletLogs;
 use App\Wallets;
 use Illuminate\Http\Request;
@@ -41,8 +44,37 @@ class KeysController extends Controller
                 }
                 $key->update(['status' => 'Active']);
                 $request['exit']=$exit;
-                $this->activateKey($request);
-                $msg = true;
+                if (!$request['reference_id'])
+                {
+                    $this->activateKey($request);
+                    $msg = true;
+                }
+                else{
+                    //check genea
+                    $genea = Genealogy::where('user_id', '=', $request['reference_id'])->get();
+
+                    if ($genea->isEmpty())
+                    {
+                        return response()->json(['error' => 'Incorrect Placement ID']);
+                    }
+                    
+                    $genea = Genealogy::where('reference_id', '=', $request['reference_id'])->where('position', '=', $request['position'])->get();
+
+                    if (!$genea->isEmpty())
+                    {
+                        return response()->json(['error' => 'Incorrect Placement ID']);
+                    }
+
+                    UserAccountStatus::create([
+                        'user_id'=>$request['userid'],
+                        'status'=>'active',
+                    ]);
+                    User::where('id', '=', $request['userid'])->update(['status'=>'Active']);
+
+                    $geneaController = new BronzeController;
+                    $geneaController->create_genealogy($request);
+                    $msg = true;
+                }
             }
         }
         else{
@@ -57,8 +89,33 @@ class KeysController extends Controller
             }
             $key->update(['status' => 'Active']);
             $request['exit']=$exit;
-            $this->activateKey($request);
-            $msg = true;
+            if (!$request['reference_id'])
+                {
+                    $this->activateKey($request);
+                    $msg = true;
+                }
+                else{
+                    //check genea
+                    $genea = Genealogy::where('user_id', '=', $request['placement'])->get();
+
+                    if ($genea->isEmpty())
+                    {
+                        return response()->json(['error' => 'Incorrect Placement ID']);
+                    }
+                    
+                    $genea = Genealogy::where('reference_id', '=', $request['placement'])->where('position', '=', $request['position'])->get();
+
+                    if (!$genea->isEmpty())
+                    {
+                        return response()->json(['error' => 'Incorrect Placement ID']);
+                    }
+
+                    User::where('id', '=', $request['id'])->update(['status'=>'Active']);
+
+                    $geneaController = new BronzeController;
+                    $geneaController->create($request);
+                    $msg = true;
+                }
         }
         Keys::where('key', '=', $request['key'])
             ->where('status', '=', 'Inactive')

@@ -305,7 +305,7 @@
                     )
                 });
             },
-            registerBronze(){
+            registerBronze(e){
                 e.preventDefault()
                 //if password is same as confirm password and length is at least 8
                 if (!this.password === this.password_confirmation && !this.password.length >= 8)
@@ -365,6 +365,10 @@
                                 sessionStorage.setItem('name',response.data.success.name) //for display in side nav
                                 sessionStorage.setItem('code',response.data.success.code) //for display in side nav
                                 sessionStorage.setItem('status',response.data.success.status) //determine routing: Inactive=>Activate.vue, Active=>dashboard
+                                sessionStorage.setItem('user_id',response.data.success.user_id) //determine routing: Inactive=>Activate.vue, Active=>dashboard
+                                sessionStorage.setItem('reference_id',response.data.success.reference_id) //determine routing: Inactive=>Activate.vue, Active=>dashboard
+                                sessionStorage.setItem('referal_id',response.data.success.referal_id) //determine routing: Inactive=>Activate.vue, Active=>dashboard
+                                sessionStorage.setItem('position',response.data.success.position) //determine routing: Inactive=>Activate.vue, Active=>dashboard
 
                                 //if there is logged in
                                 if (sessionStorage.getItem('id') != null){

@@ -108,6 +108,35 @@
             },
             submitCode(e){
                 e.preventDefault()
+                if (sessionStorage.getItem('reference_id'))
+                {
+                    axios.get('api/key/checkKey/', {
+                        params: {
+                            userid: sessionStorage.getItem('id'),
+                            key: this.code,
+                            name: sessionStorage.getItem('name'),
+                            email: sessionStorage.getItem('email'),
+                            reference_id: sessionStorage.getItem('reference_id'),
+                            referal_id: sessionStorage.getItem('referal_id'),
+                            position: sessionStorage.getItem('position'),
+                            user_id: sessionStorage.getItem('id'),
+                        }
+                    })
+                    sessionStorage.setItem('status', 'Active')
+                    swal.fire({
+                        allowOutsideClick: false,
+                        title: 'Congratulations!',
+                        text: 'Succesfully Activated',
+                        type: 'success',
+                        showCancelButton: false,
+                        confirmButtonText: 'Okay'
+                    }).then((result)=>{
+                        if(result.value){
+                            this.$router.go('/dashboard')
+                        }
+                    })
+                    return false
+                }
                 //check if key entered is not yet activated
                 axios.get('api/key/checkKey/', {
                     params: {
@@ -117,7 +146,7 @@
                         email: sessionStorage.getItem('email'),
                     }
                 }).then(response => {
-                //check if key entered is bought by user
+                    //check if key entered is bought by user
                     if(response.data.data){
                         axios.post('api/wallet/referralActivated',
                         {
