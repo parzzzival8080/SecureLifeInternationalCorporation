@@ -20,14 +20,15 @@ class WalletsController extends Controller
 
     public function getEarnings(Request $request)
     {
-        $totalinvite = WalletLogs::where('wallet_id', '=', Wallets::where('user_id', '=', $request['id'])->value('id'))->where('remarks', '=', 'Direct Referral')->sum('amount');
-        $totalexit = WalletLogs::where('wallet_id', '=', Wallets::where('user_id', '=', $request['id'])->value('id'))->where('remarks', '=', 'Exit')->sum('amount');
+        $totalinvite = WalletLogs::where('wallet_id', '=', Wallets::where('user_id', '=', $request['id'])->value('id'))->where('remarks', '=', 'Direct Referral Reward')->sum('amount');
+        $totalexit = WalletLogs::where('wallet_id', '=', Wallets::where('user_id', '=', $request['id'])->value('id'))->where('remarks', '=', 'Exit Reward')->sum('amount');
         $totalearning = Wallets::where('user_id', '=', $request['id'])->value('total_earnings');
-        $totalencash = Wallets::where('user_id', '=', $request['id'])->value('current_balance');
+        $availableencash = Wallets::where('user_id', '=', $request['id'])->value('current_balance');
+        $totalencash = WalletLogs::where('wallet_id', '=', Wallets::where('user_id', '=', $request['id'])->value('id'))->where('remarks', '=', 'Encashment')->sum('amount');
         $money = WalletLogs::where('wallet_id', '=', Wallets::where('user_id', '=', $request['id'])->value('id'))->orderBy('created_at', 'DESC')->get();
         return response()->json([
             'totalearnings' => $totalearning,
-            'availableencash' => ($totalearning - ($totalearning*.1)) + $totalencash,
+            'availableencash' => $availableencash,
             'totalinvite' => $totalinvite - ($totalinvite*.1),
             'totalexit' => $totalexit - ($totalexit*.1),
             'totalencash' => $totalencash,
@@ -49,25 +50,26 @@ class WalletsController extends Controller
                 $wallet_id=Wallets::create([
                     'user_id' => $sponsor_id,
                     'total_earnings'=>$investment * .05,
-                    'current_balance'=>$investment * .05 *.10,
+                    'current_balance'=>($investment * .05) - ($investment * .05 *.10),
                 ])->value('id');
             }
             else
             {
-                $total_earnings + ($investment * .05);
+                $total_earnings += $investment * .05;
                 Wallets::where('id', '=', $wallet_id)->update([
                     'total_earnings' => $total_earnings,
-                    'current_balance'=> $total_earnings *.10,
+                    'current_balance'=> $total_earnings - ($total_earnings *.10),
                 ]);
             }
             WalletLogs::create([
                 'wallet_id' => $wallet_id,
                 'amount' => $investment * .05,
-                'remarks' => 'Direct Referral',
+                'remarks' => 'Direct Referral Reward',
             ]);
         }
 
         $notifcontroller = new NotificationsController;
         $notifcontroller->userActivated($request);
+        return $total_earnings;
     }
 }

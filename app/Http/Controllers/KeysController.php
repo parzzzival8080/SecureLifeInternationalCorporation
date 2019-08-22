@@ -5,7 +5,9 @@ namespace App\Http\Controllers;
 use App\CurrentQueue;
 use App\DiamondQueues;
 use App\Keys;
+use App\Roles;
 use App\User;
+use App\WalletLogs;
 use App\Wallets;
 use Illuminate\Http\Request;
 
@@ -87,7 +89,7 @@ class KeysController extends Controller
                     foreach($allqueues as $allqueues){
                         if ($chck>=$allqueues->exit){
                             
-                            $adminIDs = User::where('type', '=', 'admin')->get();
+                            $adminIDs = User::select('id')->where('role_id', '=', Roles::where('name', '=', 'admin')->value('id'))->get();
                     
                             $ctrler = new NotificationsController;
                             $data = ['admin_message'=>$allqueues->name.' has been exited', 'user_message'=>'Congratulation! Your account has been exited'];
@@ -103,11 +105,30 @@ class KeysController extends Controller
                             DiamondQueues::where('id', '=', $allqueues->id)->update(['exited' => '1']);
                             DiamondQueues::create(['user_id' => $allqueues->user_id, 'exit' => $allqueues->exit]);
                             $newexit = $newexit + ($allqueues->exit/5);
-                            Wallets::create([
-                                'user_id' => $allqueues->user_id,
+                            $chck = $chck - $allqueues->exit;
+
+                            $wallet_id = Wallets::where('user_id', '=', $allqueues->user_id)->value('id');
+                            $total_earnings = Wallets::where('user_id', '=', $allqueues->user_id)->value('total_earnings');
+                            if ($wallet_id == 0)
+                            {
+                                $wallet_id=Wallets::create([
+                                    'user_id' => $allqueues->user_id,
+                                    'total_earnings'=>($allqueues->exit/5) * 30000,
+                                    'current_balance'=>($allqueues->exit/5) * 30000 - (($allqueues->exit/5) * 30000 *.10),
+                                ])->value('id');
+                            }
+                            else
+                            {
+                                $total_earnings += ($allqueues->exit/5) * 30000;
+                                Wallets::where('id', '=', $wallet_id)->update([
+                                    'total_earnings' => $total_earnings,
+                                    'current_balance'=> $total_earnings - ($total_earnings *.10),
+                                ]);
+                            }
+                            WalletLogs::create([
+                                'wallet_id' => $wallet_id,
                                 'amount' => ($allqueues->exit/5) * 30000,
-                                'remarks' => 'Exit',
-                                'encashed' => '0',
+                                'remarks' => 'Exit Reward',
                             ]);
                         }
                         else{
