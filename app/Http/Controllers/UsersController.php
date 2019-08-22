@@ -191,6 +191,7 @@ class UserController extends Controller
             
             //check if credentials are valid
             if (Auth::attempt($credentials)) {
+                Auth::login($credentials);
                 $success['name'] = Auth::user()->name;
                 $success['id'] = Auth::user()->id;
                 $success['type'] = Auth::user()->type;

@@ -30,10 +30,6 @@ class Genealogy extends Model
         return $this->hasMany('App\GenealogyMatchLog');
     }
 
-    public function wallet() {
-        return $this->hasOne('App\Wallets');
-    }
-
     public function groupSalesLog() {
         return $this->hasMany('App\GroupSalesLog');
     }

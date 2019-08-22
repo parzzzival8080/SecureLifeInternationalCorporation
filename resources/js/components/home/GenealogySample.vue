@@ -9,7 +9,7 @@
                 <v-spacer></v-spacer>
               </v-toolbar>
               <v-card-text pa-0 ma-0> 
-                <v-img v-show="Bronze" class="white--text" size="100%" :src="imagesrc">
+                <v-img v-if="Bronze" class="white--text" size="100%" :src="imagesrc">
                     <v-container fill-height fluid pa-0 ma-0>
                         <v-layout fill-height pa-0 ma-0>
                         <v-flex xs12 align-end flexbox>
@@ -20,12 +20,12 @@
                                             <v-flex :class="{'xs5 md5': $vuetify.breakpoint.smAndDown, 'xs3 md3': $vuetify.breakpoint.mdAndUp}">
                                                 <v-layout row wrap align-center justify-center>
                                                     <v-flex xs6 md6>
-                                                        <v-card :color="{'amber darken-3': $vuetify.breakpoint.smAndDown, 'subtitle-2 ma-0 pa-0': $vuetify.breakpoint.mdAndUp}" >
+                                                        <v-card color="amber darken-3">
                                                             <v-card-text class="text-xs-center">
                                                             <v-avatar :size="profilesize">
                                                                 <img src="https://res.cloudinary.com/tim0923/image/upload/v1565588396/SecureLife/profile_pictures/user_wvwscz.png" alt="alt">
                                                             </v-avatar>
-                                                            <p :class="{'caption ma-0 pa-0': $vuetify.breakpoint.smAndDown, 'subtitle-2 ma-0 pa-0': $vuetify.breakpoint.mdAndUp}">{{ genealogies[0]['code'] }}</p>
+                                                            <p class="subtitle-2 ma-0 pa-0">{{ genealogies[0]['code'] }}</p>
                                                             </v-card-text>
                                                         </v-card>
                                                     </v-flex>
@@ -239,7 +239,7 @@
                         </v-layout>
                     </v-container>
                 </v-img>
-                <v-layout v-show="!Bronze" xs12 md10 lg10 justify-center>
+                <v-layout v-else xs12 md10 lg10 justify-center>
                     <v-card width="600px">
                         <v-toolbar color="amber darken-3">
                             <v-icon color="white" medium>lock</v-icon>
@@ -251,11 +251,11 @@
                                 <v-container grid-list-sm bt-0>
                                     <!-- Pin Code -->
                                     <v-flex xs12 md12>
-                                        <v-text-field outline id="sponsor" type="text" label="Pin Code" v-model="sponsor" required prepend-inner-icon="group_add"/>
+                                        <v-text-field outline id="sponsor" type="text" label="Pin Code" v-model="sponsor" required prepend-inner-icon="dialpad"/>
                                     </v-flex>
                                      <!-- Activation Code -->
                                     <v-flex xs12 md12>
-                                        <v-text-field outline id="sponsor" type="text" label="Activitaion Code" v-model="sponsor" required prepend-inner-icon="group_add"/>
+                                        <v-text-field outline id="sponsor" type="text" label="Activitaion Code" v-model="sponsor" required prepend-inner-icon="dialpad"/>
                                     </v-flex>
                                      <!-- Sponsor ID -->
                                     <v-flex xs12 md12>
@@ -270,13 +270,12 @@
 
                                             <v-flex xs12 md6>
                                                 <v-select outline id="position" label="Position" :items="items" required prepend-inner-icon="code"/>
-                                                    <!-- <v-select :items="items" label="Outline style" outline required prepend-inner-icon="code"></v-select> -->
                                             </v-flex>
                                         </v-layout>
                                     </v-flex>
 
                                     <v-flex xs12 md12>
-                                        <v-btn large round outline type="submit" color="amber darken-3" @click="">Unlock Bronze</v-btn>
+                                        <v-btn large round outline type="submit" color="amber darken-3">Unlock Bronze</v-btn>
                                     </v-flex>
                                 </v-container>
                             </v-form>
@@ -296,7 +295,8 @@
         genealogies: '',
         sponsor: '',
         email: '',
-        Bronze: false,
+        Bronze: true,
+        items: ['Left', 'Right']
     }),
 
     computed: {
@@ -322,9 +322,10 @@
     
     methods:{
         retrieveGenealogyTree() {
-            axios.get('/api/bronze/genealogy', {params: {user_id: 4}})
+            axios.get('/api/bronze/genealogy', {params: {user_id: localStorage.getItem('id')}})
             .then(response => {
                 this.genealogies = response.data.genealogy_tree
+                console.log(this.genealogies)
             })
             .catch(response => {
                 console.log(response)

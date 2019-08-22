@@ -13,6 +13,7 @@ use App\Wallets as Wallet;
 use App\WalletLogs as WalletLog;
 
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use App\Http\Controllers\Controller;
 
 use App\Http\Resources\Bronze as BronzeResource;
@@ -20,61 +21,70 @@ use App\Http\Resources\Bronze as BronzeResource;
 class BronzeController extends Controller
 {   
     // GET API
-    public function points() {
-        $user = User::find(1); // auth()->user->id; // Get current user object
-        $point = $user->genealogy->genealogyMatchPoint; // Get match point object of current user
-
-        $data = [
-            'product_points' => $point->product_points, // Add user product points to $data
-            'incentives_points' => $point->incentives_points, // Add user incentives points to $data
-            'group_sales_points' => $point->group_sales_points, // Add user group sales points to $data
-        ];
-
-        return new BronzeResource($data); // Return data
+    public function points(Request $request) {
+        if($request->user_id) {
+            $user = User::find($request->user_id); // auth()->user->id; // Get current user object
+            $point = $user->genealogy->genealogyMatchPoint; // Get match point object of current user
+            $data = [
+                'product_points' => $point->product_points, // Add user product points to $data
+                'incentives_points' => $point->incentives_points, // Add user incentives points to $data
+                'left_group_sales_points' => $point->left_group_sales_points, // Add user group sales points to $data
+                'right_group_sales_points' => $point->right_group_sales_points, // Add user group sales points to $data
+            ];
+            return new BronzeResource($data); // Return data
+        }
     }
 
     // GET API
-    public function wallet() {
-        $user = User::find(1); // auth()->user->id; // Get current user object
-        // $genealogy = $user->genealogy; // Get genealogy object of current user
-        // $wallet = $genealogy->bronzeWallet; // Get wallet object of current user
-        $wallet = $user->wallet; // Get wallet object of current user
-        $walletLog = $wallet->walletLog; // Get all wallet logs of current user
-    
-        $data = [
-            'current_balance' => $wallet->current_balance, // Add user current balance to $data
-            'total_earnings' => $wallet->total_earnings, // Add user total earnings to $data
-            'wallet_logs' => $walletLog, // Add user wallet logs to $data
-        ];
-
-        return new BronzeResource($data); // Return data
+    public function wallet(Request $request) {
+        if($request->user_id) {
+            $user = User::find($request->user_id); // auth()->user->id; // Get current user object
+            $wallet = $user->wallet; // Get wallet object of current user
+            $walletLog = $wallet->walletLog; // Get all wallet logs of current user
+            $referalEarnings = WalletLog::where('wallet_id', $wallet->id)->where('remarks', 'Referal Reward')->sum('amount');
+            $matchEarnings = WalletLog::where('wallet_id', $wallet->id)->where('remarks', 'Match Point Reward')->sum('amount');
+        
+            $data = [
+                'current_balance' => $wallet->current_balance, // Add user current balance to $data
+                'total_earnings' => $wallet->total_earnings, // Add user total earnings to $data
+                'referal_earnings' => $referalEarnings, // Add user total earnings to $data
+                'match_earnings' => $matchEarnings, // Add user total earnings to $data
+                'wallet_logs' => $walletLog, // Add user wallet logs to $data
+            ];
+            return new BronzeResource($data); // Return data
+        }
     }
 
     // GET API 
-    public function dashboard() {
-        $user = User::find(1); // auth()->user->id; // Get current user object
-        $genealogy = Genealogy::where('user_id', $user->id)->get()->first();
-        $checkMatchResult = $this->check_match([$genealogy]);
-
-        $total_referal = Genealogy::where('referal_id', $genealogy->id)->get()->count();
-        $product_points = $genealogy->genealogyMatchPoint->product_points;
-        $total_earnings = $user->wallet->total_earnings;
-        $total_balance = $user->wallet->current_balance;
-        $left_downline = $checkMatchResult[0]['left'];
-        $right_downline = $checkMatchResult[0]['right'];
-        $match_count = $checkMatchResult[0]['matches'];
-
-        $data = [
-            'total_referal' => $total_referal, // Add user total earnings to $data  
-            'product_points' => $product_points, // Add user product points to $data
-            'total_earnings' => $total_earnings, // Add user total earnings to $data
-            'total_balance' => $total_balance, // Add user total balance to $data
-            'left_downline' => $left_downline, // Add user left downline to $data
-            'right_downline' => $right_downline, // Add user right downline to $data
-            'match_count' => $match_count, // Add user match count to $data
-        ];
-
-        return new BronzeResource($data); // Return data
+    public function dashboard(Request $request) {
+        if($request->user_id) {
+            $user = User::find($request->user_id); // auth()->user->id; // Get current user object
+            $wallet = $user->wallet; // Get wallet object of current user
+            $genealogy = Genealogy::where('user_id', $user->id)->get()->first();
+            $checkMatchResult = $this->check_match([$genealogy]);
+            $referal_earnings = WalletLog::where('wallet_id', $wallet->id)->where('remarks', 'Referal Reward')->sum('amount');
+            $match_earnings = WalletLog::where('wallet_id', $wallet->id)->where('remarks', 'Match Point Reward')->sum('amount');
+    
+            $product_points = $genealogy->genealogyMatchPoint->product_points;
+            $total_earnings = $user->wallet->total_earnings;
+            $total_balance = $user->wallet->current_balance;
+            $left_downline = $checkMatchResult[0]['left'];
+            $right_downline = $checkMatchResult[0]['right'];
+            $match_count = $checkMatchResult[0]['matches'];
+    
+            $data = [
+                'match_earnings' => $match_earnings,
+                'referal_earnings' => $referal_earnings, // Add user total earnings to $data  
+                'total_earnings' => $total_earnings, // Add user total earnings to $data
+                'total_encashed' => 0, // Add user total earnings to $data
+                'total_balance' => $total_balance, // Add user total balance to $data
+                'match_count' => $match_count, // Add user match count to $data
+                'product_points' => $product_points, // Add user product points to $data
+                'left_downline' => $left_downline, // Add user left downline to $data
+                'right_downline' => $right_downline, // Add user right downline to $data
+            ];
+            return new BronzeResource($data); // Return data
+        }
     }
     
     // GET API, optional params=[user_id]
@@ -82,17 +92,13 @@ class BronzeController extends Controller
         // Check if request contains a user_id
         if($request->user_id) {
             $user = User::find($request->user_id); // Get user object using supplied user_id
-        } else {
-            $user = User::find(1); // auth()->user->id; // Get current user object
+            $genea = $user->genealogy; // Get genealogy object of user
+            $genealogy_tree = $this->genealogy_tree($genea); // Call GeneList function
+            $data = [
+                'genealogy_tree' => $genealogy_tree, // Add user genealogy tree
+            ];
+            return new BronzeResource($data); // Return data
         }
-        $genea = $user->genealogy; // Get genealogy object of user
-        $genealogy_tree = $this->genealogy_tree($genea); // Call GeneList function
-
-        $data = [
-            'genealogy_tree' => $genealogy_tree, // Add user genealogy tree
-        ];
-
-        return new BronzeResource($data); // Return data
     }
 
     // POST API, params = [user_id, reference_id, referal_id, position]
@@ -166,7 +172,7 @@ class BronzeController extends Controller
         return new BronzeResource($data); // Return data
     }
 
-     // PRODUCT PURCHASE API
+     // PRODUCT PURCHASE POST API
     public function product_purchase(Request $request){
         $user = User::find($request->user_id); // Retrieve user object, using user_id
         $product = Product::find($request->product_id); // Retrieve product object, using product_id
@@ -296,33 +302,49 @@ class BronzeController extends Controller
             }
             $geneaMatchPoints->save(); // Save changes
 
-            // $firstMonth = new DateTime('2019-09');
-            // if((date('Y-m-d') >= $firstMonth->format('Y-m-j')) and (date('Y-m-d') <= $firstMonth->format('Y-m-t'))) {
-            //     $check = true;
-            // } else {
-            //     $previousMonth = new DateTime(date('Y-m', strtotime('-1 month')));
-            //     $maintained = UserProductLog::where('user_id', $value->user->id)->whereBetween('created_at', [$previousMonth->format('Y-m-j'), $previousMonth->format('Y-m-t')])->sum('total');
-            //     $check = $maintained >= 1500 ? true : false;
-            // }
+            $left_group_sales = $geneaMatchPoints->left_group_sales_points; // Retrieve left group sales points
+            $right_group_sales = $geneaMatchPoints->right_group_sales_points; // Retrieve right group sales points
 
-            $check = true;
+            if(($left_group_sales >= 500) and ($right_group_sales >= 500)) {
+                $left_group_sales = floor($left_group_sales / 500); // Get the floor equivalent of left group sales divided by 500
+                $right_group_sales = floor($right_group_sales / 500); // Get the floor equivalent of right group sales divided by 500
+                $group_sales = $right_group_sales <= $left_group_sales ? $right_group_sales : $left_group_sales;
 
-            if($check) {
-                $left_group_sales = $geneaMatchPoints->left_group_sales_points; // Retrieve left group sales points
-                $right_group_sales = $geneaMatchPoints->right_group_sales_points; // Retrieve right group sales points
-                // Check if left and right group sales points are greater than 500
-                if(($left_group_sales >= 500) and ($right_group_sales >= 500)) {
-                    $left_group_sales = floor($left_group_sales / 500); // Get the floor equivalent of left group sales divided by 500
-                    $right_group_sales = floor($right_group_sales / 500); // Get the floor equivalent of right group sales divided by 500
-    
-                    // group_sales is equals to right_group_sales if right_group_sales is less than or equals to left_group_sales, else left_group_sales
-                    $group_sales = $right_group_sales <= $left_group_sales ? $right_group_sales : $left_group_sales;
-    
-                    $geneaMatchPoints->incentives_points = (int) $geneaMatchPoints->incentives_points + (int) $group_sales; // Add group sales to incentive points
-                    $geneaMatchPoints->left_group_sales_points = (int) $geneaMatchPoints->left_group_sales_points - ((int) $group_sales * 500); // Deduct total group sales * 500 from left_group_sales_points
-                    $geneaMatchPoints->right_group_sales_points = (int) $geneaMatchPoints->right_group_sales_points - ((int) $group_sales * 500); // Deduct total group sales * 500 from right_group_sales_points
-                    $geneaMatchPoints->save(); // Save changes
+                $firstMonth = new DateTime('2019-09');
+                if((date('Y-m-d') >= $firstMonth->format('Y-m-j')) and (date('Y-m-d') <= $firstMonth->format('Y-m-t'))) {
+                    $check = true;
+                } else {
+                    $previousMonth = new DateTime(date('Y-m', strtotime('-1 month')));
+                    $maintained = UserProductLog::where('user_id', $value->user->id)->whereBetween('created_at', [$previousMonth->format('Y-m-j'), $previousMonth->format('Y-m-t')])->sum('total');
+                    $check = $maintained >= 1500 ? true : false;
                 }
+
+                if($check) {
+                    $geneaWallet = $value->wallet; // Retrieve genea wallet
+                    $geneaWallet->current_balance = (int) $geneaWallet->current_balance + (950 * (int) $group_sales);
+                    $geneaWallet->total_earnings = (int) $geneaWallet->total_earnings + (1000 * (int) $group_sales);
+                    $geneaWallet->save();
+                    $geneaMatchPoints->incentives_points = (int) $geneaMatchPoints->incentives_points + (int) $group_sales; // Add group sales to incentive points
+                    $geneaMatchPoints->save(); // Save changes
+
+                    // Add wallet log
+                    WalletLog::create([
+                        'wallet_id' => $geneaWallet->id,
+                        'amount' => (1000 * (int) $group_sales),
+                        'remarks' => 'Group Sales Match Reward'
+                    ]);
+
+                    // Create group sales log
+                    GroupSalesLog::create([
+                        'genealogy_id' => $value->id,
+                        'matches' => $group_sales,
+                        'remarks' => "Group Sales Match!"
+                    ]);
+                }
+
+                $geneaMatchPoints->left_group_sales_points = (int) $geneaMatchPoints->left_group_sales_points - ((int) $group_sales * 500); // Deduct total group sales * 500 from left_group_sales_points
+                $geneaMatchPoints->right_group_sales_points = (int) $geneaMatchPoints->right_group_sales_points - ((int) $group_sales * 500); // Deduct total group sales * 500 from right_group_sales_points
+                $geneaMatchPoints->save(); // Save changes
             }
         }
     }

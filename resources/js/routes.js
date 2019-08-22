@@ -15,6 +15,7 @@ import Genealogy from './components/home/Genealogy.vue'
 import GenealogySample from './components/home/GenealogySample.vue'
 import Notification from './components/home/Notification.vue'
 import Wallet from './components/home/Wallet.vue'
+import Points from './components/home/Points.vue'
 import Keys from './components/home/Keys.vue'
 import Requests from './components/home/Requests.vue'
 
@@ -38,6 +39,7 @@ export const routes = [
         { path: '/genealogy', components: {home: GenealogySample}},
         { path: '/notification', components: {home: Notification} },
         { path: '/wallet', components: {home: Wallet} },
+        { path: '/points', components: {home: Points} },
         { path: '/keys', components: {home: Keys} },
         { path: '/requests', components: {home: Requests} },
       ]

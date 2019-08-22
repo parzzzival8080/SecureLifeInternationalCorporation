@@ -18,7 +18,7 @@
       </v-dialog>
       <v-list dense expand three-line>
         <!-- Start Navigation List -->
-        <v-list-tile ripple="ripple" exact to="/profile" v-if="!admin">
+        <v-list-tile ripple="ripple" exact to="/profile">
           <v-list-tile-action>
             <v-icon>account_circle</v-icon>
           </v-list-tile-action>
@@ -42,7 +42,7 @@
                 <v-list-tile-title class="subheading font-weight-regular">User List</v-list-tile-title>
             </v-list-tile-content>
         </v-list-tile>
-        <v-list-tile ripple="ripple" exact to="/number" v-if="!admin">
+        <v-list-tile ripple="ripple" exact to="/number" v-if="!admin && !account">
           <v-list-tile-action>
             <v-icon>filter_1</v-icon>
           </v-list-tile-action>
@@ -68,7 +68,7 @@
         </v-list-tile>
         <v-list-tile ripple="ripple" exact to="/requests" v-if="admin">
             <v-list-tile-action>
-                <v-icon>vpn_key</v-icon>
+                <v-icon>move_to_inbox</v-icon>
             </v-list-tile-action>
             <v-list-tile-content>
                 <v-list-tile-title class="subheading font-weight-regular">Requests</v-list-tile-title>
@@ -88,6 +88,14 @@
             </v-list-tile-action>
             <v-list-tile-content>
                 <v-list-tile-title class="subheading font-weight-regular">Wallet</v-list-tile-title>
+            </v-list-tile-content>
+        </v-list-tile>
+        <v-list-tile ripple="ripple" exact to="/points" v-if="!admin && account">
+            <v-list-tile-action>
+                <v-icon>fas fa-coins</v-icon>
+            </v-list-tile-action>
+            <v-list-tile-content>
+                <v-list-tile-title class="subheading font-weight-regular">Points</v-list-tile-title>
             </v-list-tile-content>
         </v-list-tile>
         <v-list-tile>
@@ -189,13 +197,14 @@
       name: localStorage.getItem('name'),
       photo: localStorage.getItem('photo'),
       userId: localStorage.getItem('id'),
+      account: true,
       PicDialog: false,
       drawer: null,
       dark: true,
       allNotifications:[],
       admin: false,
       code: '',
-      pic: ''
+      pic: '',
     }),
     props:['user'],
     
@@ -211,11 +220,14 @@
         });
       },
       refresh(){
-        setTimeout(function()
+        if (localStorage.getItem('id'))
         {
-            localStorage.clear();
-            window.location.replace('/')
-        },30000)
+          setTimeout(function()
+          {
+              localStorage.clear();
+              window.location.replace('/')
+          },100000)
+        }
       }
     },
     created() {
@@ -237,6 +249,7 @@
       // this.refresh()
       // document.addEventListener('click', this.refresh)
       // document.addEventListener('mousemove', this.refresh)
+      // document.addEventListener('keypress', this.refresh)
     },
     beforeRouteEnter (to, from, next) {
       if (!localStorage.getItem('id')) {
