@@ -271,6 +271,7 @@ class SampleController extends Controller
                 'user_id' => $user->id, 
                 'status' => 'active',
             ]);
+            $id++;
         }
     }
 }
