@@ -182,7 +182,7 @@
         totalexit: '',
         EncashAmtDialog: false,
         EncashTypeDialog: false,
-        userID: localStorage.getItem('id'),
+        userID: sessionStorage.getItem('id'),
         encashmentAmt: '',
         encashmentType: '',
         Bronze: true,
@@ -228,7 +228,7 @@
         }
         axios.post('api/notification/requestEncash',{
           id: this.userID,
-          name: localStorage.getItem('name'),
+          name: sessionStorage.getItem('name'),
           amount: this.encashmentAmt,
           type: this.encashmentType
         })

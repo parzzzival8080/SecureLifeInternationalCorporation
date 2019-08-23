@@ -196,7 +196,7 @@
         totalencash: '',
         totalinvite: '',
         totalexit: '',
-        userID: localStorage.getItem('id')
+        userID: sessionStorage.getItem('id')
       }
     },
     methods:{
@@ -221,9 +221,8 @@
       },
     },
     created() {
-      this.retrieveBronzeDashboard()
-
-      if (localStorage.getItem('type') == "admin"){
+      this.retrieveBronzeDashboard
+      if (sessionStorage.getItem('type') == "admin"){
         this.admin = true
       }
       else{
@@ -246,7 +245,7 @@
     },
     
     beforeRouteEnter (to, from, next) {
-        if(localStorage.getItem('type') == "admin"){
+        if(sessionStorage.getItem('type') == "admin"){
           return next('/numbers')
         }
         next();

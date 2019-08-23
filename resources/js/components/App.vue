@@ -13,8 +13,8 @@
             }
         },
         mounted(){
-            this.isLoggedIn = localStorage.getItem('id')
-            this.name = localStorage.getItem('name')
+            this.isLoggedIn = sessionStorage.getItem('id')
+            this.name = sessionStorage.getItem('name')
         }
     }
 </script>

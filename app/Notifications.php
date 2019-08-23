@@ -16,4 +16,8 @@ class Notifications extends Model
         'data',
         'read_at'
     ];
+    
+    public function user() {
+        return $this->belongsTo('App\User', 'id', 'user_id');
+    }
 }

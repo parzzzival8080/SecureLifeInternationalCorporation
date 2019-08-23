@@ -61,17 +61,17 @@
 export default {
   data(){
     return {
-      id: localStorage.getItem('id'),
-      name: localStorage.getItem('name'),
-      email: localStorage.getItem('email'),
-      address: localStorage.getItem('address'),
-      contact: localStorage.getItem('contact'),
-      birthdate: localStorage.getItem('birthdate'),
+      id: sessionStorage.getItem('id'),
+      name: sessionStorage.getItem('name'),
+      email: sessionStorage.getItem('email'),
+      address: sessionStorage.getItem('address'),
+      contact: sessionStorage.getItem('contact'),
+      birthdate: sessionStorage.getItem('birthdate'),
       password: '',
       username: '',
       modal: false,
       show1: false,
-      photo: localStorage.getItem('photo'),
+      photo: sessionStorage.getItem('photo'),
       rules: {
         min: v => v.length >= 8 || 'Min 8 characters'
       }
@@ -92,7 +92,7 @@ export default {
     updateUser(){
       let nopic = true
       this.$Progress.start();
-      if (this.photo != localStorage.getItem('photo')){
+      if (this.photo != sessionStorage.getItem('photo')){
         nopic = false
       }
       if (this.password != ''){
@@ -109,7 +109,7 @@ export default {
         })
         .then(response => {
           if (!nopic){
-            localStorage.setItem('photo', response.data.path)
+            sessionStorage.setItem('photo', response.data.path)
           }
           this.$Progress.finish();
           
@@ -141,7 +141,7 @@ export default {
         })
         .then(response => {
           if (!nopic){
-            localStorage.setItem('photo', response.data.path)
+            sessionStorage.setItem('photo', response.data.path)
           }
 
           swal.fire({

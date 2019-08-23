@@ -20,4 +20,8 @@ class Informations extends Model
         'birthdate',
         'contact',
     ];
+
+    public function user() {
+        return $this->belongsTo('App\User', 'id', 'user_id');
+    }
 }

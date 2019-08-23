@@ -17,7 +17,7 @@ Route::middleware('auth:api')->get('/user', function (Request $request) {
     return $request->user();
 });
 
-
+Route::post('/roles', 'RolesController@create');
 // Route::apiResource('user', 'API\UserController');
 
 //UserController functions
@@ -37,80 +37,79 @@ Route::group(['prefix'=> 'user'], function($router) {
 
 });
 
-//QueueController functions
+//DiamondQueuesController functions
 Route::group(['prefix'=> 'queue'], function($router) {
+    Route::get('/', 'Diamond\DiamondQueuesController@index');
+    Route::get('/getTotal', 'Diamond\DiamondQueuesController@getTotal');
+    Route::get('/getBracket', 'Diamond\DiamondQueuesController@getBracket');
+    Route::get('/configNumber', 'Diamond\DiamondQueuesController@configNumber');
 
-    Route::get('/', 'QueueController@index');
-    Route::get('/getTotal', 'QueueController@getTotal');
-    Route::get('/getBracket', 'QueueController@getBracket');
-    Route::get('/configNumber', 'QueueController@configNumber');
-
-    Route::post('/', 'QueueController@store');
+    Route::post('/', 'Diamond\DiamondQueuesController@store');
 
 });
 
-//KeyController functions
+//KeysController functions
 Route::group(['prefix'=> 'key'], function($router) {
 
-    Route::get('/checkKey', 'KeyController@checkKey');
-    Route::get('/getAllKeys', 'KeyController@getAllKeys');
-    Route::get('/getMyKeys', 'KeyController@getMyKeys');
-    Route::get('/myAccounts', 'KeyController@myAccounts');
+    Route::get('/checkKey', 'KeysController@checkKey');
+    Route::get('/getAllKeys', 'KeysController@getAllKeys');
+    Route::get('/getMyKeys', 'KeysController@getMyKeys');
+    Route::get('/myAccounts', 'KeysController@myAccounts');
     
-    Route::post('/', 'KeyController@store');
+    Route::post('/', 'KeysController@store');
 
-    Route::put('/update/{any}', 'KeyController@update');
+    Route::put('/update/{any}', 'KeysController@update');
 
-    Route::delete('/deletekey/{any}', 'KeyController@destroy');
+    Route::delete('/deletekey/{any}', 'KeysController@destroy');
     
 });
 
-//BracketController functions
+//CurrentQueueController functions
 Route::group(['prefix'=> 'bracket'], function($router) {
 
-    Route::get('/getActiveBracket', 'BracketController@getActiveBracket');
+    Route::get('/getActiveBracket', 'Diamond\CurrentQueueController@getActiveBracket');
 
-    Route::post('/', 'BracketController@store');
+    Route::post('/', 'Diamond\CurrentQueueController@store');
 
 });
 
-//WalletController
+//WalletsController
 Route::group(['prefix'=> 'wallet'], function($router) {
 
-    Route::post('/', 'WalletController@store');
-    Route::post('/referralActivated', 'WalletController@referralActivated');
+    Route::post('/', 'WalletsController@store');
+    Route::post('/referralActivated', 'WalletsController@referralActivated');
 
-    Route::get('/getEarnings', 'WalletController@getEarnings');
+    Route::get('/getEarnings', 'WalletsController@getEarnings');
 
 });
 
-//ProofController
+//RequestsController
 Route::group(['prefix'=> 'proof'], function($router) {
 
-    Route::get('/getRequests', 'ProofController@getRequests');
-    Route::get('/getMyRequests', 'ProofController@getMyRequests');
+    Route::get('/getRequests', 'RequestsController@getRequests');
+    Route::get('/getMyRequests', 'RequestsController@getMyRequests');
     
-    Route::post('/approveRequest', 'ProofController@approveRequest');
-    Route::post('/disapproveRequest', 'ProofController@disapproveRequest');
-    Route::post('/', 'ProofController@store');
+    Route::post('/approveRequest', 'RequestsController@approveRequest');
+    Route::post('/disapproveRequest', 'RequestsController@disapproveRequest');
+    Route::post('/', 'RequestsController@store');
 
-    Route::put('/cancelRequest', 'ProofController@cancelRequest');
+    Route::put('/cancelRequest', 'RequestsController@cancelRequest');
 
 });
 
-//NotifController
+//NotificationsController
 Route::group(['prefix'=> 'notification'], function($router) {
     
-    Route::post('/KeyDisapproved', 'NotifController@KeyDisapproved');
-    Route::post('/KeyRequest', 'NotifController@KeyRequest');
-    Route::post('/requestEncash', 'NotifController@requestEncash');
-    Route::post('/encashmentApproved', 'NotifController@encashmentApproved');
+    Route::post('/KeyDisapproved', 'NotificationsController@KeyDisapproved');
+    Route::post('/KeyRequest', 'NotificationsController@KeyRequest');
+    Route::post('/requestEncash', 'NotificationsController@requestEncash');
+    Route::post('/encashmentApproved', 'NotificationsController@encashmentApproved');
 
-    Route::get('/', 'NotifController@index');
-    Route::get('/getUnreadNotifs', 'NotifController@getUnreadNotifs');
-    Route::get('/getEncashmentRequests', 'NotifController@getEncashmentRequests');
+    Route::get('/', 'NotificationsController@index');
+    Route::get('/getUnreadNotifs', 'NotificationsController@getUnreadNotifs');
+    Route::get('/getEncashmentRequests', 'NotificationsController@getEncashmentRequests');
 
-    Route::put('/read', 'NotifController@read');
+    Route::put('/read', 'NotificationsController@read');
 
 });
 

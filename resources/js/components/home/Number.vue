@@ -77,7 +77,7 @@
         myexit: '',
         num1: '',
         num2: '',
-        thisid: localStorage.getItem('id'),
+        thisid: sessionStorage.getItem('id'),
         proof: '',
         image: '',
         investment: '',
@@ -115,8 +115,8 @@
             return false
         }
         axios.post('api/proof',{
-            name: localStorage.getItem('name'),
-            user_id: localStorage.getItem('id'),
+            name: sessionStorage.getItem('name'),
+            user_id: sessionStorage.getItem('id'),
             image: this.image,
             investment: this.investment,
             status: 'pending',
@@ -137,7 +137,7 @@
             userid: this.thisid,
             key: document.getElementById('key').value,
             name: this.thisname,
-            email: localStorage.getItem('email'),
+            email: sessionStorage.getItem('email'),
           }
         }).then(response => {
           //check if key entered is bought by user

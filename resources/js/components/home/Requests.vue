@@ -32,7 +32,7 @@
             <v-data-table expand :headers="keyHeaders" :items="keys" class="elevation-1">
               <template slot="items" slot-scope="props">
                 <td>{{ props.item.id }}</td>
-                <td class="text-xs-left">{{ props.item.user_id }}</td>
+                <td class="text-xs-left">{{ props.item.user_name }}</td>
                 <td class="text-xs-left">{{ props.item.investment }}</td>
                 <td class="text-xs-left">{{ props.item.status }}</td>
                 <td class="justify-center layout px-0" v-if="props.item.status == 'pending'">
@@ -40,7 +40,7 @@
                     check
                   </v-icon>
                   <v-divider inset vertical></v-divider>
-                  <v-icon medium color="gray" @click="OpenPicDialog(props.item.image)">
+                  <v-icon medium color="gray" @click="OpenPicDialog(props.item.request_image)">
                     visibility_on
                   </v-icon>
                   <v-divider inset vertical></v-divider>
@@ -109,7 +109,7 @@
         keyRequests: true,
         keys: [],
         encashments: [],
-        thisid: localStorage.getItem('id'),
+        thisid: sessionStorage.getItem('id'),
         investment: '',
         notif_id: '',
         user_id: '',

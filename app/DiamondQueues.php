@@ -15,4 +15,8 @@ class DiamondQueues extends Model
         'exit',
         'exited'
     ];
+    
+    public function user() {
+        return $this->belongsTo('App\User', 'id', 'user_id');
+    }
 }
