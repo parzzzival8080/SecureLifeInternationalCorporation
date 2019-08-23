@@ -88,7 +88,7 @@
                     <v-card color="cyan darken-1">
                       <v-card-text class="text-xs-center">
                         <!-- Insert Group Sales Earnings Here -->
-                        <p class="display-2 white--text">₱{{referal_earnings}}.00</p>
+                        <p class="display-2 white--text">₱{{group_sales_earnings}}.00</p>
                         <p class="title">Group Sales Earnings</p>
                       </v-card-text>
                     </v-card>
@@ -167,6 +167,7 @@
       return {
         // Bronze Package
         total_encashed: 0,
+        group_sales_earnings: 0,
         current_balance: 0,
         total_earnings: 0,
         match_earnings: 0,
@@ -198,7 +199,7 @@
     methods: {
 
       retrieveBronzeWallet() {
-        axios.get('/api/bronze/wallet', {params: {user_id: localStorage.getItem('id')}})
+        axios.get('/api/bronze/wallet', {params: {user_id: sessionStorage.getItem('id')}})
         .then(response => {
           console.log(response)
           var data = response.data
@@ -206,6 +207,7 @@
           this.total_earnings = data.total_earnings
           this.match_earnings = data.match_earnings
           this.referal_earnings = data.referal_earnings
+          this.group_sales_earnings = data.group_sales_earnings
           this.wallet_logs = data.wallet_logs
         })
         .catch(response => {

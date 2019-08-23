@@ -201,7 +201,7 @@
     },
     methods:{
       retrieveBronzeDashboard() {
-        axios.get('/api/bronze/dashboard', {params: {user_id: localStorage.getItem('id')}})
+        axios.get('/api/bronze/dashboard', {params: {user_id: sessionStorage.getItem('id')}})
         .then(response => {
           var data = response.data
           this.match_earnings = data.match_earnings

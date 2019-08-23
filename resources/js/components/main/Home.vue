@@ -220,11 +220,11 @@
         });
       },
       refresh(){
-        if (localStorage.getItem('id'))
+        if (sessionStorage.getItem('id'))
         {
           setTimeout(function()
           {
-              localStorage.clear();
+              sessionStorage.clear();
               window.location.replace('/')
           },100000)
         }

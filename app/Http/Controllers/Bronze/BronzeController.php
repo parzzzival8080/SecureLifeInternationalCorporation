@@ -26,10 +26,15 @@ class BronzeController extends Controller
         if($request->user_id) {
             $user = User::find($request->user_id); // auth()->user->id; // Get current user object
             $point = $user->genealogy->genealogyMatchPoint; // Get match point object of current user
-            $productPurchase = (int) UserProductLog::where('user_id', $request->user_id)->sum('total');
+
+            $previousMonth = new DateTime(date('Y-m', strtotime('-1 month')));
+            $product_purchase = UserProductLog::where('user_id', $user->id)->whereBetween('created_at', [$previousMonth->format('Y-m-')."01", $previousMonth->format('Y-m-t')])->sum('total');
+            $product_points = UserProductLog::where('user_id', $user->id)->whereBetween('created_at', [$previousMonth->format('Y-m-')."01", $previousMonth->format('Y-m-t')])->sum('points');
+
+
             $data = [
-                'product_purchase' => $productPurchase, // Add user product points to $data
-                'product_points' => $point->product_points, // Add user product points to $data
+                'product_purchase' => $product_purchase, // Add user product points to $data
+                'product_points' => $product_points, // Add user product points to $data
                 'incentives_points' => $point->incentives_points, // Add user incentives points to $data
                 'left_group_sales_points' => $point->left_group_sales_points, // Add user group sales points to $data
                 'right_group_sales_points' => $point->right_group_sales_points, // Add user group sales points to $data
@@ -46,12 +51,14 @@ class BronzeController extends Controller
             $walletLog = $wallet->walletLog; // Get all wallet logs of current user
             $referalEarnings = WalletLog::where('wallet_id', $wallet->id)->where('remarks', 'Referal Reward')->sum('amount');
             $matchEarnings = WalletLog::where('wallet_id', $wallet->id)->where('remarks', 'Match Point Reward')->sum('amount');
+            $groupSalesEarnings = WalletLog::where('wallet_id', $wallet->id)->where('remarks', 'Group Sales Match Reward')->sum('amount');
         
             $data = [
                 'current_balance' => $wallet->current_balance, // Add user current balance to $data
                 'total_earnings' => $wallet->total_earnings, // Add user total earnings to $data
                 'referal_earnings' => $referalEarnings, // Add user total earnings to $data
                 'match_earnings' => $matchEarnings, // Add user total earnings to $data
+                'group_sales_earnings' => $groupSalesEarnings, // Add user total earnings to $data
                 'wallet_logs' => $walletLog, // Add user wallet logs to $data
             ];
             return new BronzeResource($data); // Return data

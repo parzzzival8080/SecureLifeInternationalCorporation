@@ -323,7 +323,7 @@
     
     methods:{
         retrieveGenealogyTree() {
-            axios.get('/api/bronze/genealogy', {params: {user_id: localStorage.getItem('id')}})
+            axios.get('/api/bronze/genealogy', {params: {user_id: sessionStorage.getItem('id')}})
             .then(response => {
                 this.genealogies = response.data.genealogy_tree
                 // console.log(this.genealogies)
@@ -345,7 +345,7 @@
     created() {
         this.retrieveGenealogyTree();
 
-        if (localStorage.getItem('type') == "admin"){
+        if (sessionStorage.getItem('type') == "admin"){
           this.admin = true
         }
         else{
@@ -355,7 +355,7 @@
     },
     
     beforeRouteEnter (to, from, next) {
-        if(localStorage.getItem('type') == "admin"){
+        if(sessionStorage.getItem('type') == "admin"){
           return next('/numbers')
         }
         next();
