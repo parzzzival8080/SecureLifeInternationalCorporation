@@ -196,12 +196,12 @@
         totalencash: '',
         totalinvite: '',
         totalexit: '',
-        userID: localStorage.getItem('id')
+        userID: sessionStorage.getItem('id')
       }
     },
     methods:{
       retrieveBronzeDashboard() {
-        axios.get('/api/bronze/dashboard', {params: {user_id: localStorage.getItem('id')}})
+        axios.get('/api/bronze/dashboard', {params: {user_id: sessionStorage.getItem('id')}})
         .then(response => {
           var data = response.data
           this.match_earnings = data.match_earnings
@@ -221,9 +221,8 @@
       },
     },
     created() {
-      this.retrieveBronzeDashboard()
-
-      if (localStorage.getItem('type') == "admin"){
+      this.retrieveBronzeDashboard
+      if (sessionStorage.getItem('type') == "admin"){
         this.admin = true
       }
       else{
@@ -246,7 +245,7 @@
     },
     
     beforeRouteEnter (to, from, next) {
-        if(localStorage.getItem('type') == "admin"){
+        if(sessionStorage.getItem('type') == "admin"){
           return next('/numbers')
         }
         next();

@@ -16,4 +16,8 @@ class Keys extends Model
         'investment',
         'status'
     ];
+
+    public function user() {
+        return $this->belongsTo('App\User', 'id', 'user_id');
+    }
 }

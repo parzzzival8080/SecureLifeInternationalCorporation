@@ -49,14 +49,14 @@
                     // For Dashboard Purpose
                     .then(response => {
                         if (response.data.success){
-                                localStorage.setItem('id',response.data.success.id)
-                                localStorage.setItem('type',response.data.success.type)
-                                localStorage.setItem('photo',response.data.success.photo)
-                                localStorage.setItem('name',response.data.success.name)
-                                localStorage.setItem('code',response.data.success.code)
-                                localStorage.setItem('status',response.data.success.status)
+                                sessionStorage.setItem('id',response.data.success.id)
+                                sessionStorage.setItem('type',response.data.success.type)
+                                sessionStorage.setItem('photo',response.data.success.photo)
+                                sessionStorage.setItem('name',response.data.success.name)
+                                sessionStorage.setItem('code',response.data.success.code)
+                                sessionStorage.setItem('status',response.data.success.status)
 
-                            if (localStorage.getItem('id') != null){
+                            if (sessionStorage.getItem('id') != null){
                                 this.$router.go('/dashboard')
                             }
                         }
@@ -75,7 +75,7 @@
             }
         },
         beforeRouteEnter (to, from, next) { 
-            if (localStorage.getItem('id')) {
+            if (sessionStorage.getItem('id')) {
                 return next('dashboard');
             }
 

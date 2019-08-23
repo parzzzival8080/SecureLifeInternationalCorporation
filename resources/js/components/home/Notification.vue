@@ -294,8 +294,8 @@
       modal:false,
       date: '',
       type: 'All',
-      thisid: localStorage.getItem('id'),
-      thisname: localStorage.getItem('name'),
+      thisid: sessionStorage.getItem('id'),
+      thisname: sessionStorage.getItem('name'),
       admintypes: ['All', 'Key Requests', 'User Registrations', 'User Exits'],
       usertypes: ['All', 'Approved Keys', 'Disapproved Keys'],
     }),
@@ -317,7 +317,7 @@
               userid: this.thisid,
               key: document.getElementById('key').value,
               name: this.thisname,
-              email: localStorage.getItem('email'),
+              email: sessionStorage.getItem('email'),
             }
           }).then(response => {
             //check if key entered is bought by user
@@ -362,7 +362,7 @@
         //should call read function
         this.allNotifications=response.data.dta;
       })
-      if (localStorage.getItem('type') == "admin"){
+      if (sessionStorage.getItem('type') == "admin"){
         this.admin = true
       }
       else{

@@ -194,9 +194,9 @@
 <script>
   export default {
     data: () => ({
-      name: localStorage.getItem('name'),
-      photo: localStorage.getItem('photo'),
-      userId: localStorage.getItem('id'),
+      name: sessionStorage.getItem('name'),
+      photo: sessionStorage.getItem('photo'),
+      userId: sessionStorage.getItem('id'),
       account: true,
       PicDialog: false,
       drawer: null,
@@ -210,7 +210,7 @@
     
     methods:{
       logout() {
-        localStorage.clear();
+        sessionStorage.clear();
         window.location.replace('/')
       },
       markAsRead(){
@@ -220,23 +220,23 @@
         });
       },
       refresh(){
-        if (localStorage.getItem('id'))
+        if (sessionStorage.getItem('id'))
         {
           setTimeout(function()
           {
-              localStorage.clear();
+              sessionStorage.clear();
               window.location.replace('/')
           },100000)
         }
       }
     },
     created() {
-      if (localStorage.getItem('type') == "admin"){
+      if (sessionStorage.getItem('type') == "admin"){
           this.admin = true
         }
         else{
           this.admin =  false
-          this.code = localStorage.getItem('code')
+          this.code = sessionStorage.getItem('code')
         }
         axios.get('api/notification/getUnreadNotifs', {
         params: {
@@ -252,11 +252,11 @@
       // document.addEventListener('keypress', this.refresh)
     },
     beforeRouteEnter (to, from, next) {
-      if (!localStorage.getItem('id')) {
+      if (!sessionStorage.getItem('id')) {
           return next('login');
       }
 
-      if (localStorage.getItem('status') == 'Inactive'){
+      if (sessionStorage.getItem('status') == 'Inactive'){
         return next('/activate')
       }
       next();

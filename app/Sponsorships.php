@@ -14,4 +14,8 @@ class Sponsorships extends Model
         'user_id',
         'sponsor_id',
     ];
+
+    public function user() {
+        return $this->belongsTo('App\User');
+    }
 }

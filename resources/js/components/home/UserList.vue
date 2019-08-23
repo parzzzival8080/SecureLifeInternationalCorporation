@@ -227,7 +227,7 @@
             });
         },
       beforeRouteEnter (to, from, next) { 
-          if (localStorage.getItem('type') != "admin") {
+          if (sessionStorage.getItem('type') != "admin") {
             return next('home');
           }
           next();

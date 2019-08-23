@@ -36828,7 +36828,7 @@ if (token) {
 /*! no static exports found */
 /***/ (function(module, exports, __webpack_require__) {
 
-module.exports = __webpack_require__(/*! E:\Repositories\SecurelifeIntlCorp\resources\js\bootstrap.js */"./resources/js/bootstrap.js");
+module.exports = __webpack_require__(/*! E:\Repositories\Sudden\resources\js\bootstrap.js */"./resources/js/bootstrap.js");
 
 
 /***/ })

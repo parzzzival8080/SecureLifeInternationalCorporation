@@ -274,15 +274,15 @@
                             confirmButtonText: 'Okay'
                         }).then((result)=>{
                             if(result.value){
-                                localStorage.setItem('id',response.data.success.id) //to check if there is a logged in user
-                                localStorage.setItem('type',response.data.success.type) //to check if admin or user
-                                localStorage.setItem('photo',response.data.success.photo) //to compare update profile (avoid duplicate of photo)
-                                localStorage.setItem('name',response.data.success.name) //for display in side nav
-                                localStorage.setItem('code',response.data.success.code) //for display in side nav
-                                localStorage.setItem('status',response.data.success.status) //determine routing: Inactive=>Activate.vue, Active=>dashboard
+                                sessionStorage.setItem('id',response.data.success.id) //to check if there is a logged in user
+                                sessionStorage.setItem('type',response.data.success.type) //to check if admin or user
+                                sessionStorage.setItem('photo',response.data.success.photo) //to compare update profile (avoid duplicate of photo)
+                                sessionStorage.setItem('name',response.data.success.name) //for display in side nav
+                                sessionStorage.setItem('code',response.data.success.code) //for display in side nav
+                                sessionStorage.setItem('status',response.data.success.status) //determine routing: Inactive=>Activate.vue, Active=>dashboard
 
                                 //if there is logged in
-                                if (localStorage.getItem('id') != null){
+                                if (sessionStorage.getItem('id') != null){
                                     this.$router.go('/dashboard')
                                 }
                             }
@@ -305,7 +305,7 @@
                     )
                 });
             },
-            registerBronze(){
+            registerBronze(e){
                 e.preventDefault()
                 //if password is same as confirm password and length is at least 8
                 if (!this.password === this.password_confirmation && !this.password.length >= 8)
@@ -359,15 +359,19 @@
                             confirmButtonText: 'Okay'
                         }).then((result)=>{
                             if(result.value){
-                                localStorage.setItem('id',response.data.success.id) //to check if there is a logged in user
-                                localStorage.setItem('type',response.data.success.type) //to check if admin or user
-                                localStorage.setItem('photo',response.data.success.photo) //to compare update profile (avoid duplicate of photo)
-                                localStorage.setItem('name',response.data.success.name) //for display in side nav
-                                localStorage.setItem('code',response.data.success.code) //for display in side nav
-                                localStorage.setItem('status',response.data.success.status) //determine routing: Inactive=>Activate.vue, Active=>dashboard
+                                sessionStorage.setItem('id',response.data.success.id) //to check if there is a logged in user
+                                sessionStorage.setItem('type',response.data.success.type) //to check if admin or user
+                                sessionStorage.setItem('photo',response.data.success.photo) //to compare update profile (avoid duplicate of photo)
+                                sessionStorage.setItem('name',response.data.success.name) //for display in side nav
+                                sessionStorage.setItem('code',response.data.success.code) //for display in side nav
+                                sessionStorage.setItem('status',response.data.success.status) //determine routing: Inactive=>Activate.vue, Active=>dashboard
+                                sessionStorage.setItem('user_id',response.data.success.user_id) //determine routing: Inactive=>Activate.vue, Active=>dashboard
+                                sessionStorage.setItem('reference_id',response.data.success.reference_id) //determine routing: Inactive=>Activate.vue, Active=>dashboard
+                                sessionStorage.setItem('referal_id',response.data.success.referal_id) //determine routing: Inactive=>Activate.vue, Active=>dashboard
+                                sessionStorage.setItem('position',response.data.success.position) //determine routing: Inactive=>Activate.vue, Active=>dashboard
 
                                 //if there is logged in
-                                if (localStorage.getItem('id') != null){
+                                if (sessionStorage.getItem('id') != null){
                                     this.$router.go('/dashboard')
                                 }
                             }
@@ -393,7 +397,7 @@
         },
         beforeRouteEnter (to, from, next) {
             //if user is logged in, direct to dashboard
-            if (localStorage.getItem('id')) {
+            if (sessionStorage.getItem('id')) {
                 return next('dashboard');
             }
 

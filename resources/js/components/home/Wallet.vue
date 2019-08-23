@@ -66,7 +66,7 @@
             <v-flex xs12>
               <v-container grid-list-xl>
                 <v-layout row wrap align-start>
-                  <v-flex xs12 md4>
+                  <v-flex xs12 md3>
                     <v-card color="blue darken-1">
                       <v-card-text class="text-xs-center">
                         <!-- Insert Match Earnings Here -->
@@ -75,8 +75,8 @@
                       </v-card-text>
                     </v-card>
                   </v-flex>
-                  <v-flex xs12 md4>
-                    <v-card color="cyan darken-1">
+                  <v-flex xs12 md3>
+                    <v-card color="light-blue darken-1">
                       <v-card-text class="text-xs-center">
                         <!-- Insert Referal Earnings Here -->
                         <p class="display-2 white--text">₱{{referal_earnings}}.00</p>
@@ -84,7 +84,16 @@
                       </v-card-text>
                     </v-card>
                   </v-flex>
-                  <v-flex xs12 md4>
+                  <v-flex xs12 md3>
+                    <v-card color="cyan darken-1">
+                      <v-card-text class="text-xs-center">
+                        <!-- Insert Group Sales Earnings Here -->
+                        <p class="display-2 white--text">₱{{group_sales_earnings}}.00</p>
+                        <p class="title">Group Sales Earnings</p>
+                      </v-card-text>
+                    </v-card>
+                  </v-flex>
+                  <v-flex xs12 md3>
                     <v-card color="teal darken-1">
                       <v-card-text class="text-xs-center">
                         <!-- Insert Total Earnings -->
@@ -158,6 +167,7 @@
       return {
         // Bronze Package
         total_encashed: 0,
+        group_sales_earnings: 0,
         current_balance: 0,
         total_earnings: 0,
         match_earnings: 0,
@@ -173,7 +183,7 @@
         totalexit: '',
         EncashAmtDialog: false,
         EncashTypeDialog: false,
-        userID: localStorage.getItem('id'),
+        userID: sessionStorage.getItem('id'),
         encashmentAmt: '',
         encashmentType: '',
         Bronze: true,
@@ -189,7 +199,7 @@
     methods: {
 
       retrieveBronzeWallet() {
-        axios.get('/api/bronze/wallet', {params: {user_id: localStorage.getItem('id')}})
+        axios.get('/api/bronze/wallet', {params: {user_id: sessionStorage.getItem('id')}})
         .then(response => {
           console.log(response)
           var data = response.data
@@ -197,6 +207,7 @@
           this.total_earnings = data.total_earnings
           this.match_earnings = data.match_earnings
           this.referal_earnings = data.referal_earnings
+          this.group_sales_earnings = data.group_sales_earnings
           this.wallet_logs = data.wallet_logs
         })
         .catch(response => {
@@ -219,7 +230,7 @@
         }
         axios.post('api/notification/requestEncash',{
           id: this.userID,
-          name: localStorage.getItem('name'),
+          name: sessionStorage.getItem('name'),
           amount: this.encashmentAmt,
           type: this.encashmentType
         })

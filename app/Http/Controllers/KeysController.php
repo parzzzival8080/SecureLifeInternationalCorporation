@@ -3,8 +3,14 @@
 namespace App\Http\Controllers;
 
 use App\CurrentQueue;
-use App\Diamond_Queues;
+use App\DiamondQueues;
+use App\Genealogy;
+use App\Http\Controllers\Bronze\BronzeController;
 use App\Keys;
+use App\Roles;
+use App\User;
+use App\UserAccountStatus;
+use App\WalletLogs;
 use App\Wallets;
 use Illuminate\Http\Request;
 
@@ -38,8 +44,37 @@ class KeysController extends Controller
                 }
                 $key->update(['status' => 'Active']);
                 $request['exit']=$exit;
-                $this->activateKey($request);
-                $msg = true;
+                if (!$request['reference_id'])
+                {
+                    $this->activateKey($request);
+                    $msg = true;
+                }
+                else{
+                    //check genea
+                    $genea = Genealogy::where('user_id', '=', $request['reference_id'])->get();
+
+                    if ($genea->isEmpty())
+                    {
+                        return response()->json(['error' => 'Incorrect Placement ID']);
+                    }
+                    
+                    $genea = Genealogy::where('reference_id', '=', $request['reference_id'])->where('position', '=', $request['position'])->get();
+
+                    if (!$genea->isEmpty())
+                    {
+                        return response()->json(['error' => 'Incorrect Placement ID']);
+                    }
+
+                    UserAccountStatus::create([
+                        'user_id'=>$request['userid'],
+                        'status'=>'active',
+                    ]);
+                    User::where('id', '=', $request['userid'])->update(['status'=>'Active']);
+
+                    $geneaController = new BronzeController;
+                    $geneaController->create_genealogy($request);
+                    $msg = true;
+                }
             }
         }
         else{
@@ -54,8 +89,33 @@ class KeysController extends Controller
             }
             $key->update(['status' => 'Active']);
             $request['exit']=$exit;
-            $this->activateKey($request);
-            $msg = true;
+            if (!$request['reference_id'])
+                {
+                    $this->activateKey($request);
+                    $msg = true;
+                }
+                else{
+                    //check genea
+                    $genea = Genealogy::where('user_id', '=', $request['placement'])->get();
+
+                    if ($genea->isEmpty())
+                    {
+                        return response()->json(['error' => 'Incorrect Placement ID']);
+                    }
+                    
+                    $genea = Genealogy::where('reference_id', '=', $request['placement'])->where('position', '=', $request['position'])->get();
+
+                    if (!$genea->isEmpty())
+                    {
+                        return response()->json(['error' => 'Incorrect Placement ID']);
+                    }
+
+                    User::where('id', '=', $request['id'])->update(['status'=>'Active']);
+
+                    $geneaController = new BronzeController;
+                    $geneaController->create($request);
+                    $msg = true;
+                }
         }
         Keys::where('key', '=', $request['key'])
             ->where('status', '=', 'Inactive')
@@ -67,58 +127,77 @@ class KeysController extends Controller
     public function activateKey(Request $request)
     {
         $msg=false;
-        Diamond_Queues::create(['user_id' => $request['userid'], 'exit' => $request['exit']]);
+        DiamondQueues::create(['user_id' => $request['userid'], 'exit' => $request['exit']]);
         User::findOrFail($request['userid'])->update(['status' => 'Active']);
         $brackets = CurrentQueue::all();
         if ($brackets->isEmpty()){
             CurrentQueue::create([
-                'currentBracket' => '1',
-                'bracketCount' => '0',
+                'queue_id' => '1',
+                'queue_count' => '0',
                 'exit' => $request['exit']
             ]);
         }
         else{
             foreach ($brackets as $bracket) {
-                $chck= $bracket->bracketCount + ($request['exit']/5);
+                $chck= $bracket->queue_count + ($request['exit']/5);
                 if ($chck >= $bracket->exit){
                     $newexit = 0;
-                    $allqueues = Diamond_Queues::where('id', '>=', $bracket->currentBracket)->get();
+                    $allqueues = DiamondQueues::where('id', '>=', $bracket->queue_id)->get();
                     foreach($allqueues as $allqueues){
                         if ($chck>=$allqueues->exit){
                             
-                            $adminIDs = User::where('type', '=', 'admin')->get();
+                            $adminIDs = User::select('id')->where('role_id', '=', Roles::where('name', '=', 'admin')->value('id'))->get();
                     
-                            $ctrler = new NotifController;
+                            $ctrler = new NotificationsController;
                             $data = ['admin_message'=>$allqueues->name.' has been exited', 'user_message'=>'Congratulation! Your account has been exited'];
                             
-                            $notif = ['type'=>'UserExit', 'notifiable_id' => $allqueues->user_id, 'data'=> json_encode($data)];
+                            $notif = ['type'=>'UserExit', 'user_id' => $allqueues->user_id, 'data'=> json_encode($data)];
                             $ctrler->store($notif);
                             foreach ($adminIDs as $adminIDs)
                             {
-                                $notif = ['type'=>'UserExit', 'notifiable_id' => $adminIDs->id, 'data'=> json_encode($data)];
+                                $notif = ['type'=>'UserExit', 'user_id' => $adminIDs->id, 'data'=> json_encode($data)];
                                 $ctrler->store($notif);
                             }
 
-                            Diamond_Queues::where('id', '=', $allqueues->id)->update(['exited' => '1']);
-                            Diamond_Queues::create(['user_id' => $allqueues->user_id, 'exit' => $allqueues->exit]);
+                            DiamondQueues::where('id', '=', $allqueues->id)->update(['exited' => '1']);
+                            DiamondQueues::create(['user_id' => $allqueues->user_id, 'exit' => $allqueues->exit]);
                             $newexit = $newexit + ($allqueues->exit/5);
-                            Wallets::create([
-                                'user_id' => $allqueues->user_id,
+                            $chck = $chck - $allqueues->exit;
+
+                            $wallet_id = Wallets::where('user_id', '=', $allqueues->user_id)->value('id');
+                            $total_earnings = Wallets::where('user_id', '=', $allqueues->user_id)->value('total_earnings');
+                            if ($wallet_id == 0)
+                            {
+                                $wallet_id=Wallets::create([
+                                    'user_id' => $allqueues->user_id,
+                                    'total_earnings'=>($allqueues->exit/5) * 30000,
+                                    'current_balance'=>($allqueues->exit/5) * 30000 - (($allqueues->exit/5) * 30000 *.10),
+                                ])->value('id');
+                            }
+                            else
+                            {
+                                $total_earnings += ($allqueues->exit/5) * 30000;
+                                Wallets::where('id', '=', $wallet_id)->update([
+                                    'total_earnings' => $total_earnings,
+                                    'current_balance'=> $total_earnings - ($total_earnings *.10),
+                                ]);
+                            }
+                            WalletLogs::create([
+                                'wallet_id' => $wallet_id,
                                 'amount' => ($allqueues->exit/5) * 30000,
-                                'remarks' => 'Exit',
-                                'encashed' => '0',
+                                'remarks' => 'Exit Reward',
                             ]);
                         }
                         else{
                             $thisexit= $allqueues->exit;
-                            $bracket->currentBracket = $allqueues->id;
+                            $bracket->queue_id = $allqueues->id;
                             break;
                         }
                     }
-                    $bracket->update(['currentBracket' => $bracket->currentBracket,'bracketCount' => $newexit, 'exit' => $thisexit]);
+                    $bracket->update(['queue_id' => $bracket->queue_id,'queue_count' => $newexit, 'exit' => $thisexit]);
                 }
                 else{
-                    $bracket->update(['bracketCount' => $bracket->bracketCount + ($request['exit']/5)]);
+                    $bracket->update(['queue_count' => $bracket->queue_count + ($request['exit']/5)]);
                 }
             }
         }
