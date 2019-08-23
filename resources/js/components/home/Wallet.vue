@@ -66,7 +66,7 @@
             <v-flex xs12>
               <v-container grid-list-xl>
                 <v-layout row wrap align-start>
-                  <v-flex xs12 md4>
+                  <v-flex xs12 md3>
                     <v-card color="blue darken-1">
                       <v-card-text class="text-xs-center">
                         <!-- Insert Match Earnings Here -->
@@ -75,8 +75,8 @@
                       </v-card-text>
                     </v-card>
                   </v-flex>
-                  <v-flex xs12 md4>
-                    <v-card color="cyan darken-1">
+                  <v-flex xs12 md3>
+                    <v-card color="light-blue darken-1">
                       <v-card-text class="text-xs-center">
                         <!-- Insert Referal Earnings Here -->
                         <p class="display-2 white--text">₱{{referal_earnings}}.00</p>
@@ -84,7 +84,16 @@
                       </v-card-text>
                     </v-card>
                   </v-flex>
-                  <v-flex xs12 md4>
+                  <v-flex xs12 md3>
+                    <v-card color="cyan darken-1">
+                      <v-card-text class="text-xs-center">
+                        <!-- Insert Group Sales Earnings Here -->
+                        <p class="display-2 white--text">₱{{referal_earnings}}.00</p>
+                        <p class="title">Group Sales Earnings</p>
+                      </v-card-text>
+                    </v-card>
+                  </v-flex>
+                  <v-flex xs12 md3>
                     <v-card color="teal darken-1">
                       <v-card-text class="text-xs-center">
                         <!-- Insert Total Earnings -->

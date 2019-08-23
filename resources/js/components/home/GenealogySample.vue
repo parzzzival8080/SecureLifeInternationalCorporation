@@ -40,7 +40,7 @@
                                                     <v-flex xs12 md12>
                                                         <v-layout row wrap align-center justify-center>
                                                                 <v-flex  :class="{'xs5 md5': $vuetify.breakpoint.smAndDown, 'xs3 md3': $vuetify.breakpoint.mdAndUp}">
-                                                                    <v-card color="amber darken-3">
+                                                                    <v-card :color="changecolor(genealogies[1]['code'])">
                                                                         <v-card-text class="text-xs-center">
                                                                         <v-avatar :size="profilesize">
                                                                             <img src="https://res.cloudinary.com/tim0923/image/upload/v1565588396/SecureLife/profile_pictures/user_wvwscz.png" alt="alt">
@@ -58,7 +58,7 @@
                                                     <v-flex xs12 md12>
                                                         <v-layout row wrap align-center justify-center>
                                                                 <v-flex  :class="{'xs5 md5': $vuetify.breakpoint.smAndDown, 'xs3 md3': $vuetify.breakpoint.mdAndUp}">
-                                                                    <v-card color="amber darken-3">
+                                                                    <v-card :color="changecolor(genealogies[2]['code'])">
                                                                         <v-card-text class="text-xs-center">
                                                                         <v-avatar :size="profilesize">
                                                                             <img src="https://res.cloudinary.com/tim0923/image/upload/v1565588396/SecureLife/profile_pictures/user_wvwscz.png" alt="alt">
@@ -78,7 +78,7 @@
                                             <v-flex xs3 md3>
                                             <v-layout row wrap align-center justify-center>
                                                     <v-flex  :class="{'xs10 md10': $vuetify.breakpoint.smAndDown, 'xs6 md6': $vuetify.breakpoint.mdAndUp}">
-                                                        <v-card color="amber darken-3">
+                                                        <v-card :color="changecolor(genealogies[3]['code'])">
                                                             <v-card-text class="text-xs-center">
                                                             <v-avatar :size="profilesize">
                                                                 <img src="https://res.cloudinary.com/tim0923/image/upload/v1565588396/SecureLife/profile_pictures/user_wvwscz.png" alt="alt">
@@ -92,7 +92,7 @@
                                             <v-flex xs3 md3>
                                             <v-layout row wrap align-center justify-center>
                                                     <v-flex  :class="{'xs10 md10': $vuetify.breakpoint.smAndDown, 'xs6 md6': $vuetify.breakpoint.mdAndUp}">
-                                                        <v-card color="amber darken-3">
+                                                        <v-card :color="changecolor(genealogies[4]['code'])">
                                                             <v-card-text class="text-xs-center">
                                                             <v-avatar :size="profilesize">
                                                                 <img src="https://res.cloudinary.com/tim0923/image/upload/v1565588396/SecureLife/profile_pictures/user_wvwscz.png" alt="alt">
@@ -106,7 +106,7 @@
                                             <v-flex xs3 md3>
                                             <v-layout row wrap align-center justify-center>
                                                     <v-flex  :class="{'xs10 md10': $vuetify.breakpoint.smAndDown, 'xs6 md6': $vuetify.breakpoint.mdAndUp}">
-                                                        <v-card color="amber darken-3">
+                                                        <v-card :color="changecolor(genealogies[5]['code'])">
                                                             <v-card-text class="text-xs-center">
                                                             <v-avatar :size="profilesize">
                                                                 <img src="https://res.cloudinary.com/tim0923/image/upload/v1565588396/SecureLife/profile_pictures/user_wvwscz.png" alt="alt">
@@ -120,7 +120,7 @@
                                             <v-flex xs3 md3>
                                             <v-layout row wrap align-center justify-center>
                                                     <v-flex  :class="{'xs10 md10': $vuetify.breakpoint.smAndDown, 'xs6 md6': $vuetify.breakpoint.mdAndUp}">
-                                                        <v-card color="amber darken-3">
+                                                        <v-card :color="changecolor(genealogies[6]['code'])">
                                                             <v-card-text class="text-xs-center">
                                                             <v-avatar :size="profilesize">
                                                                 <img src="https://res.cloudinary.com/tim0923/image/upload/v1565588396/SecureLife/profile_pictures/user_wvwscz.png" alt="alt">
@@ -138,7 +138,7 @@
                                             <v-flex xs3 md3>
                                                 <v-layout row wrap align-start>
                                                     <v-flex xs6 md6>
-                                                        <v-card color="amber darken-3">
+                                                        <v-card :color="changecolor(genealogies[7]['code'])">
                                                             <v-card-text class="text-xs-center">
                                                             <v-avatar :size="profilesize">
                                                                 <img src="https://res.cloudinary.com/tim0923/image/upload/v1565588396/SecureLife/profile_pictures/user_wvwscz.png" alt="alt">
@@ -148,7 +148,7 @@
                                                         </v-card>
                                                     </v-flex>
                                                     <v-flex xs6 md6>
-                                                        <v-card color="amber darken-3">
+                                                        <v-card :color="changecolor(genealogies[8]['code'])">
                                                             <v-card-text class="text-xs-center">
                                                             <v-avatar :size="profilesize">
                                                                 <img src="https://res.cloudinary.com/tim0923/image/upload/v1565588396/SecureLife/profile_pictures/user_wvwscz.png" alt="alt">
@@ -162,7 +162,7 @@
                                             <v-flex xs3 md3>
                                                 <v-layout row wrap align-start>
                                                     <v-flex xs6 md6>
-                                                        <v-card color="amber darken-3">
+                                                        <v-card :color="changecolor(genealogies[9]['code'])">
                                                             <v-card-text class="text-xs-center">
                                                             <v-avatar :size="profilesize">
                                                                 <img src="https://res.cloudinary.com/tim0923/image/upload/v1565588396/SecureLife/profile_pictures/user_wvwscz.png" alt="alt">
@@ -172,7 +172,7 @@
                                                         </v-card>
                                                     </v-flex>
                                                     <v-flex xs6 md6>
-                                                        <v-card color="amber darken-3">
+                                                        <v-card :color="changecolor(genealogies[10]['code'])">
                                                             <v-card-text class="text-xs-center">
                                                             <v-avatar :size="profilesize">
                                                                 <img src="https://res.cloudinary.com/tim0923/image/upload/v1565588396/SecureLife/profile_pictures/user_wvwscz.png" alt="alt">
@@ -186,7 +186,7 @@
                                             <v-flex xs3 md3>
                                                 <v-layout row wrap align-start>
                                                     <v-flex xs6 md6>
-                                                        <v-card color="amber darken-3">
+                                                        <v-card :color="changecolor(genealogies[11]['code'])">
                                                             <v-card-text class="text-xs-center">
                                                             <v-avatar :size="profilesize">
                                                                 <img src="https://res.cloudinary.com/tim0923/image/upload/v1565588396/SecureLife/profile_pictures/user_wvwscz.png" alt="alt">
@@ -196,7 +196,7 @@
                                                         </v-card>
                                                     </v-flex>
                                                     <v-flex xs6 md6>
-                                                        <v-card color="amber darken-3">
+                                                        <v-card :color="changecolor(genealogies[12]['code'])">
                                                             <v-card-text class="text-xs-center">
                                                             <v-avatar :size="profilesize">
                                                                 <img src="https://res.cloudinary.com/tim0923/image/upload/v1565588396/SecureLife/profile_pictures/user_wvwscz.png" alt="alt">
@@ -210,7 +210,7 @@
                                             <v-flex xs3 md3>
                                                 <v-layout row wrap align-start>
                                                     <v-flex xs6 md6>
-                                                        <v-card color="amber darken-3">
+                                                        <v-card :color="changecolor(genealogies[13]['code'])">
                                                             <v-card-text class="text-xs-center">
                                                             <v-avatar :size="profilesize">
                                                                 <img src="https://res.cloudinary.com/tim0923/image/upload/v1565588396/SecureLife/profile_pictures/user_wvwscz.png" alt="alt">
@@ -220,7 +220,7 @@
                                                         </v-card>
                                                     </v-flex>
                                                     <v-flex xs6 md6>
-                                                        <v-card color="amber darken-3">
+                                                        <v-card :color="changecolor(genealogies[14]['code'])">
                                                             <v-card-text class="text-xs-center">
                                                             <v-avatar :size="profilesize">
                                                                 <img src="https://res.cloudinary.com/tim0923/image/upload/v1565588396/SecureLife/profile_pictures/user_wvwscz.png" alt="alt">
@@ -318,6 +318,7 @@
           case 'xl': return 'https://res.cloudinary.com/tim0923/image/upload/v1565862603/svg/Lines_qennnz.svg'
         }
       },
+      
     },
     
     methods:{
@@ -325,12 +326,20 @@
             axios.get('/api/bronze/genealogy', {params: {user_id: localStorage.getItem('id')}})
             .then(response => {
                 this.genealogies = response.data.genealogy_tree
-                console.log(this.genealogies)
+                // console.log(this.genealogies)
             })
             .catch(response => {
                 console.log(response)
             })
+        },
+        changecolor (details) {
+        if (details == "None"){
+          return 'grey darken-3'
         }
+        else{
+          return 'amber darken-3'
+        }
+      },
     },
 
     created() {
