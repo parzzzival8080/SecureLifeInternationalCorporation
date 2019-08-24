@@ -56,7 +56,7 @@ class SampleController extends Controller
                 'role_id' => 2,
                 'type' => 'bronze',
                 'status' => 'active',
-                'code' => 'SLB-'.(1000 + $id),
+                'code' => 'SLB-0'.(1000 + $id),
                 'password' => bcrypt('12341234'),
             ]);
 
@@ -118,15 +118,15 @@ class SampleController extends Controller
         WalletLog::insert(
             array(
                 array('wallet_id' => 1, 'amount' => 500, 'remarks' => 'Referal Reward'),
-                array('wallet_id' => 1, 'amount' => 750, 'remarks' => 'Referal Reward'),
+                array('wallet_id' => 1, 'amount' => 750, 'remarks' => 'Match Point Reward'),
                 array('wallet_id' => 1, 'amount' => 500, 'remarks' => 'Referal Reward'),
                 array('wallet_id' => 2, 'amount' => 500, 'remarks' => 'Referal Reward'),
-                array('wallet_id' => 2, 'amount' => 750, 'remarks' => 'Referal Reward'),
+                array('wallet_id' => 2, 'amount' => 750, 'remarks' => 'Match Point Reward'),
                 array('wallet_id' => 2, 'amount' => 500, 'remarks' => 'Referal Reward'),
-                array('wallet_id' => 1, 'amount' => 750, 'remarks' => 'Referal Reward'),
+                array('wallet_id' => 1, 'amount' => 750, 'remarks' => 'Match Point Reward'),
                 array('wallet_id' => 3, 'amount' => 500, 'remarks' => 'Referal Reward'),
-                array('wallet_id' => 3, 'amount' => 750, 'remarks' => 'Referal Reward'),
-                array('wallet_id' => 1, 'amount' => 750, 'remarks' => 'Referal Reward'),
+                array('wallet_id' => 3, 'amount' => 750, 'remarks' => 'Match Point Reward'),
+                array('wallet_id' => 1, 'amount' => 750, 'remarks' => 'Match Point Reward'),
                 array('wallet_id' => 3, 'amount' => 500, 'remarks' => 'Referal Reward'),
             )
         );
