@@ -30,6 +30,7 @@ class BronzeController extends Controller
             $user_information = $user->informations;
             $wallet = $user->wallet;
             $data =  [
+                'id' => $user->id,
                 'code' => $user->code,
                 'name' => $user->name,
                 'email' => $user->email,
