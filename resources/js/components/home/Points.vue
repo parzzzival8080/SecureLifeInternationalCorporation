@@ -108,8 +108,8 @@
                             <v-flex xs12 md4>
                               <v-card>
                                 <v-card-text class="text-xs-center">
-                                  <v-avatar size="200px">
-                                    <img src="img/car.png" alt="Profile">
+                                  <v-avatar tile size="250px">
+                                    <img src="img/car-montero.png" alt="Profile">
                                   </v-avatar>
                                   <!-- Insert Condition For claim Incentive -->
                                   <v-btn @click="EncashAmtDialog = true" color="primary" round large disabled>Claim</v-btn>
