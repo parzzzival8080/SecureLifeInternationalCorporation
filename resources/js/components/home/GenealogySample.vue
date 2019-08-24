@@ -20,7 +20,7 @@
                                             <v-flex :class="{'xs5 md5': $vuetify.breakpoint.smAndDown, 'xs3 md3': $vuetify.breakpoint.mdAndUp}">
                                                 <v-layout row wrap align-center justify-center>
                                                     <v-flex xs6 md6>
-                                                        <v-card color="amber darken-3">
+                                                        <v-card color="amber darken-3" @click="retrieveGenealogyInformation(genealogies[0]['id'])">
                                                             <v-card-text class="text-xs-center">
                                                             <v-avatar :size="profilesize">
                                                                 <img src="https://res.cloudinary.com/tim0923/image/upload/v1565588396/SecureLife/profile_pictures/user_wvwscz.png" alt="alt">
@@ -292,7 +292,7 @@
 <script>
   export default {
     data: () => ({
-        genealogies: '',
+        genealogies: [],
         sponsor: '',
         email: '',
         Bronze: true,
@@ -322,11 +322,22 @@
     },
     
     methods:{
-        retrieveGenealogyTree() {
-            axios.get('/api/bronze/genealogy', {params: {user_id: sessionStorage.getItem('id')}})
+        retrieveGenealogyInformation(user_id) {
+            axios.get('/api/bronze/genealogy/information', {params: {user_id: user_id}})
             .then(response => {
-                this.genealogies = response.data.genealogy_tree
-                // console.log(this.genealogies)
+                var data = response.data
+                console.log(data)
+            })
+            .catch(response => {
+                console.log(response)
+            })
+        },
+
+        retrieveGenealogyTree(user_id) {
+            axios.get('/api/bronze/genealogy', {params: {user_id: user_id}})
+            .then(response => {
+                var data = response.data
+                this.genealogies = data.genealogy_tree
             })
             .catch(response => {
                 console.log(response)
@@ -343,7 +354,7 @@
     },
 
     created() {
-        this.retrieveGenealogyTree();
+        this.retrieveGenealogyTree(sessionStorage.getItem('id'));
 
         if (sessionStorage.getItem('type') == "admin"){
           this.admin = true

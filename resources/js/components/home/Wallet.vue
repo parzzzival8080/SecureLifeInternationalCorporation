@@ -201,7 +201,6 @@
       retrieveBronzeWallet() {
         axios.get('/api/bronze/wallet', {params: {user_id: sessionStorage.getItem('id')}})
         .then(response => {
-          console.log(response)
           var data = response.data
           this.current_balance = data.current_balance
           this.total_earnings = data.total_earnings
