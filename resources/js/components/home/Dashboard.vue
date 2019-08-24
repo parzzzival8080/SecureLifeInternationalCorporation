@@ -213,7 +213,6 @@
           this.product_points = data.product_points
           this.left_downline = data.left_downline
           this.right_downline = data.right_downline
-          console.log(data)
         })
         .catch(response => {
           console.log(response)
@@ -221,7 +220,8 @@
       },
     },
     created() {
-      this.retrieveBronzeDashboard
+      this.retrieveBronzeDashboard()
+
       if (sessionStorage.getItem('type') == "admin"){
         this.admin = true
       }

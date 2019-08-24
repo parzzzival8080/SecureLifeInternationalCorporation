@@ -21,7 +21,29 @@ use App\Http\Resources\Bronze as BronzeResource;
 
 class BronzeController extends Controller
 {   
-    // GET API
+    // GET API, params=[user_id]
+    public function geanalogy_information(Request $request) {
+        if($request->user_id) {
+            $user = User::find($request->user_id);
+            $genealogy = $user->genealogy;
+            $checkMatchResult = $this->check_match([$genealogy]);
+            $user_information = $user->informations;
+            $wallet = $user->wallet;
+            $data =  [
+                'code' => $user->code,
+                'name' => $user->name,
+                'email' => $user->email,
+                'photo' => $user_information->photo,
+                'downline' => [
+                    'left' => $checkMatchResult[0]['left'],
+                    'right' => $checkMatchResult[0]['right'],
+                ]
+            ];
+            return new BronzeResource($data); // Return data
+        }
+    }
+
+    // POINTS GET API, params=[user_id]
     public function points(Request $request) {
         if($request->user_id) {
             $user = User::find($request->user_id); // auth()->user->id; // Get current user object
@@ -30,7 +52,6 @@ class BronzeController extends Controller
             $previousMonth = new DateTime(date('Y-m', strtotime('-1 month')));
             $product_purchase = UserProductLog::where('user_id', $user->id)->whereBetween('created_at', [$previousMonth->format('Y-m-')."01", $previousMonth->format('Y-m-t')])->sum('total');
             $product_points = UserProductLog::where('user_id', $user->id)->whereBetween('created_at', [$previousMonth->format('Y-m-')."01", $previousMonth->format('Y-m-t')])->sum('points');
-
 
             $data = [
                 'product_purchase' => $product_purchase, // Add user product points to $data
@@ -43,7 +64,7 @@ class BronzeController extends Controller
         }
     }
 
-    // GET API
+    // WALLET GET API, params=[user_id]
     public function wallet(Request $request) {
         if($request->user_id) {
             $user = User::find($request->user_id); // auth()->user->id; // Get current user object
@@ -65,7 +86,7 @@ class BronzeController extends Controller
         }
     }
 
-    // GET API 
+    // DASHBOARD GET API, params=[user_id]
     public function dashboard(Request $request) {
         if($request->user_id) {
             $user = User::find($request->user_id); // auth()->user->id; // Get current user object
@@ -97,7 +118,7 @@ class BronzeController extends Controller
         }
     }
     
-    // GET API, optional params=[user_id]
+    // GENEALOGY GET API, params=[user_id]
     public function genealogy(Request $request) {
         // Check if request contains a user_id
         if($request->user_id) {
@@ -111,7 +132,7 @@ class BronzeController extends Controller
         }
     }
 
-    // POST API, params = [user_id, reference_id, referal_id, position]
+    // CREATE GENEALOGY POST API, params = [user_id, reference_id, referal_id, position]
     public function create_genealogy(Request $request){
         $data = [];
         // Check if user ID already exist
@@ -185,7 +206,7 @@ class BronzeController extends Controller
         return new BronzeResource($data); // Return data
     }
 
-     // PRODUCT PURCHASE POST API
+    // PRODUCT PURCHASE POST API
     public function product_purchase(Request $request){
         $user = User::find($request->user_id); // Retrieve user object, using user_id
         $product = Product::find($request->product_id); // Retrieve product object, using product_id
@@ -198,7 +219,7 @@ class BronzeController extends Controller
         $userMatchPoint->product_points = $productPoints; // Set user product points
         $userMatchPoint->save(); // Save changes
 
-        $this->check_upstream_group_sales_2($user->genealogy, $totalProductPoints); // Run check_upstream_group_sales for uplines
+        $this->check_upstream_group_sales($user->genealogy, $totalProductPoints); // Run check_upstream_group_sales for uplines
 
         // Create new user product log
         $userProductLog = UserProductLog::create([
@@ -226,78 +247,7 @@ class BronzeController extends Controller
         }
     }
 
-    // To be deleted
-    private function check_group_sales($right_genes, $left_genes=[], $right_group_sales=0, $left_group_sales=0, $flag=true) {
-        // Variable to store new left/right genes
-        $new_right_genes = [];
-        $new_left_genes = [];
-
-        // Condition for root gene. If this is the first time the function is called.
-        if($flag) {
-            // Iterate over first parameter
-            foreach($right_genes as $gene) {
-                $children = Genealogy::where('reference_id', $gene->user_id)->get(); // Retrieve children of current gene object
-                // Iterate over children
-                foreach($children as $child) {
-                    // Check child position
-                    if(($child->position) == 'Left') {
-                        $new_left_genes[] = $child; // Add left child to left genes collection/array
-                        $left_group_sales+=$child->genealogyMatchPoint->product_points; // Increament left group sales counter
-                    } elseif(($child->position) == 'Right') {
-                        $new_right_genes[] = $child; // Add right child to right genes collection/array
-                        $right_group_sales+=$child->genealogyMatchPoint->product_points; // Increament right group sales counter
-                    }
-                }
-                return $this->check_group_sales($new_right_genes, $new_left_genes, $right_group_sales, $left_group_sales, false); // Call the function again, passing new parameters
-            }
-        } else {
-            // Iterate over right genes collection/array
-            foreach($right_genes as $gene) {
-                $children = Genealogy::where('reference_id', $gene->user_id)->get(); // Retrieve children of current gene object
-                $children_count = $children->count(); // Count number of children
-                // Iterate over children
-                foreach($children as $child) {
-                    $new_right_genes[] = $child; // Add child to new right genes collection/array
-                    $right_group_sales+=$child->genealogyMatchPoint->product_points; // Increament right group sales counter
-                }
-            }
-            // Iterate over left genes collection/array
-            foreach($left_genes as $gene) {
-                $children = Genealogy::where('reference_id', $gene->user_id)->get(); // Retrieve children of current gene object
-                $children_count = $children->count(); // Count number of children
-                // Iterate over children
-                foreach($children as $child) {
-                    $new_left_genes[] = $child; // Add child to new left genes collection/array
-                    $left_group_sales+=$child->genealogyMatchPoint->product_points; // Increament left group sales counter
-                }
-            }
-            // Check number of items inside left/right genes collection/array. If all are 0 then return an array, else call function again
-            if((count($right_genes)) == 0 || (count($left_genes)) == 0) {
-                if($right_group_sales >= 500 and $left_group_sales >= 500) {
-                    $right_group_sales_point = floor($right_group_sales/500);
-                    $left_group_sales_point = floor($left_group_sales/500);
-
-                    $group_sales = $right_group_sales_point <= $left_group_sales_point ? $right_group_sales_point : $left_group_sales_point;
-
-                    return array([
-                        'group_sales' => $group_sales,
-                        'left' => $left_group_sales,
-                        'right' => $right_group_sales,
-                    ]);
-                } else {
-                    return array([
-                        'group_sales' => 0,
-                        'left' => $left_group_sales,
-                        'right' => $right_group_sales,
-                        ]);
-                }
-            } else {
-                return $this->check_group_sales($new_right_genes, $new_left_genes, $right_group_sales, $left_group_sales, false); // Call the function again, passing new parameters
-            }
-        }
-    }
-
-    private function check_upstream_group_sales_2($genea, $points) {
+    private function check_upstream_group_sales($genea, $points) {
         $upstreams = $this->retrieve_upstream_genea($genea); // Retrieve upstream genea
         $upstreams = (count($upstreams) > 15) ? array_slice($upstreams, 0, 15) : $upstreams;
         // Iterate over upstream with index
@@ -368,47 +318,6 @@ class BronzeController extends Controller
                 $geneaMatchPoints->left_group_sales_points = (int) $geneaMatchPoints->left_group_sales_points - ((int) $group_sales * 500); // Deduct total group sales * 500 from left_group_sales_points
                 $geneaMatchPoints->right_group_sales_points = (int) $geneaMatchPoints->right_group_sales_points - ((int) $group_sales * 500); // Deduct total group sales * 500 from right_group_sales_points
                 $geneaMatchPoints->save(); // Save changes
-            }
-        }
-    }
-
-    // To be deleted
-    private function check_upstream_group_sales($genea) {
-        $upstreams = $this->retrieve_upstream_genea($genea); // Retrieve upstream genea
-        // Perform Check match to each up stream
-        foreach ($upstreams as $genea) {
-            $result = $this->check_group_sales([$genea]);  // Run check_group_sales function to current genea
-            $recent_group_sales = $result[0]['group_sales'];  // Get recent group sales
-            $old_group_sales = GenealogyMatchPoint::select('group_sales_points')->where('genealogy_id', $genea->id)->first()->group_sales_points;  // Get old group sales
-            // Compare recent and old group sales
-            if((int) $old_group_sales < (int) $recent_group_sales) {
-                $salesMatches = (int) $recent_group_sales - (int) $old_group_sales; // Get total recent sales
-                $geneaMatchPoint = $genea->genealogyMatchPoint; // Retrive genealogy match point object of current genea
-                $geneaMatchPoint->group_sales_points = (int) $geneaMatchPoint->group_sales_points + (int) $salesMatches; // Add total recent group sales to old group sales
-                $geneaMatchPoint->save(); // Save updates
-
-                // $geneaWallet = $genea->bronzeWallet; // $geneaWallet = Wallet::where('genealogy_id', $genea->id)->first();
-                $geneaWallet = $genea->user->wallet; // $geneaWallet = Wallet::where('genealogy_id', $genea->id)->first();
-
-                // Retrieve user account status
-                $userAccountStatus = $genea->user->userAccountStatus; // Get user account status
-                $geneaWallet->current_balance = (int) $geneaWallet->current_balance + ((int) $salesMatches * 900);
-                $geneaWallet->total_earnings = (int) $geneaWallet->total_earnings + ((int) $salesMatches * 1000); // Add 1000 to total earnings
-                $geneaWallet->save();
-
-                // Add wallet log
-                WalletLog::create([
-                    'wallet_id' => $geneaWallet->id,
-                    'amount' => 1000,
-                    'remarks' => 'Group Sales Match Reward'
-                ]);
-
-                // Create group sales log
-                GroupSalesLog::create([
-                    'genealogy_id' => $genea->id,
-                    'matches' => $salesMatches,
-                    'remarks' => "Group Sales Match!"
-                ]);
             }
         }
     }
@@ -677,3 +586,115 @@ class BronzeController extends Controller
         return $genealogy_tree;
     }
 }
+
+    // To be deleted
+    // private function check_group_sales($right_genes, $left_genes=[], $right_group_sales=0, $left_group_sales=0, $flag=true) {
+    //     // Variable to store new left/right genes
+    //     $new_right_genes = [];
+    //     $new_left_genes = [];
+
+    //     // Condition for root gene. If this is the first time the function is called.
+    //     if($flag) {
+    //         // Iterate over first parameter
+    //         foreach($right_genes as $gene) {
+    //             $children = Genealogy::where('reference_id', $gene->user_id)->get(); // Retrieve children of current gene object
+    //             // Iterate over children
+    //             foreach($children as $child) {
+    //                 // Check child position
+    //                 if(($child->position) == 'Left') {
+    //                     $new_left_genes[] = $child; // Add left child to left genes collection/array
+    //                     $left_group_sales+=$child->genealogyMatchPoint->product_points; // Increament left group sales counter
+    //                 } elseif(($child->position) == 'Right') {
+    //                     $new_right_genes[] = $child; // Add right child to right genes collection/array
+    //                     $right_group_sales+=$child->genealogyMatchPoint->product_points; // Increament right group sales counter
+    //                 }
+    //             }
+    //             return $this->check_group_sales($new_right_genes, $new_left_genes, $right_group_sales, $left_group_sales, false); // Call the function again, passing new parameters
+    //         }
+    //     } else {
+    //         // Iterate over right genes collection/array
+    //         foreach($right_genes as $gene) {
+    //             $children = Genealogy::where('reference_id', $gene->user_id)->get(); // Retrieve children of current gene object
+    //             $children_count = $children->count(); // Count number of children
+    //             // Iterate over children
+    //             foreach($children as $child) {
+    //                 $new_right_genes[] = $child; // Add child to new right genes collection/array
+    //                 $right_group_sales+=$child->genealogyMatchPoint->product_points; // Increament right group sales counter
+    //             }
+    //         }
+    //         // Iterate over left genes collection/array
+    //         foreach($left_genes as $gene) {
+    //             $children = Genealogy::where('reference_id', $gene->user_id)->get(); // Retrieve children of current gene object
+    //             $children_count = $children->count(); // Count number of children
+    //             // Iterate over children
+    //             foreach($children as $child) {
+    //                 $new_left_genes[] = $child; // Add child to new left genes collection/array
+    //                 $left_group_sales+=$child->genealogyMatchPoint->product_points; // Increament left group sales counter
+    //             }
+    //         }
+    //         // Check number of items inside left/right genes collection/array. If all are 0 then return an array, else call function again
+    //         if((count($right_genes)) == 0 || (count($left_genes)) == 0) {
+    //             if($right_group_sales >= 500 and $left_group_sales >= 500) {
+    //                 $right_group_sales_point = floor($right_group_sales/500);
+    //                 $left_group_sales_point = floor($left_group_sales/500);
+
+    //                 $group_sales = $right_group_sales_point <= $left_group_sales_point ? $right_group_sales_point : $left_group_sales_point;
+
+    //                 return array([
+    //                     'group_sales' => $group_sales,
+    //                     'left' => $left_group_sales,
+    //                     'right' => $right_group_sales,
+    //                 ]);
+    //             } else {
+    //                 return array([
+    //                     'group_sales' => 0,
+    //                     'left' => $left_group_sales,
+    //                     'right' => $right_group_sales,
+    //                     ]);
+    //             }
+    //         } else {
+    //             return $this->check_group_sales($new_right_genes, $new_left_genes, $right_group_sales, $left_group_sales, false); // Call the function again, passing new parameters
+    //         }
+    //     }
+    // }
+
+    // To be deleted
+    // private function check_upstream_group_sales($genea) {
+    //     $upstreams = $this->retrieve_upstream_genea($genea); // Retrieve upstream genea
+    //     // Perform Check match to each up stream
+    //     foreach ($upstreams as $genea) {
+    //         $result = $this->check_group_sales([$genea]);  // Run check_group_sales function to current genea
+    //         $recent_group_sales = $result[0]['group_sales'];  // Get recent group sales
+    //         $old_group_sales = GenealogyMatchPoint::select('group_sales_points')->where('genealogy_id', $genea->id)->first()->group_sales_points;  // Get old group sales
+    //         // Compare recent and old group sales
+    //         if((int) $old_group_sales < (int) $recent_group_sales) {
+    //             $salesMatches = (int) $recent_group_sales - (int) $old_group_sales; // Get total recent sales
+    //             $geneaMatchPoint = $genea->genealogyMatchPoint; // Retrive genealogy match point object of current genea
+    //             $geneaMatchPoint->group_sales_points = (int) $geneaMatchPoint->group_sales_points + (int) $salesMatches; // Add total recent group sales to old group sales
+    //             $geneaMatchPoint->save(); // Save updates
+
+    //             // $geneaWallet = $genea->bronzeWallet; // $geneaWallet = Wallet::where('genealogy_id', $genea->id)->first();
+    //             $geneaWallet = $genea->user->wallet; // $geneaWallet = Wallet::where('genealogy_id', $genea->id)->first();
+
+    //             // Retrieve user account status
+    //             $userAccountStatus = $genea->user->userAccountStatus; // Get user account status
+    //             $geneaWallet->current_balance = (int) $geneaWallet->current_balance + ((int) $salesMatches * 900);
+    //             $geneaWallet->total_earnings = (int) $geneaWallet->total_earnings + ((int) $salesMatches * 1000); // Add 1000 to total earnings
+    //             $geneaWallet->save();
+
+    //             // Add wallet log
+    //             WalletLog::create([
+    //                 'wallet_id' => $geneaWallet->id,
+    //                 'amount' => 1000,
+    //                 'remarks' => 'Group Sales Match Reward'
+    //             ]);
+
+    //             // Create group sales log
+    //             GroupSalesLog::create([
+    //                 'genealogy_id' => $genea->id,
+    //                 'matches' => $salesMatches,
+    //                 'remarks' => "Group Sales Match!"
+    //             ]);
+    //         }
+    //     }
+    // }

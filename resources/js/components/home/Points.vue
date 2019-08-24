@@ -147,14 +147,11 @@
         axios.get('/api/bronze/points', {params: {user_id: sessionStorage.getItem('id')}})
         .then(response => {
           var data = response.data
-          console.log(data)
           this.product_purchase = data.product_purchase
           this.product_points = data.product_points
           this.incentives_points = data.incentives_points
           this.left_group_sales_points = data.left_group_sales_points
           this.right_group_sales_points = data.right_group_sales_points
-
-          // sessionStorage.getItem('id')
         })
         .catch(response => {
           console.log(response)
