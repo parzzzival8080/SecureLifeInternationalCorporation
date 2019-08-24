@@ -21,7 +21,29 @@ use App\Http\Resources\Bronze as BronzeResource;
 
 class BronzeController extends Controller
 {   
-    // GET API
+    // GET API, params=[user_id]
+    public function geanalogy_information(Request $request) {
+        if($request->user_id) {
+            $user = User::find($request->user_id);
+            $genealogy = $user->genealogy;
+            $checkMatchResult = $this->check_match([$genealogy]);
+            $user_information = $user->informations;
+            $wallet = $user->wallet;
+            $data =  [
+                'code' => $user->code,
+                'name' => $user->name,
+                'email' => $user->email,
+                'photo' => $user_information->photo,
+                'downline' => [
+                    'left' => $checkMatchResult[0]['left'],
+                    'right' => $checkMatchResult[0]['right'],
+                ]
+            ];
+            return new BronzeResource($data); // Return data
+        }
+    }
+
+    // POINTS GET API, params=[user_id]
     public function points(Request $request) {
         if($request->user_id) {
             $user = User::find($request->user_id); // auth()->user->id; // Get current user object
@@ -30,7 +52,6 @@ class BronzeController extends Controller
             $previousMonth = new DateTime(date('Y-m', strtotime('-1 month')));
             $product_purchase = UserProductLog::where('user_id', $user->id)->whereBetween('created_at', [$previousMonth->format('Y-m-')."01", $previousMonth->format('Y-m-t')])->sum('total');
             $product_points = UserProductLog::where('user_id', $user->id)->whereBetween('created_at', [$previousMonth->format('Y-m-')."01", $previousMonth->format('Y-m-t')])->sum('points');
-
 
             $data = [
                 'product_purchase' => $product_purchase, // Add user product points to $data
@@ -43,7 +64,7 @@ class BronzeController extends Controller
         }
     }
 
-    // GET API
+    // WALLET GET API, params=[user_id]
     public function wallet(Request $request) {
         if($request->user_id) {
             $user = User::find($request->user_id); // auth()->user->id; // Get current user object
@@ -65,7 +86,7 @@ class BronzeController extends Controller
         }
     }
 
-    // GET API 
+    // DASHBOARD GET API, params=[user_id]
     public function dashboard(Request $request) {
         if($request->user_id) {
             $user = User::find($request->user_id); // auth()->user->id; // Get current user object
@@ -97,7 +118,7 @@ class BronzeController extends Controller
         }
     }
     
-    // GET API, optional params=[user_id]
+    // GENEALOGY GET API, params=[user_id]
     public function genealogy(Request $request) {
         // Check if request contains a user_id
         if($request->user_id) {
