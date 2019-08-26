@@ -285,10 +285,40 @@
                 <v-layout row justify-center>
                     <v-dialog v-model="ProfileDialog" persistent max-width="600px">
                         <v-card>
-                            <v-card-title class="headline">Account Information</v-card-title>
+                            <v-card-title class="headline">Account Information
+                                
+                                <v-spacer></v-spacer>
+                                <v-btn small fab @click="ProfileDialog=false">
+                                <v-icon>close</v-icon>
+                                </v-btn>
+                            </v-card-title>
                             <v-card-text>
-                                <p>{{genealogiesInfo.name}}</p>
-                                <p>{{genealogiesInfo.id}}</p>
+                                <v-container  :grid-list-xl="$vuetify.breakpoint.mdAndUp" :grid-list-xs="$vuetify.breakpoint.smAndDown">
+                                        <v-layout row wrap align-start>
+                                            <v-flex xs6 md6>
+                                            <v-layout row wrap align-center justify-center>
+                                                    <v-flex xs12 md12>
+                                                        <v-avatar size="250px">
+                                                            <img src="https://res.cloudinary.com/tim0923/image/upload/v1565588396/SecureLife/profile_pictures/user_wvwscz.png" alt="alt">
+                                                        </v-avatar>
+                                                    </v-flex>
+                                                </v-layout>
+                                            </v-flex>
+                                            <v-flex xs6 md6>
+                                            <v-layout row wrap align-center justify-center>
+                                                    <v-flex xs12 md12>
+                                                        <v-layout column wrap align-start>
+                                                                <p>{{genealogiesInfo.code}}</p>
+                                                                <p>{{genealogiesInfo.name}}</p>
+                                                                <p>{{genealogiesInfo.email}}</p>
+                                                                <!-- <p>{{genealogiesInfo.downline.left}}</p>
+                                                                <p>{{genealogiesInfo.downline.right}}</p> -->
+                                                        </v-layout>
+                                                    </v-flex>
+                                                </v-layout>
+                                            </v-flex>
+                                        </v-layout>
+                                    </v-container>
                             </v-card-text>
                             <v-card-actions>
                                 <v-spacer></v-spacer>
