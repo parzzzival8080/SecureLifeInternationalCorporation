@@ -464,7 +464,7 @@ class BronzeController extends Controller
     public function genealogy_tree($genea) {
         // 1st Row
         $first_row = [];
-        $first_row[1] = ['id' => $genea->user->id, 'type' => $genea->user->userAccountStatus->status,'code' => $genea->user->code, 'name' => $genea->user->name, 'email' => $genea->user->email, 'photo' => $genea->user->photo, 'position' => 'root', 'referal' => 'none',];
+        $first_row[1] = ['id' => $genea->user->id, 'type' => $genea->user->userAccountStatus->status,'code' => $genea->user->code, 'name' => $genea->user->name, 'email' => $genea->user->email, 'photo' => $genea->user->informations->photo, 'position' => 'root', 'referal' => 'none',];
 
         // 2nd Row
         $second_row = [];
@@ -472,13 +472,13 @@ class BronzeController extends Controller
         $left_child = Genealogy::where('reference_id', $genea->user_id)->where('position', 'Left')->get()->first();
         $second_row[2] = $left_child ? [
             'id' => $left_child->user->id, 'type' => $left_child->user->userAccountStatus->status,'code' => $left_child->user->code, 'name' => $left_child->user->name, 'email' => $left_child->user->email, 
-            'photo' => $left_child->user->photo, 'position' => 'right', 'referal' => [ 'id' => $left_child->reference->id, 'name' => $left_child->reference->name, ],
+            'photo' => $left_child->user->informations->photo, 'position' => 'right', 'referal' => [ 'id' => $left_child->reference->id, 'name' => $left_child->reference->name, ],
         ] : ['id' => 'None', 'type' => 'None', 'code' => 'None', 'name' => 'None', 'email' => 'None', 'photo' => 'None', 'position' => 'None', 'referal' => 'None',];;
 
         $right_child = Genealogy::where('reference_id', $genea->user_id)->where('position', 'Right')->get()->first();
         $second_row[3] = $right_child ? [
             'id' => $right_child->user->id, 'type' => $right_child->user->userAccountStatus->status,'code' => $right_child->user->code, 'name' => $right_child->user->name, 'email' => $right_child->user->email, 
-            'photo' => $right_child->user->photo, 'position' => 'right', 'referal' => [ 'id' => $right_child->reference->id, 'name' => $right_child->reference->name, ],
+            'photo' => $right_child->user->informations->photo, 'position' => 'right', 'referal' => [ 'id' => $right_child->reference->id, 'name' => $right_child->reference->name, ],
         ] : ['id' => 'None', 'type' => 'None', 'code' => 'None', 'name' => 'None', 'email' => 'None', 'photo' => 'None', 'position' => 'None', 'referal' => 'None',];;
 
         // 3rd Row
@@ -490,13 +490,13 @@ class BronzeController extends Controller
             $left_child = Genealogy::where('reference_id', $second_row[2]['id'])->where('position', 'Left')->get()->first();
             $third_row[4] = $left_child ? [
                 'id' => $left_child->user['id'], 'type' => $left_child->user->userAccountStatus->status,'code' => $left_child->user->code, 'name' => $left_child->user->name, 'email' => $left_child->user->email, 
-                'photo' => $left_child->user->photo, 'position' => 'right', 'referal' => [ 'id' => $left_child->reference['id'], 'name' => $left_child->reference->name, ],
+                'photo' => $left_child->user->informations->photo, 'position' => 'right', 'referal' => [ 'id' => $left_child->reference['id'], 'name' => $left_child->reference->name, ],
             ] : ['id' => 'None', 'type' => 'None', 'code' => 'None', 'name' => 'None', 'email' => 'None', 'photo' => 'None', 'position' => 'None', 'referal' => 'None',];
 
             $right_child = Genealogy::where('reference_id', $second_row[2]['id'])->where('position', 'Right')->get()->first();
             $third_row[5] = $right_child ? [
                 'id' => $right_child->user['id'], 'type' => $right_child->user->userAccountStatus->status,'code' => $right_child->user->code, 'name' => $right_child->user->name, 'email' => $right_child->user->email, 
-                'photo' => $right_child->user->photo, 'position' => 'right', 'referal' => [ 'id' => $right_child->reference['id'], 'name' => $right_child->reference->name, ],
+                'photo' => $right_child->user->informations->photo, 'position' => 'right', 'referal' => [ 'id' => $right_child->reference['id'], 'name' => $right_child->reference->name, ],
             ] : ['id' => 'None', 'type' => 'None', 'code' => 'None', 'name' => 'None', 'email' => 'None', 'photo' => 'None', 'position' => 'None', 'referal' => 'None',];
         }
 
@@ -507,13 +507,13 @@ class BronzeController extends Controller
             $left_child = Genealogy::where('reference_id', $second_row[3]['id'])->where('position', 'Left')->get()->first();
             $third_row[6] = $left_child ? [
                 'id' => $left_child->user['id'], 'type' => $left_child->user->userAccountStatus->status,'code' => $left_child->user->code, 'name' => $left_child->user->name, 'email' => $left_child->user->email, 
-                'photo' => $left_child->user->photo, 'position' => 'right', 'referal' => [ 'id' => $left_child->reference['id'], 'name' => $left_child->reference->name, ],
+                'photo' => $left_child->user->informations->photo, 'position' => 'right', 'referal' => [ 'id' => $left_child->reference['id'], 'name' => $left_child->reference->name, ],
             ] : ['id' => 'None', 'type' => 'None', 'code' => 'None', 'name' => 'None', 'email' => 'None', 'photo' => 'None', 'position' => 'None', 'referal' => 'None',];
 
             $right_child = Genealogy::where('reference_id', $second_row[3]['id'])->where('position', 'Right')->get()->first();
             $third_row[7] = $right_child ? [
                 'id' => $right_child->user['id'], 'type' => $right_child->user->userAccountStatus->status,'code' => $right_child->user->code, 'name' => $right_child->user->name, 'email' => $right_child->user->email, 
-                'photo' => $right_child->user->photo, 'position' => 'right', 'referal' => [ 'id' => $right_child->reference['id'], 'name' => $right_child->reference->name, ],
+                'photo' => $right_child->user->informations->photo, 'position' => 'right', 'referal' => [ 'id' => $right_child->reference['id'], 'name' => $right_child->reference->name, ],
             ] : ['id' => 'None', 'type' => 'None', 'code' => 'None', 'name' => 'None', 'email' => 'None', 'photo' => 'None', 'position' => 'None', 'referal' => 'None',];
         }
         
@@ -526,13 +526,13 @@ class BronzeController extends Controller
             $left_child = Genealogy::where('reference_id', $third_row[4]['id'])->where('position', 'Left')->get()->first();
             $fourth_row[8] = $left_child ? [
                 'id' => $left_child->user['id'], 'type' => $left_child->user->userAccountStatus->status,'code' => $left_child->user->code, 'name' => $left_child->user->name, 'email' => $left_child->user->email, 
-                'photo' => $left_child->user->photo, 'position' => 'right', 'referal' => [ 'id' => $left_child->reference['id'], 'name' => $left_child->reference->name, ],
+                'photo' => $left_child->user->informations->photo, 'position' => 'right', 'referal' => [ 'id' => $left_child->reference['id'], 'name' => $left_child->reference->name, ],
             ] : ['id' => 'None', 'type' => 'None', 'code' => 'None', 'name' => 'None', 'email' => 'None', 'photo' => 'None', 'position' => 'None', 'referal' => 'None',];
 
             $right_child = Genealogy::where('reference_id', $third_row[4]['id'])->where('position', 'Right')->get()->first();
             $fourth_row[9] = $right_child ? [
                 'id' => $right_child->user['id'], 'type' => $right_child->user->userAccountStatus->status,'code' => $right_child->user->code, 'name' => $right_child->user->name, 'email' => $right_child->user->email, 
-                'photo' => $right_child->user->photo, 'position' => 'right', 'referal' => [ 'id' => $right_child->reference['id'], 'name' => $right_child->reference->name, ],
+                'photo' => $right_child->user->informations->photo, 'position' => 'right', 'referal' => [ 'id' => $right_child->reference['id'], 'name' => $right_child->reference->name, ],
             ] : ['id' => 'None', 'type' => 'None', 'code' => 'None', 'name' => 'None', 'email' => 'None', 'photo' => 'None', 'position' => 'None', 'referal' => 'None',];
         }
 
@@ -543,12 +543,12 @@ class BronzeController extends Controller
             $left_child = Genealogy::where('reference_id', $third_row[5]['id'])->where('position', 'Left')->get()->first();
             $fourth_row[10] = $left_child ? [
                 'id' => $left_child->user['id'], 'type' => $left_child->user->userAccountStatus->status,'code' => $left_child->user->code, 'name' => $left_child->user->name, 'email' => $left_child->user->email, 
-                'photo' => $left_child->user->photo, 'position' => 'right', 'referal' => [ 'id' => $left_child->reference['id'], 'name' => $left_child->reference->name, ],
+                'photo' => $left_child->user->informations->photo, 'position' => 'right', 'referal' => [ 'id' => $left_child->reference['id'], 'name' => $left_child->reference->name, ],
             ] : ['id' => 'None', 'type' => 'None', 'code' => 'None', 'name' => 'None', 'email' => 'None', 'photo' => 'None', 'position' => 'None', 'referal' => 'None',];
             $right_child = Genealogy::where('reference_id', $third_row[5]['id'])->where('position', 'Right')->get()->first();
             $fourth_row[11] = $right_child ? [
                 'id' => $right_child->user['id'], 'type' => $right_child->user->userAccountStatus->status,'code' => $right_child->user->code, 'name' => $right_child->user->name, 'email' => $right_child->user->email, 
-                'photo' => $right_child->user->photo, 'position' => 'right', 'referal' => [ 'id' => $right_child->reference['id'], 'name' => $right_child->reference->name, ],
+                'photo' => $right_child->user->informations->photo, 'position' => 'right', 'referal' => [ 'id' => $right_child->reference['id'], 'name' => $right_child->reference->name, ],
             ] : ['id' => 'None', 'type' => 'None', 'code' => 'None', 'name' => 'None', 'email' => 'None', 'photo' => 'None', 'position' => 'None', 'referal' => 'None',];
         }
 
@@ -559,12 +559,12 @@ class BronzeController extends Controller
             $left_child = Genealogy::where('reference_id', $third_row[6]['id'])->where('position', 'Left')->get()->first();
             $fourth_row[12] = $left_child ? [
                 'id' => $left_child->user['id'], 'type' => $left_child->user->userAccountStatus->status,'code' => $left_child->user->code, 'name' => $left_child->user->name, 'email' => $left_child->user->email, 
-                'photo' => $left_child->user->photo, 'position' => 'right', 'referal' => [ 'id' => $left_child->reference['id'], 'name' => $left_child->reference->name, ],
+                'photo' => $left_child->user->informations->photo, 'position' => 'right', 'referal' => [ 'id' => $left_child->reference['id'], 'name' => $left_child->reference->name, ],
             ] : ['id' => 'None', 'type' => 'None', 'code' => 'None', 'name' => 'None', 'email' => 'None', 'photo' => 'None', 'position' => 'None', 'referal' => 'None',];
             $right_child = Genealogy::where('reference_id', $third_row[6]['id'])->where('position', 'Right')->get()->first();
             $fourth_row[13] = $right_child ? [
                 'id' => $right_child->user['id'], 'type' => $right_child->user->userAccountStatus->status,'code' => $right_child->user->code, 'name' => $right_child->user->name, 'email' => $right_child->user->email, 
-                'photo' => $right_child->user->photo, 'position' => 'right', 'referal' => [ 'id' => $right_child->reference['id'], 'name' => $right_child->reference->name, ],
+                'photo' => $right_child->user->informations->photo, 'position' => 'right', 'referal' => [ 'id' => $right_child->reference['id'], 'name' => $right_child->reference->name, ],
             ] : ['id' => 'None', 'type' => 'None', 'code' => 'None', 'name' => 'None', 'email' => 'None', 'photo' => 'None', 'position' => 'None', 'referal' => 'None',];
         }
 
@@ -575,12 +575,12 @@ class BronzeController extends Controller
             $left_child = Genealogy::where('reference_id', $third_row[7]['id'])->where('position', 'Left')->get()->first();
             $fourth_row[14] = $left_child ? [
                 'id' => $left_child->user['id'], 'type' => $left_child->user->userAccountStatus->status,'code' => $left_child->user->code, 'name' => $left_child->user->name, 'email' => $left_child->user->email, 
-                'photo' => $left_child->user->photo, 'position' => 'right', 'referal' => [ 'id' => $left_child->reference['id'], 'name' => $left_child->reference->name, ],
+                'photo' => $left_child->user->informations->photo, 'position' => 'right', 'referal' => [ 'id' => $left_child->reference['id'], 'name' => $left_child->reference->name, ],
             ] : ['id' => 'None', 'type' => 'None', 'code' => 'None', 'name' => 'None', 'email' => 'None', 'photo' => 'None', 'position' => 'None', 'referal' => 'None',];
             $right_child = Genealogy::where('reference_id', $third_row[7]['id'])->where('position', 'Right')->get()->first();
             $fourth_row[15] = $right_child ? [
                 'id' => $right_child->user['id'], 'type' => $right_child->user->userAccountStatus->status,'code' => $right_child->user->code, 'name' => $right_child->user->name, 'email' => $right_child->user->email, 
-                'photo' => $right_child->user->photo, 'position' => 'right', 'referal' => [ 'id' => $right_child->reference['id'], 'name' => $right_child->reference->name, ],
+                'photo' => $right_child->user->informations->photo, 'position' => 'right', 'referal' => [ 'id' => $right_child->reference['id'], 'name' => $right_child->reference->name, ],
             ] : ['id' => 'None', 'type' => 'None', 'code' => 'None', 'name' => 'None', 'email' => 'None', 'photo' => 'None', 'position' => 'None', 'referal' => 'None',];
         }
 
