@@ -56,7 +56,7 @@ class SampleController extends Controller
                 'role_id' => 2,
                 'type' => 'bronze',
                 'status' => 'active',
-                'code' => 'SLB-0'.(1000 + $id),
+                'code' => 'SLB-0'.str_pad($id,5,0,STR_PAD_LEFT),
                 'password' => bcrypt('12341234'),
             ]);
 

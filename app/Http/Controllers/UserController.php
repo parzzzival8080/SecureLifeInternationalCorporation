@@ -14,13 +14,13 @@ use App\Http\Controllers\NotificationsController;
 use App\Informations;
 use App\Roles;
 use App\Sponsorships;
+use App\TemporaryGenea;
 use App\User;
 
 use Cloudder;
 
 class UserController extends Controller
 {
-    
     public function index()
     {
         $user = User::all();
@@ -159,18 +159,21 @@ class UserController extends Controller
         //check if sponsor is valid
         $sponsor= User::where('code', '=', $request['sponsor'])->get();
 
+        $request['reference_id'] = User::where('code', '=', $request['sponsor'])->value('id');
+        $request['referal_id'] = User::where('code', '=', $request['sponsor'])->value('id');
+        
         //if sponsor is valid
         if (!$sponsor->isEmpty()){
 
             //check genea
-            $genea = Genealogy::where('user_id', '=', $request['placement'])->get();
+            $genea = Genealogy::where('user_id', '=', $request['referal_id'])->get();
 
             if ($genea->isEmpty())
             {
                 return response()->json(['error' => 'Incorrect Placement ID']);
             }
             
-            $genea = Genealogy::where('reference_id', '=', $request['placement'])->where('position', '=', $request['position'])->get();
+            $genea = Genealogy::where('reference_id', '=', $request['referal_id'])->where('position', '=', $request['position'])->get();
 
             if (!$genea->isEmpty())
             {
@@ -202,11 +205,10 @@ class UserController extends Controller
                 ]);
             }
 
-            // $request['reference_id']=$request['placement'];
-            // $request['referal_id']=User::where('code', '=', $request['sponsor'])->value('id');
-
             // $geneaController = new BronzeController;
             // $geneaController->create($request);
+
+            TemporaryGenea::create($request->all());
 
             //for return
             $success['name'] = $user->name;
@@ -215,8 +217,8 @@ class UserController extends Controller
             $success['photo'] = $info->photo;
             $success['code'] = $user->code;
             $success['status'] = $user->status;
-            $success['reference_id'] = $request['placement'];
-            $success['referal_id'] = User::where('code', '=', $request['sponsor'])->value('id');
+            $success['reference_id'] = $request['reference_id'];
+            $success['referal_id'] = $request['referal_id'];
             $success['position'] = $request['position'];
 
             //get all admin to notify
