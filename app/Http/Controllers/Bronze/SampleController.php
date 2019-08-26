@@ -61,7 +61,7 @@ class SampleController extends Controller
             ]);
 
             $name = explode(" ", $item['name']);
-            $information = Informations::create([
+            Informations::create([
                 'user_id' => $user->id,
                 'firstname' => $name[0],
                 'lastname' => $name[0],
@@ -72,7 +72,7 @@ class SampleController extends Controller
                 'contact' => '',
             ]);
 
-            $userAccountStatus = UserAccountStatus::create([
+            UserAccountStatus::create([
                 'user_id' => $user->id, 
                 'status' => 'active',
             ]);

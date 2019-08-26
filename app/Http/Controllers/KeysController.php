@@ -211,12 +211,7 @@ class KeysController extends Controller
 
     public function store(Request $request)
     {
-        $key=Keys::create([
-            'user_id' => $request['user_id'],
-            'key' => $request['key'],
-            'status' => $request['status'],
-            'investment' => $request['investment'],
-        ]);
+        $key=Keys::create($request->all());
         
         return $key->id;
     }
@@ -234,7 +229,7 @@ class KeysController extends Controller
     //get all keys for Keys.vue
     public function getAllKeys()
     {
-        return Keys::select('id', 'key', 'investment', 'status')->where('key', '<>', 'lala')->get();
+        return Keys::select('id', 'key', 'pin', 'investment', 'status')->where('key', '<>', 'lala')->get();
     }
 
     //get available keys for Activate.vue

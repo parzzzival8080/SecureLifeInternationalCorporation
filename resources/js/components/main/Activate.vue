@@ -7,7 +7,7 @@
                 </v-toolbar>
                 <v-card-text>
                     Available Keys:
-                    <p v-for="(thisrequest, index) in keys" :key="index">{{thisrequest.key}}</p>
+                    <p v-for="(thisrequest, index) in keys" :key="index">{{thisrequest.key}} - {{thisrequest.pin}}</p>
                     <v-form>
 
                         <v-flex xs12 md12>
