@@ -253,6 +253,7 @@ class BronzeController extends Controller
         $upstreams = (count($upstreams) > 15) ? array_slice($upstreams, 0, 15) : $upstreams;
         // Iterate over upstream with index
         foreach ($upstreams as $key => $value) {
+
             // Check if upstream is first item
             // Retrieve reference position of previous genea in array. For first item, use the given genea parameter
             if ($key == 0) {
@@ -260,45 +261,46 @@ class BronzeController extends Controller
             } else {
                 $position = Genealogy::where('reference_id', $value->id)->where('user_id', $upstreams[(int) $key - 1]->id)->first()->position;
             }
-            // Retrieve genea match point object
-            $geneaMatchPoints = $value->genealogyMatchPoint;
-            // Check reference position of previous genea, to know where to add product points
-            if($position == 'Left') {
-                $geneaMatchPoints->left_group_sales_points = $geneaMatchPoints->left_group_sales_points + $points;
-            } else if ($position == 'Right') {
-                $geneaMatchPoints->right_group_sales_points = $geneaMatchPoints->right_group_sales_points + $points;
-            }
-            $geneaMatchPoints->save(); // Save changes
 
-            $left_group_sales = $geneaMatchPoints->left_group_sales_points; // Retrieve left group sales points
-            $right_group_sales = $geneaMatchPoints->right_group_sales_points; // Retrieve right group sales points
+            // Check if user maintained a balance of Php 1500 last month
+            $previousMonth = new DateTime(date('Y-m', strtotime('-1 month')));
+            $maintained = UserProductLog::where('user_id', $value->user->id)->whereBetween('created_at', [$previousMonth->format('Y-m-')."01", $previousMonth->format('Y-m-t')])->sum('total');
+            $check = $maintained >= 1500 ? true : false;
 
-            if(($left_group_sales >= 500) and ($right_group_sales >= 500)) {
-                $left_group_sales = floor($left_group_sales / 500); // Get the floor equivalent of left group sales divided by 500
-                $right_group_sales = floor($right_group_sales / 500); // Get the floor equivalent of right group sales divided by 500
-                $group_sales = $right_group_sales <= $left_group_sales ? $right_group_sales : $left_group_sales;
-
-                $firstMonth = new DateTime('2019-08');
-                if((date('Y-m-d') >= $firstMonth->format('Y-m-')."01") and (date('Y-m-d') <= $firstMonth->format('Y-m-t'))) {
-                    $check = true;
-                } else {
-                    $previousMonth = new DateTime(date('Y-m', strtotime('-1 month')));
-                    $maintained = UserProductLog::where('user_id', $value->user->id)->whereBetween('created_at', [$previousMonth->format('Y-m-')."01", $previousMonth->format('Y-m-t')])->sum('total');
-                    $check = $maintained >= 1500 ? true : false;
+            if($check) {
+                // Retrieve genea match point object
+                $geneaMatchPoints = $value->genealogyMatchPoint;
+                // Check reference position of previous genea, to know where to add product points
+                if($position == 'Left') {
+                    $geneaMatchPoints->left_group_sales_points = $geneaMatchPoints->left_group_sales_points + $points;
+                } else if ($position == 'Right') {
+                    $geneaMatchPoints->right_group_sales_points = $geneaMatchPoints->right_group_sales_points + $points;
                 }
+                $geneaMatchPoints->save(); // Save changes
 
-                if($check) {
+                $left_group_sales = $geneaMatchPoints->left_group_sales_points; // Retrieve left group sales points
+                $right_group_sales = $geneaMatchPoints->right_group_sales_points; // Retrieve right group sales points
+
+                if(($left_group_sales >= 500) and ($right_group_sales >= 500)) {
+                    $left_group_sales = floor($left_group_sales / 500); // Get the floor equivalent of left group sales divided by 500
+                    $right_group_sales = floor($right_group_sales / 500); // Get the floor equivalent of right group sales divided by 500
+                    $group_sales = $right_group_sales <= $left_group_sales ? $right_group_sales : $left_group_sales;
+    
                     $geneaWallet = $value->user->wallet; // Retrieve genea wallet
                     $userAccountStatus = $value->user->userAccountStatus; // Get user account status
+
                     if($userAccountStatus->status == 'cd') {
-                        $geneaWallet->current_balance = (int) $geneaWallet->current_balance + (950 * (int) $group_sales);
-                        $geneaWallet->total_earnings = (int) $geneaWallet->total_earnings + (950 * (int) $group_sales);
+                        $geneaWallet->current_balance = (int) $geneaWallet->current_balance + (900 * (int) $group_sales);
+                        $geneaWallet->total_earnings = (int) $geneaWallet->total_earnings + (900 * (int) $group_sales);
                     } else {
-                        $geneaWallet->current_balance = (int) $geneaWallet->current_balance + (950 * (int) $group_sales);
+                        $geneaWallet->current_balance = (int) $geneaWallet->current_balance + (900 * (int) $group_sales);
                         $geneaWallet->total_earnings = (int) $geneaWallet->total_earnings + (1000 * (int) $group_sales);
                     }
                     $geneaWallet->save();
+
                     $geneaMatchPoints->incentives_points = (int) $geneaMatchPoints->incentives_points + (int) $group_sales; // Add group sales to incentive points
+                    $geneaMatchPoints->left_group_sales_points = (int) $geneaMatchPoints->left_group_sales_points - ((int) $group_sales * 500); // Deduct total group sales * 500 from left_group_sales_points
+                    $geneaMatchPoints->right_group_sales_points = (int) $geneaMatchPoints->right_group_sales_points - ((int) $group_sales * 500); // Deduct total group sales * 500 from right_group_sales_points
                     $geneaMatchPoints->save(); // Save changes
 
                     // Add wallet log
@@ -315,10 +317,6 @@ class BronzeController extends Controller
                         'remarks' => "Group Sales Match!"
                     ]);
                 }
-
-                $geneaMatchPoints->left_group_sales_points = (int) $geneaMatchPoints->left_group_sales_points - ((int) $group_sales * 500); // Deduct total group sales * 500 from left_group_sales_points
-                $geneaMatchPoints->right_group_sales_points = (int) $geneaMatchPoints->right_group_sales_points - ((int) $group_sales * 500); // Deduct total group sales * 500 from right_group_sales_points
-                $geneaMatchPoints->save(); // Save changes
             }
         }
     }
@@ -698,4 +696,73 @@ class BronzeController extends Controller
     //             ]);
     //         }
     //     }
+    // }
+
+    // To be deleted
+    // Check if upstream is first item
+    // Retrieve reference position of previous genea in array. For first item, use the given genea parameter
+    // if ($key == 0) {
+    //     $position = Genealogy::where('reference_id', $value->id)->where('user_id', $genea->id)->first()->position;
+    // } else {
+    //     $position = Genealogy::where('reference_id', $value->id)->where('user_id', $upstreams[(int) $key - 1]->id)->first()->position;
+    // }
+    // // Retrieve genea match point object
+    // $geneaMatchPoints = $value->genealogyMatchPoint;
+    // // Check reference position of previous genea, to know where to add product points
+    // if($position == 'Left') {
+    //     $geneaMatchPoints->left_group_sales_points = $geneaMatchPoints->left_group_sales_points + $points;
+    // } else if ($position == 'Right') {
+    //     $geneaMatchPoints->right_group_sales_points = $geneaMatchPoints->right_group_sales_points + $points;
+    // }
+    // $geneaMatchPoints->save(); // Save changes
+
+    // $left_group_sales = $geneaMatchPoints->left_group_sales_points; // Retrieve left group sales points
+    // $right_group_sales = $geneaMatchPoints->right_group_sales_points; // Retrieve right group sales points
+
+    // if(($left_group_sales >= 500) and ($right_group_sales >= 500)) {
+    //     $left_group_sales = floor($left_group_sales / 500); // Get the floor equivalent of left group sales divided by 500
+    //     $right_group_sales = floor($right_group_sales / 500); // Get the floor equivalent of right group sales divided by 500
+    //     $group_sales = $right_group_sales <= $left_group_sales ? $right_group_sales : $left_group_sales;
+
+    //     $firstMonth = new DateTime('2019-08');
+    //     if((date('Y-m-d') >= $firstMonth->format('Y-m-')."01") and (date('Y-m-d') <= $firstMonth->format('Y-m-t'))) {
+    //         $check = true;
+    //     } else {
+    //         $previousMonth = new DateTime(date('Y-m', strtotime('-1 month')));
+    //         $maintained = UserProductLog::where('user_id', $value->user->id)->whereBetween('created_at', [$previousMonth->format('Y-m-')."01", $previousMonth->format('Y-m-t')])->sum('total');
+    //         $check = $maintained >= 1500 ? true : false;
+    //     }
+
+    //     if($check) {
+    //         $geneaWallet = $value->user->wallet; // Retrieve genea wallet
+    //         $userAccountStatus = $value->user->userAccountStatus; // Get user account status
+    //         if($userAccountStatus->status == 'cd') {
+    //             $geneaWallet->current_balance = (int) $geneaWallet->current_balance + (900 * (int) $group_sales);
+    //             $geneaWallet->total_earnings = (int) $geneaWallet->total_earnings + (900 * (int) $group_sales);
+    //         } else {
+    //             $geneaWallet->current_balance = (int) $geneaWallet->current_balance + (900 * (int) $group_sales);
+    //             $geneaWallet->total_earnings = (int) $geneaWallet->total_earnings + (1000 * (int) $group_sales);
+    //         }
+    //         $geneaWallet->save();
+    //         $geneaMatchPoints->incentives_points = (int) $geneaMatchPoints->incentives_points + (int) $group_sales; // Add group sales to incentive points
+    //         $geneaMatchPoints->save(); // Save changes
+
+    //         // Add wallet log
+    //         WalletLog::create([
+    //             'wallet_id' => $geneaWallet->id,
+    //             'amount' => (1000 * (int) $group_sales),
+    //             'remarks' => 'Group Sales Match Reward'
+    //         ]);
+
+    //         // Create group sales log
+    //         GroupSalesLog::create([
+    //             'genealogy_id' => $value->id,
+    //             'matches' => $group_sales,
+    //             'remarks' => "Group Sales Match!"
+    //         ]);
+    //     }
+
+    //     $geneaMatchPoints->left_group_sales_points = (int) $geneaMatchPoints->left_group_sales_points - ((int) $group_sales * 500); // Deduct total group sales * 500 from left_group_sales_points
+    //     $geneaMatchPoints->right_group_sales_points = (int) $geneaMatchPoints->right_group_sales_points - ((int) $group_sales * 500); // Deduct total group sales * 500 from right_group_sales_points
+    //     $geneaMatchPoints->save(); // Save changes
     // }
