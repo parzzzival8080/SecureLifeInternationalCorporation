@@ -137,6 +137,10 @@ class BronzeController extends Controller
     // CREATE GENEALOGY POST API, params = [user_id, reference_id, referal_id, position]
     public function create_genealogy(Request $request){
         $data = [];
+        $referal_genea = Genealogy::find('user_id', $request->referal_id);
+        $reference_genea = Genealogy::find('user_id', $request->reference_id);
+        $reference_genea_upstreams = $this->retrieve_upstream_genea($reference_genea);
+        
         // Check if user ID already exist
         if(Genealogy::where('user_id', $request->user_id)->count() != 0){
             // Add error message to data array
@@ -144,6 +148,8 @@ class BronzeController extends Controller
         } elseif ((Genealogy::where('reference_id', $request->reference_id)->where('position', $request->position)->get()->count()) > 0) {
             // Add error message to data array
            $data[] = ["msg" => "Reference ID position is already taken"];
+        } elseif (!(in_array($referal_genea, $reference_genea_upstreams))) {
+            $data[] = ["msg" => "Referal ID doesnt exist within Reference ID upline"];
         } else {
             // Create new genealogy object
             $genealogy = Genealogy::create([
