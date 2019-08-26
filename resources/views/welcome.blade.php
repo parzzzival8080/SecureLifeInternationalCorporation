@@ -14,6 +14,11 @@
             html, body, section {
                 font-family: 'Montserrat', sans-serif;
             }
+
+            /* for mobile view in genea ID */
+            .phonesize{
+              font-size: 7px;
+            }
               /* For V-Cloak */
             [v-cloak] > * { display: none; }
             [v-cloak]::before {
