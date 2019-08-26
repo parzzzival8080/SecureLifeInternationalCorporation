@@ -19,12 +19,14 @@ class KeysController extends Controller
     public function checkKey(Request $request)
     {
         $keys= Keys::where('key', '=', $request['key'])
+        ->where('pin', '=', $request['pin'])
         ->where('status', '=', 'Inactive')
         ->where('user_id', '=', $request['userid'])
         ->get();
         $msg = false;
         if ($keys->isEmpty()){
             $keys= Keys::where('key', '=', $request['key'])
+            ->where('pin', '=', $request['pin'])
             ->where('status', '=', 'Inactive')
             ->where('user_id', '=', '1')
             ->get();

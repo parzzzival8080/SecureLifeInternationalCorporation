@@ -182,7 +182,7 @@ class UserController extends Controller
 
             //encrypt password
             $request['name']=strtoupper($request['name']);
-            $request['account_type']='bronze';
+            $request['type']='bronze';
             $request['password'] = bcrypt($request['password']);
             $request['role_id']=Roles::where('name', '=', 'user')->value('id');
             

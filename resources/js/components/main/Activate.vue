@@ -11,7 +11,7 @@
                     <v-form>
 
                         <v-flex xs12 md12>
-                            <v-text-field outline id="code" type="code" label="Pin Code" v-model="code" required autofocus prepend-inner-icon="dialpad"/>
+                            <v-text-field outline id="code" type="code" label="Pin Code" v-model="pin" required autofocus prepend-inner-icon="dialpad"/>
                         </v-flex>
 
                         <v-flex xs12 md12>
@@ -71,6 +71,7 @@
         data(){
             return {
                 code : "",
+                pin : "",
                 proof: "",
                 image: "",
                 keys: [],
@@ -114,12 +115,20 @@
                         params: {
                             userid: sessionStorage.getItem('id'),
                             key: this.code,
+                            pin: this.pin,
                             name: sessionStorage.getItem('name'),
                             email: sessionStorage.getItem('email'),
                             reference_id: sessionStorage.getItem('reference_id'),
                             referal_id: sessionStorage.getItem('referal_id'),
                             position: sessionStorage.getItem('position'),
                             user_id: sessionStorage.getItem('id'),
+                        }
+                    }).then(response => {
+                        if(!response.data.data){
+                            swal.fire("Failed!",
+                            "It seems you have entered a wrong key. Enter again",
+                            "error")
+                            return false
                         }
                     })
                     sessionStorage.setItem('status', 'Active')
@@ -142,6 +151,7 @@
                     params: {
                         userid: sessionStorage.getItem('id'),
                         key: this.code,
+                        pin: this.pin,
                         name: sessionStorage.getItem('name'),
                         email: sessionStorage.getItem('email'),
                     }
