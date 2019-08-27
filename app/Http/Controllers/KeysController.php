@@ -67,9 +67,19 @@ class KeysController extends Controller
                         return response()->json(['error' => 'Incorrect Placement ID']);
                     }
 
+                    $status = '';
+                    if (substr($request['key'], 0, 4) == 'SLCD')
+                    {
+                        $status = 'cd';
+                    }
+                    else
+                    {
+                        $status = 'active';
+                    }
+
                     UserAccountStatus::create([
                         'user_id'=>$request['userid'],
-                        'status'=>'active',
+                        'status'=>$status,
                     ]);
                     User::where('id', '=', $request['userid'])->update(['status'=>'Active']);
 
