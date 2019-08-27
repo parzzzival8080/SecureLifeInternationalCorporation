@@ -7,6 +7,9 @@
                 <v-icon color="white" medium>device_hub</v-icon>
                 <v-toolbar-title>Genealogy</v-toolbar-title>
                 <v-spacer></v-spacer>
+                <v-btn fab @click="getReferalTree">
+                    <v-icon>trending_up</v-icon>
+                </v-btn>
               </v-toolbar>
               <v-card-text pa-0 ma-0> 
                 <v-img v-if="Bronze" class="white--text" size="100%" :src="imagesrc">
@@ -25,7 +28,7 @@
                                                             <v-avatar :size="profilesize">
                                                                 <img src="https://res.cloudinary.com/tim0923/image/upload/v1565588396/SecureLife/profile_pictures/user_wvwscz.png" alt="alt">
                                                             </v-avatar>
-                                                            <p class="subtitle-2 ma-0 pa-0">{{ genealogies[0]['code'] }}</p>
+                                                            <p :class="{'overline ma-0 pa-0': $vuetify.breakpoint.smAndDown, 'subtitle-2 ma-0 pa-0': $vuetify.breakpoint.mdAndUp}">{{ genealogies[0]['code'] }}</p>
                                                             </v-card-text>
                                                         </v-card>
                                                     </v-flex>
@@ -45,7 +48,7 @@
                                                                         <v-avatar :size="profilesize">
                                                                             <img src="https://res.cloudinary.com/tim0923/image/upload/v1565588396/SecureLife/profile_pictures/user_wvwscz.png" alt="alt">
                                                                         </v-avatar>
-                                                                        <p class="subtitle-2 ma-0 pa-0">{{ genealogies[1]['code'] }}</p>
+                                                                        <p :class="{'overline ma-0 pa-0': $vuetify.breakpoint.smAndDown, 'subtitle-2 ma-0 pa-0': $vuetify.breakpoint.mdAndUp}">{{ genealogies[1]['code'] }}</p>
                                                                         </v-card-text>
                                                                     </v-card>
                                                                 </v-flex>
@@ -63,7 +66,7 @@
                                                                         <v-avatar :size="profilesize">
                                                                             <img src="https://res.cloudinary.com/tim0923/image/upload/v1565588396/SecureLife/profile_pictures/user_wvwscz.png" alt="alt">
                                                                         </v-avatar>
-                                                                        <p class="subtitle-2 ma-0 pa-0">{{ genealogies[2]['code'] }}</p>
+                                                                        <p :class="{'overline ma-0 pa-0': $vuetify.breakpoint.smAndDown, 'subtitle-2 ma-0 pa-0': $vuetify.breakpoint.mdAndUp}">{{ genealogies[2]['code'] }}</p>
                                                                         </v-card-text>
                                                                     </v-card>
                                                                 </v-flex>
@@ -83,7 +86,7 @@
                                                             <v-avatar :size="profilesize">
                                                                 <img src="https://res.cloudinary.com/tim0923/image/upload/v1565588396/SecureLife/profile_pictures/user_wvwscz.png" alt="alt">
                                                             </v-avatar>
-                                                            <p class="subtitle-2 ma-0 pa-0">{{ genealogies[3]['code'] }}</p>
+                                                            <p :class="{'overline ma-0 pa-0': $vuetify.breakpoint.smAndDown, 'subtitle-2 ma-0 pa-0': $vuetify.breakpoint.mdAndUp}">{{ genealogies[3]['code'] }}</p>
                                                             </v-card-text>
                                                         </v-card>
                                                     </v-flex>
@@ -97,7 +100,7 @@
                                                             <v-avatar :size="profilesize">
                                                                 <img src="https://res.cloudinary.com/tim0923/image/upload/v1565588396/SecureLife/profile_pictures/user_wvwscz.png" alt="alt">
                                                             </v-avatar>
-                                                            <p class="subtitle-2 ma-0 pa-0">{{ genealogies[4]['code'] }}</p>
+                                                            <p :class="{'overline ma-0 pa-0': $vuetify.breakpoint.smAndDown, 'subtitle-2 ma-0 pa-0': $vuetify.breakpoint.mdAndUp}">{{ genealogies[4]['code'] }}</p>
                                                             </v-card-text>
                                                         </v-card>
                                                     </v-flex>
@@ -111,7 +114,7 @@
                                                             <v-avatar :size="profilesize">
                                                                 <img src="https://res.cloudinary.com/tim0923/image/upload/v1565588396/SecureLife/profile_pictures/user_wvwscz.png" alt="alt">
                                                             </v-avatar>
-                                                            <p class="subtitle-2 ma-0 pa-0">{{ genealogies[5]['code'] }}</p>
+                                                            <p :class="{'overline ma-0 pa-0': $vuetify.breakpoint.smAndDown, 'subtitle-2 ma-0 pa-0': $vuetify.breakpoint.mdAndUp}">{{ genealogies[5]['code'] }}</p>
                                                             </v-card-text>
                                                         </v-card>
                                                     </v-flex>
@@ -125,7 +128,7 @@
                                                             <v-avatar :size="profilesize">
                                                                 <img src="https://res.cloudinary.com/tim0923/image/upload/v1565588396/SecureLife/profile_pictures/user_wvwscz.png" alt="alt">
                                                             </v-avatar>
-                                                            <p class="subtitle-2 ma-0 pa-0">{{ genealogies[6]['code'] }}</p>
+                                                            <p :class="{'overline ma-0 pa-0': $vuetify.breakpoint.smAndDown, 'subtitle-2 ma-0 pa-0': $vuetify.breakpoint.mdAndUp}">{{ genealogies[6]['code'] }}</p>
                                                             </v-card-text>
                                                         </v-card>
                                                     </v-flex>
@@ -143,7 +146,7 @@
                                                             <v-avatar :size="profilesize">
                                                                 <img src="https://res.cloudinary.com/tim0923/image/upload/v1565588396/SecureLife/profile_pictures/user_wvwscz.png" alt="alt">
                                                             </v-avatar>
-                                                            <p class="subtitle-2 ma-0 pa-0">{{ genealogies[7]['code'] }}</p>
+                                                            <p :class="{'overline ma-0 pa-0': $vuetify.breakpoint.smAndDown, 'subtitle-2 ma-0 pa-0': $vuetify.breakpoint.mdAndUp}">{{ genealogies[7]['code'] }}</p>
                                                             </v-card-text>
                                                         </v-card>
                                                     </v-flex>
@@ -153,7 +156,7 @@
                                                             <v-avatar :size="profilesize">
                                                                 <img src="https://res.cloudinary.com/tim0923/image/upload/v1565588396/SecureLife/profile_pictures/user_wvwscz.png" alt="alt">
                                                             </v-avatar>
-                                                            <p class="subtitle-2 ma-0 pa-0">{{ genealogies[8]['code'] }}</p>
+                                                            <p :class="{'overline ma-0 pa-0': $vuetify.breakpoint.smAndDown, 'subtitle-2 ma-0 pa-0': $vuetify.breakpoint.mdAndUp}">{{ genealogies[8]['code'] }}</p>
                                                             </v-card-text>
                                                         </v-card>
                                                     </v-flex>
@@ -167,7 +170,7 @@
                                                             <v-avatar :size="profilesize">
                                                                 <img src="https://res.cloudinary.com/tim0923/image/upload/v1565588396/SecureLife/profile_pictures/user_wvwscz.png" alt="alt">
                                                             </v-avatar>
-                                                            <p class="subtitle-2 ma-0 pa-0">{{ genealogies[9]['code'] }}</p>
+                                                            <p :class="{'overline ma-0 pa-0': $vuetify.breakpoint.smAndDown, 'subtitle-2 ma-0 pa-0': $vuetify.breakpoint.mdAndUp}">{{ genealogies[9]['code'] }}</p>
                                                             </v-card-text>
                                                         </v-card>
                                                     </v-flex>
@@ -177,7 +180,7 @@
                                                             <v-avatar :size="profilesize">
                                                                 <img src="https://res.cloudinary.com/tim0923/image/upload/v1565588396/SecureLife/profile_pictures/user_wvwscz.png" alt="alt">
                                                             </v-avatar>
-                                                            <p class="subtitle-2 ma-0 pa-0">{{ genealogies[10]['code'] }}</p>
+                                                            <p :class="{'overline ma-0 pa-0': $vuetify.breakpoint.smAndDown, 'subtitle-2 ma-0 pa-0': $vuetify.breakpoint.mdAndUp}">{{ genealogies[10]['code'] }}</p>
                                                             </v-card-text>
                                                         </v-card>
                                                     </v-flex>
@@ -191,7 +194,7 @@
                                                             <v-avatar :size="profilesize">
                                                                 <img src="https://res.cloudinary.com/tim0923/image/upload/v1565588396/SecureLife/profile_pictures/user_wvwscz.png" alt="alt">
                                                             </v-avatar>
-                                                            <p class="subtitle-2 ma-0 pa-0">{{ genealogies[11]['code'] }}</p>
+                                                            <p :class="{'overline ma-0 pa-0': $vuetify.breakpoint.smAndDown, 'subtitle-2 ma-0 pa-0': $vuetify.breakpoint.mdAndUp}">{{ genealogies[11]['code'] }}</p>
                                                             </v-card-text>
                                                         </v-card>
                                                     </v-flex>
@@ -201,7 +204,7 @@
                                                             <v-avatar :size="profilesize">
                                                                 <img src="https://res.cloudinary.com/tim0923/image/upload/v1565588396/SecureLife/profile_pictures/user_wvwscz.png" alt="alt">
                                                             </v-avatar>
-                                                            <p class="subtitle-2 ma-0 pa-0">{{ genealogies[12]['code'] }}</p>
+                                                            <p :class="{'overline ma-0 pa-0': $vuetify.breakpoint.smAndDown, 'subtitle-2 ma-0 pa-0': $vuetify.breakpoint.mdAndUp}">{{ genealogies[12]['code'] }}</p>
                                                             </v-card-text>
                                                         </v-card>
                                                     </v-flex>
@@ -215,7 +218,7 @@
                                                             <v-avatar :size="profilesize">
                                                                 <img src="https://res.cloudinary.com/tim0923/image/upload/v1565588396/SecureLife/profile_pictures/user_wvwscz.png" alt="alt">
                                                             </v-avatar>
-                                                            <p class="subtitle-2 ma-0 pa-0">{{ genealogies[13]['code'] }}</p>
+                                                            <p :class="{'overline ma-0 pa-0': $vuetify.breakpoint.smAndDown, 'subtitle-2 ma-0 pa-0': $vuetify.breakpoint.mdAndUp}">{{ genealogies[13]['code'] }}</p>
                                                             </v-card-text>
                                                         </v-card>
                                                     </v-flex>
@@ -225,7 +228,7 @@
                                                             <v-avatar :size="profilesize">
                                                                 <img src="https://res.cloudinary.com/tim0923/image/upload/v1565588396/SecureLife/profile_pictures/user_wvwscz.png" alt="alt">
                                                             </v-avatar>
-                                                            <p class="subtitle-2 ma-0 pa-0">{{ genealogies[14]['code'] }}</p>
+                                                            <p :class="{'overline ma-0 pa-0': $vuetify.breakpoint.smAndDown, 'subtitle-2 ma-0 pa-0': $vuetify.breakpoint.mdAndUp}">{{ genealogies[14]['code'] }}</p>
                                                             </v-card-text>
                                                         </v-card>
                                                     </v-flex>
@@ -285,10 +288,39 @@
                 <v-layout row justify-center>
                     <v-dialog v-model="ProfileDialog" persistent max-width="600px">
                         <v-card>
-                            <v-card-title class="headline">Account Information</v-card-title>
+                            <v-card-title :class="{'body-1': $vuetify.breakpoint.smAndDown, 'headline': $vuetify.breakpoint.mdAndUp}">Account Information
+                                <v-spacer></v-spacer>
+                                <v-btn small fab @click="ProfileDialog=false">
+                                <v-icon>close</v-icon>
+                                </v-btn>
+                            </v-card-title>
                             <v-card-text>
-                                <p>{{genealogiesInfo.name}}</p>
-                                <p>{{genealogiesInfo.id}}</p>
+                                <v-container  :grid-list-xl="$vuetify.breakpoint.mdAndUp" :grid-list-xs="$vuetify.breakpoint.smAndDown">
+                                        <v-layout row wrap align-start>
+                                            <v-flex xs12 md6>
+                                            <v-layout row wrap align-center justify-center>
+                                                    <v-flex xs12 md12>
+                                                        <v-avatar size="250px">
+                                                            <img src="https://res.cloudinary.com/tim0923/image/upload/v1565588396/SecureLife/profile_pictures/user_wvwscz.png" alt="alt">
+                                                        </v-avatar>
+                                                    </v-flex>
+                                                </v-layout>
+                                            </v-flex>
+                                            <v-flex xs12 md6>
+                                            <v-layout row wrap align-center justify-center>
+                                                    <v-flex xs12 md12>
+                                                        <v-layout column wrap align-start>
+                                                                <p>{{genealogiesInfo.code}}</p>
+                                                                <p>{{genealogiesInfo.name}}</p>
+                                                                <p>{{genealogiesInfo.email}}</p>
+                                                                <!-- <p>{{genealogiesInfo.downline.left}}</p>
+                                                                <p>{{genealogiesInfo.downline.right}}</p> -->
+                                                        </v-layout>
+                                                    </v-flex>
+                                                </v-layout>
+                                            </v-flex>
+                                        </v-layout>
+                                    </v-container>
                             </v-card-text>
                             <v-card-actions>
                                 <v-spacer></v-spacer>
@@ -362,6 +394,11 @@
             .catch(response => {
                 console.log(response)
             })
+        },
+        getReferalTree(){
+            this.retrieveGenealogyTree(this.genealogiesInfo.reference);
+            this.retrieveGenealogyInformation(this.genealogiesInfo.reference);
+
         },
         changecolor (details) {
             if (details == "None"){
