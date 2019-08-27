@@ -28,7 +28,7 @@ class KeysController extends Controller
             $keys= Keys::where('key', '=', $request['key'])
             ->where('pin', '=', $request['pin'])
             ->where('status', '=', 'Inactive')
-            ->where('user_id', '=', '1')
+            ->where('user_id', '=', User::where('role_id', '=', '1')->value('id'))
             ->get();
             $msg = false;
             if ($keys->isEmpty()){
