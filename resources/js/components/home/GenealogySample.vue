@@ -23,10 +23,11 @@
                                             <v-flex :class="{'xs5 md5': $vuetify.breakpoint.smAndDown, 'xs3 md3': $vuetify.breakpoint.mdAndUp}">
                                                 <v-layout row wrap align-center justify-center>
                                                     <v-flex xs6 md6>
-                                                        <v-card color="amber darken-3" @click="passID(genealogies[0]['id'])">
+                                                        <v-card color="amber darken-3" @click="InfoDialog(genealogies[0]['id'])">
                                                             <v-card-text class="text-xs-center">
                                                             <v-avatar :size="profilesize">
-                                                                <img :src="genealogies[0]['photo'] " alt="alt">
+                                                                <img v-if="genealogies[0]['code'] !=='None'" :src="genealogies[0]['photo'] " alt="alt">
+                                                                <img v-else src="https://res.cloudinary.com/tim0923/image/upload/v1566806195/SecureLife/profile_pictures/32360_g0xnk9.svg" alt="alt">
                                                             </v-avatar>
                                                             <p :class="{'phonesize ma-0 pa-0': $vuetify.breakpoint.smAndDown, 'subtitle-2 ma-0 pa-0': $vuetify.breakpoint.mdAndUp}">{{ genealogies[0]['code'] }}</p>
                                                             </v-card-text>
@@ -43,10 +44,11 @@
                                                     <v-flex xs12 md12>
                                                         <v-layout row wrap align-center justify-center>
                                                                 <v-flex  :class="{'xs5 md5': $vuetify.breakpoint.smAndDown, 'xs3 md3': $vuetify.breakpoint.mdAndUp}">
-                                                                    <v-card :color="changecolor(genealogies[1]['type'])" @click="passID(genealogies[1]['id'])">
+                                                                    <v-card :color="changecolor(genealogies[1]['type'])" @click="InfoDialog(genealogies[1]['id'],genealogies[0]['code'],'Left')">
                                                                         <v-card-text class="text-xs-center">
                                                                         <v-avatar :size="profilesize">
-                                                                            <img :src="genealogies[1]['photo'] " alt="alt">
+                                                                            <img v-if="genealogies[1]['code'] !=='None'" :src="genealogies[1]['photo'] " alt="alt">
+                                                                            <img v-else src="https://res.cloudinary.com/tim0923/image/upload/v1566806195/SecureLife/profile_pictures/32360_g0xnk9.svg" alt="alt">       
                                                                         </v-avatar>
                                                                         <p :class="{'phonesize ma-0 pa-0': $vuetify.breakpoint.smAndDown, 'subtitle-2 ma-0 pa-0': $vuetify.breakpoint.mdAndUp}">{{ genealogies[1]['code'] }}</p>
                                                                         </v-card-text>
@@ -61,10 +63,11 @@
                                                     <v-flex xs12 md12>
                                                         <v-layout row wrap align-center justify-center>
                                                                 <v-flex  :class="{'xs5 md5': $vuetify.breakpoint.smAndDown, 'xs3 md3': $vuetify.breakpoint.mdAndUp}">
-                                                                    <v-card :color="changecolor(genealogies[2]['type'])" @click="passID(genealogies[2]['id'])">
+                                                                    <v-card :color="changecolor(genealogies[2]['type'])" @click="InfoDialog(genealogies[2]['id'], genealogies[0]['code'],'Right')">
                                                                         <v-card-text class="text-xs-center">
                                                                         <v-avatar :size="profilesize">
-                                                                            <img :src="genealogies[2]['photo'] " alt="alt">
+                                                                            <img v-if="genealogies[2]['code'] !=='None'" :src="genealogies[2]['photo'] " alt="alt">
+                                                                            <img v-else src="https://res.cloudinary.com/tim0923/image/upload/v1566806195/SecureLife/profile_pictures/32360_g0xnk9.svg" alt="alt">
                                                                         </v-avatar>
                                                                         <p :class="{'phonesize ma-0 pa-0': $vuetify.breakpoint.smAndDown, 'subtitle-2 ma-0 pa-0': $vuetify.breakpoint.mdAndUp}">{{ genealogies[2]['code'] }}</p>
                                                                         </v-card-text>
@@ -81,10 +84,11 @@
                                             <v-flex xs3 md3>
                                             <v-layout row wrap align-center justify-center>
                                                     <v-flex  :class="{'xs10 md10': $vuetify.breakpoint.smAndDown, 'xs6 md6': $vuetify.breakpoint.mdAndUp}">
-                                                        <v-card :color="changecolor(genealogies[3]['type'])" @click="passID(genealogies[3]['id'])">
+                                                        <v-card :color="changecolor(genealogies[3]['type'])" @click="InfoDialog(genealogies[3]['id'], genealogies[1]['code'],'Left')">
                                                             <v-card-text class="text-xs-center">
                                                             <v-avatar :size="profilesize">
-                                                                <img :src="genealogies[3]['photo'] " alt="alt">
+                                                                <img v-if="genealogies[3]['code'] !=='None'" :src="genealogies[3]['photo'] " alt="alt">
+                                                                <img v-else src="https://res.cloudinary.com/tim0923/image/upload/v1566806195/SecureLife/profile_pictures/32360_g0xnk9.svg" alt="alt">
                                                             </v-avatar>
                                                             <p :class="{'phonesize ma-0 pa-0': $vuetify.breakpoint.smAndDown, 'subtitle-2 ma-0 pa-0': $vuetify.breakpoint.mdAndUp}">{{ genealogies[3]['code'] }}</p>
                                                             </v-card-text>
@@ -95,10 +99,11 @@
                                             <v-flex xs3 md3>
                                             <v-layout row wrap align-center justify-center>
                                                     <v-flex  :class="{'xs10 md10': $vuetify.breakpoint.smAndDown, 'xs6 md6': $vuetify.breakpoint.mdAndUp}">
-                                                        <v-card :color="changecolor(genealogies[4]['type'])" @click="passID(genealogies[4]['id'])">
+                                                        <v-card :color="changecolor(genealogies[4]['type'])" @click="InfoDialog(genealogies[4]['id'], genealogies[1]['code'],'Right')">
                                                             <v-card-text class="text-xs-center">
                                                             <v-avatar :size="profilesize">
-                                                                <img :src="genealogies[4]['photo'] " alt="alt">
+                                                                <img v-if="genealogies[4]['code'] !=='None'" :src="genealogies[4]['photo'] " alt="alt">
+                                                                <img v-else src="https://res.cloudinary.com/tim0923/image/upload/v1566806195/SecureLife/profile_pictures/32360_g0xnk9.svg" alt="alt">
                                                             </v-avatar>
                                                             <p :class="{'phonesize ma-0 pa-0': $vuetify.breakpoint.smAndDown, 'subtitle-2 ma-0 pa-0': $vuetify.breakpoint.mdAndUp}">{{ genealogies[4]['code'] }}</p>
                                                             </v-card-text>
@@ -109,10 +114,11 @@
                                             <v-flex xs3 md3>
                                             <v-layout row wrap align-center justify-center>
                                                     <v-flex  :class="{'xs10 md10': $vuetify.breakpoint.smAndDown, 'xs6 md6': $vuetify.breakpoint.mdAndUp}">
-                                                        <v-card :color="changecolor(genealogies[5]['type'])" @click="passID(genealogies[5]['id'])">
+                                                        <v-card :color="changecolor(genealogies[5]['type'])" @click="InfoDialog(genealogies[5]['id'], genealogies[2]['code'],'Left')">
                                                             <v-card-text class="text-xs-center">
                                                             <v-avatar :size="profilesize">
-                                                                <img :src="genealogies[5]['photo'] " alt="alt">
+                                                                <img v-if="genealogies[5]['code'] !=='None'" :src="genealogies[5]['photo'] " alt="alt">
+                                                                <img v-else src="https://res.cloudinary.com/tim0923/image/upload/v1566806195/SecureLife/profile_pictures/32360_g0xnk9.svg" alt="alt">
                                                             </v-avatar>
                                                             <p :class="{'phonesize ma-0 pa-0': $vuetify.breakpoint.smAndDown, 'subtitle-2 ma-0 pa-0': $vuetify.breakpoint.mdAndUp}">{{ genealogies[5]['code'] }}</p>
                                                             </v-card-text>
@@ -123,10 +129,11 @@
                                             <v-flex xs3 md3>
                                             <v-layout row wrap align-center justify-center>
                                                     <v-flex  :class="{'xs10 md10': $vuetify.breakpoint.smAndDown, 'xs6 md6': $vuetify.breakpoint.mdAndUp}">
-                                                        <v-card :color="changecolor(genealogies[6]['type'])" @click="passID(genealogies[6]['id'])">
+                                                        <v-card :color="changecolor(genealogies[6]['type'])" @click="InfoDialog(genealogies[6]['id'], genealogies[2]['code'],'Right')">
                                                             <v-card-text class="text-xs-center">
                                                             <v-avatar :size="profilesize">
-                                                                <img :src="genealogies[6]['photo'] " alt="alt">
+                                                                <img v-if="genealogies[6]['code'] !=='None'" :src="genealogies[6]['photo'] " alt="alt">
+                                                                <img v-else src="https://res.cloudinary.com/tim0923/image/upload/v1566806195/SecureLife/profile_pictures/32360_g0xnk9.svg" alt="alt">
                                                             </v-avatar>
                                                             <p :class="{'phonesize ma-0 pa-0': $vuetify.breakpoint.smAndDown, 'subtitle-2 ma-0 pa-0': $vuetify.breakpoint.mdAndUp}">{{ genealogies[6]['code'] }}</p>
                                                             </v-card-text>
@@ -141,20 +148,22 @@
                                             <v-flex xs3 md3>
                                                 <v-layout row wrap align-start>
                                                     <v-flex xs6 md6>
-                                                        <v-card :color="changecolor(genealogies[7]['type'])" @click="passID(genealogies[7]['id'])">
+                                                        <v-card :color="changecolor(genealogies[7]['type'])" @click="InfoDialog(genealogies[7]['id'], genealogies[3]['code'],'Left')">
                                                             <v-card-text class="text-xs-center">
                                                             <v-avatar :size="profilesize">
-                                                                <img :src="genealogies[7]['photo'] " alt="alt">
+                                                                <img v-if="genealogies[7]['code'] !=='None'" :src="genealogies[7]['photo'] " alt="alt">
+                                                                <img v-else src="https://res.cloudinary.com/tim0923/image/upload/v1566806195/SecureLife/profile_pictures/32360_g0xnk9.svg" alt="alt">
                                                             </v-avatar>
                                                             <p :class="{'phonesize ma-0 pa-0': $vuetify.breakpoint.smAndDown, 'subtitle-2 ma-0 pa-0': $vuetify.breakpoint.mdAndUp}">{{ genealogies[7]['code'] }}</p>
                                                             </v-card-text>
                                                         </v-card>
                                                     </v-flex>
                                                     <v-flex xs6 md6>
-                                                        <v-card :color="changecolor(genealogies[8]['type'])" @click="passID(genealogies[8]['id'])">
+                                                        <v-card :color="changecolor(genealogies[8]['type'])" @click="InfoDialog(genealogies[8]['id'], genealogies[3]['code'],'Right')">
                                                             <v-card-text class="text-xs-center">
                                                             <v-avatar :size="profilesize">
-                                                                <img :src="genealogies[8]['photo'] " alt="alt">
+                                                                <img v-if="genealogies[8]['code'] !=='None'" :src="genealogies[8]['photo'] " alt="alt">
+                                                                <img v-else src="https://res.cloudinary.com/tim0923/image/upload/v1566806195/SecureLife/profile_pictures/32360_g0xnk9.svg" alt="alt">
                                                             </v-avatar>
                                                             <p :class="{'phonesize ma-0 pa-0': $vuetify.breakpoint.smAndDown, 'subtitle-2 ma-0 pa-0': $vuetify.breakpoint.mdAndUp}">{{ genealogies[8]['code'] }}</p>
                                                             </v-card-text>
@@ -165,20 +174,22 @@
                                             <v-flex xs3 md3>
                                                 <v-layout row wrap align-start>
                                                     <v-flex xs6 md6>
-                                                        <v-card :color="changecolor(genealogies[9]['type'])" @click="passID(genealogies[9]['id'])">
+                                                        <v-card :color="changecolor(genealogies[9]['type'])" @click="InfoDialog(genealogies[9]['id'], genealogies[4]['code'],'Left')">
                                                             <v-card-text class="text-xs-center">
                                                             <v-avatar :size="profilesize">
-                                                                <img :src="genealogies[9]['photo'] " alt="alt">
+                                                                <img v-if="genealogies[9]['code'] !=='None'" :src="genealogies[9]['photo'] " alt="alt">
+                                                                <img v-else src="https://res.cloudinary.com/tim0923/image/upload/v1566806195/SecureLife/profile_pictures/32360_g0xnk9.svg" alt="alt">
                                                             </v-avatar>
                                                             <p :class="{'phonesize ma-0 pa-0': $vuetify.breakpoint.smAndDown, 'subtitle-2 ma-0 pa-0': $vuetify.breakpoint.mdAndUp}">{{ genealogies[9]['code'] }}</p>
                                                             </v-card-text>
                                                         </v-card>
                                                     </v-flex>
                                                     <v-flex xs6 md6>
-                                                        <v-card :color="changecolor(genealogies[10]['type'])" @click="passID(genealogies[10]['id'])">
+                                                        <v-card :color="changecolor(genealogies[10]['type'])" @click="InfoDialog(genealogies[10]['id'], genealogies[4]['code'],'Right')">
                                                             <v-card-text class="text-xs-center">
                                                             <v-avatar :size="profilesize">
-                                                                <img :src="genealogies[10]['photo'] " alt="alt">
+                                                                <img v-if="genealogies[10]['code'] !=='None'" :src="genealogies[10]['photo'] " alt="alt">
+                                                                <img v-else src="https://res.cloudinary.com/tim0923/image/upload/v1566806195/SecureLife/profile_pictures/32360_g0xnk9.svg" alt="alt">
                                                             </v-avatar>
                                                             <p :class="{'phonesize ma-0 pa-0': $vuetify.breakpoint.smAndDown, 'subtitle-2 ma-0 pa-0': $vuetify.breakpoint.mdAndUp}">{{ genealogies[10]['code'] }}</p>
                                                             </v-card-text>
@@ -189,20 +200,22 @@
                                             <v-flex xs3 md3>
                                                 <v-layout row wrap align-start>
                                                     <v-flex xs6 md6>
-                                                        <v-card :color="changecolor(genealogies[11]['type'])" @click="passID(genealogies[11]['id'])">
+                                                        <v-card :color="changecolor(genealogies[11]['type'])" @click="InfoDialog(genealogies[11]['id'], genealogies[5]['code'],'Left')">
                                                             <v-card-text class="text-xs-center">
                                                             <v-avatar :size="profilesize">
-                                                                <img :src="genealogies[11]['photo'] " alt="alt">
+                                                                <img v-if="genealogies[11]['code'] !=='None'" :src="genealogies[11]['photo'] " alt="alt">
+                                                                <img v-else src="https://res.cloudinary.com/tim0923/image/upload/v1566806195/SecureLife/profile_pictures/32360_g0xnk9.svg" alt="alt">
                                                             </v-avatar>
                                                             <p :class="{'phonesize ma-0 pa-0': $vuetify.breakpoint.smAndDown, 'subtitle-2 ma-0 pa-0': $vuetify.breakpoint.mdAndUp}">{{ genealogies[11]['code'] }}</p>
                                                             </v-card-text>
                                                         </v-card>
                                                     </v-flex>
                                                     <v-flex xs6 md6>
-                                                        <v-card :color="changecolor(genealogies[12]['type'])" @click="passID(genealogies[12]['id'])">
+                                                        <v-card :color="changecolor(genealogies[12]['type'])" @click="InfoDialog(genealogies[12]['id'], genealogies[5]['code'],'Right')">
                                                             <v-card-text class="text-xs-center">
                                                             <v-avatar :size="profilesize">
-                                                                <img :src="genealogies[12]['photo'] " alt="alt">
+                                                                <img v-if="genealogies[12]['code'] !=='None'" :src="genealogies[12]['photo'] " alt="alt">
+                                                                <img v-else src="https://res.cloudinary.com/tim0923/image/upload/v1566806195/SecureLife/profile_pictures/32360_g0xnk9.svg" alt="alt">
                                                             </v-avatar>
                                                             <p :class="{'phonesize ma-0 pa-0': $vuetify.breakpoint.smAndDown, 'subtitle-2 ma-0 pa-0': $vuetify.breakpoint.mdAndUp}">{{ genealogies[12]['code'] }}</p>
                                                             </v-card-text>
@@ -213,20 +226,22 @@
                                             <v-flex xs3 md3>
                                                 <v-layout row wrap align-start>
                                                     <v-flex xs6 md6>
-                                                        <v-card :color="changecolor(genealogies[13]['type'])" @click="passID(genealogies[13]['id'])">
+                                                        <v-card :color="changecolor(genealogies[13]['type'])" @click="InfoDialog(genealogies[13]['id'], genealogies[6]['code'],'Left')">
                                                             <v-card-text class="text-xs-center">
                                                             <v-avatar :size="profilesize">
-                                                                <img :src="genealogies[13]['photo'] " alt="alt">
+                                                                <img v-if="genealogies[13]['code'] !=='None'" :src="genealogies[13]['photo'] " alt="alt">
+                                                                <img v-else src="https://res.cloudinary.com/tim0923/image/upload/v1566806195/SecureLife/profile_pictures/32360_g0xnk9.svg" alt="alt">
                                                             </v-avatar>
                                                             <p :class="{'phonesize ma-0 pa-0': $vuetify.breakpoint.smAndDown, 'subtitle-2 ma-0 pa-0': $vuetify.breakpoint.mdAndUp}">{{ genealogies[13]['code'] }}</p>
                                                             </v-card-text>
                                                         </v-card>
                                                     </v-flex>
                                                     <v-flex xs6 md6>
-                                                        <v-card :color="changecolor(genealogies[14]['type'])" @click="passID(genealogies[14]['id'])">
+                                                        <v-card :color="changecolor(genealogies[14]['type'])" @click="InfoDialog(genealogies[14]['id'], genealogies[6]['code'],'Right')">
                                                             <v-card-text class="text-xs-center">
                                                             <v-avatar :size="profilesize">
-                                                                <img :src="genealogies[14]['photo'] " alt="alt">
+                                                                <img v-if="genealogies[14]['code'] !=='None'" :src="genealogies[14]['photo'] " alt="alt">
+                                                                <img v-else src="https://res.cloudinary.com/tim0923/image/upload/v1566806195/SecureLife/profile_pictures/32360_g0xnk9.svg" alt="alt">
                                                             </v-avatar>
                                                              <p :class="{'phonesize ma-0 pa-0': $vuetify.breakpoint.smAndDown, 'subtitle-2 ma-0 pa-0': $vuetify.breakpoint.mdAndUp}">{{ genealogies[14]['code'] }}</p>
                                                             </v-card-text>
@@ -241,7 +256,149 @@
                         </v-flex>
                         </v-layout>
                     </v-container>
+                    <!-- Profile Dialog -->
+                    <v-layout row justify-center>
+                        <v-dialog v-model="ProfileDialog" persistent max-width="600px">
+                            <v-card>
+                                <v-card-title :class="{'body-1': $vuetify.breakpoint.smAndDown, 'headline': $vuetify.breakpoint.mdAndUp}">Account Information
+                                    <v-spacer></v-spacer>
+                                    <v-btn small fab @click="ProfileDialog=false">
+                                    <v-icon>close</v-icon>
+                                    </v-btn>
+                                </v-card-title>
+                                <v-card-text>
+                                    <v-container  :grid-list-xl="$vuetify.breakpoint.mdAndUp" :grid-list-xs="$vuetify.breakpoint.smAndDown">
+                                            <v-layout row wrap align-start>
+                                                <v-flex xs12 md6>
+                                                <v-layout row wrap align-center justify-center>
+                                                        <v-flex xs12 md12>
+                                                            <v-avatar size="250px">
+                                                                <img :src="genealogiesInfo.photo" alt="alt">
+                                                            </v-avatar>
+                                                        </v-flex>
+                                                    </v-layout>
+                                                </v-flex>
+                                                <v-flex xs12 md6>
+                                                <v-layout row wrap align-center justify-center>
+                                                        <v-flex xs12 md12>
+                                                            <v-layout column wrap align-start>
+                                                                    <p>{{genealogiesInfo.code}}</p>
+                                                                    <p>{{genealogiesInfo.name}}</p>
+                                                                    <p>{{genealogiesInfo.email}}</p>
+                                                                    <!-- <p>{{genealogiesInfo.downline.left}}</p>
+                                                                    <p>{{genealogiesInfo.downline.right}}</p> -->
+                                                            </v-layout>
+                                                        </v-flex>
+                                                    </v-layout>
+                                                </v-flex>
+                                            </v-layout>
+                                        </v-container>
+                                </v-card-text>
+                                <v-card-actions>
+                                    <v-spacer></v-spacer>
+                                    <v-btn primary flat @click="retrieveGenealogyTree(genealogiesInfo.id);">Genealogy Tree</v-btn>
+                                </v-card-actions>
+                            </v-card>
+                        </v-dialog>
+                    </v-layout>
+                    <!-- Add new Bronze Dialog -->
+                    <v-layout row justify-center>
+                        <v-dialog v-model="NewDialog" persistent max-width="600px">
+                            <v-card flat>
+                                <v-card-title :class="{'body-1': $vuetify.breakpoint.smAndDown, 'headline': $vuetify.breakpoint.mdAndUp}">New Account
+                                    <v-spacer></v-spacer>
+                                    <v-btn small fab @click="NewDialog=false">
+                                    <v-icon>close</v-icon>
+                                    </v-btn>
+                                </v-card-title>
+                                <v-card-text>
+                                    <v-form>
+                                        <v-container grid-list-sm bt-0>
+                                            <!-- Name -->
+                                            <v-layout row wrap>
+                                                <v-flex xs12 md12>
+                                                    <v-layout row wrap>
+                                                        <v-flex xs12 md6>
+                                                            <v-text-field outline small transparent id="lname" type="text" label="Last Name" v-model="lastname" required autofocus prepend-inner-icon="account_circle"/>
+                                                        </v-flex>
+                                                        <v-flex xs12 md5>
+                                                            <v-text-field outline small transparent id="fname" type="text" label="First Name" v-model="firstname" required />
+                                                        </v-flex>
+                                                        <v-flex xs12 md1>
+                                                            <v-text-field outline small transparent id="mi" type="text" label="M.I" v-model="mi" />
+                                                        </v-flex>
+                                                    </v-layout>
+                                                </v-flex>
+                                                <!-- Password -->
+                                                <v-flex xs12 md12>
+                                                    <v-text-field outline small transparent  id="password" :type="show1 ? 'text' : 'password'" @click:append="show1 = !show1" :append-icon="show1 ? 'visibility' : 'visibility_off'" label="Password" v-model="password" required prepend-inner-icon="lock"/>
+                                                </v-flex>
+                                                <!-- Confirm Password -->
+                                                <v-flex xs12 md12>
+                                                    <v-text-field outline small transparent  id="password-confirm" :type="show2 ? 'text' : 'password'" @click:append="show2 = !show2" :append-icon="show2 ? 'visibility' : 'visibility_off'" label="Confirm Password" v-model="password_confirmation" required prepend-inner-icon="lock"/>
+                                                </v-flex>
+                                                <!-- Address -->
+                                                <v-flex xs12 md12>
+                                                    <v-text-field outline small transparent  id="address" type="text" label="Address" v-model="address" required prepend-inner-icon="location_on"/>
+                                                </v-flex>
+                                                <!-- Email and Contact -->
+                                                <v-flex xs12 md12>
+                                                    <v-layout row wrap>
+                                                        <v-flex xs12 md6>
+                                                            <v-text-field outline small transparent  id="email" type="email" label="Email Address" v-model="email" required prepend-inner-icon="alternate_email"/>
+                                                        </v-flex>
+
+                                                        <v-flex xs12 md6>
+                                                            <v-text-field outline small transparent  id="contactno" type="text" label="Contact Number" v-model="contact" required prepend-inner-icon="phone" maxlength="15" onkeypress='return event.charCode >= 48 && event.charCode <= 57'/>
+                                                        </v-flex>
+                                                    </v-layout>
+                                                </v-flex>
+                                                <!-- Birthdate and Sponsor Id -->
+                                                <v-flex xs12 md12>
+                                                    <v-layout row wrap>
+                                                        <v-flex xs12 md6>
+                                                            <v-text-field outline small transparent  id="sponsor" type="text" label="Sponsor" v-model="sponsor" required disabled prepend-inner-icon="group_add"/>
+                                                        </v-flex>
+                                                        
+                                                        <v-flex xs12 md6>
+                                                            <v-dialog ref="dialogfrom" v-model="modal" :return-value.sync="birthdate" persistent lazy full-width width="290px">
+                                                                <template v-slot:activator="{ on }">
+                                                                    <v-text-field outline small transparent  v-model="birthdate" label="Birthdate" prepend-inner-icon="event" v-on="on"></v-text-field>
+                                                                </template>
+                                                                <v-date-picker v-model="birthdate" scrollable>
+                                                                    <v-spacer></v-spacer>
+                                                                    <v-btn flat color="primary" @click="modal = false">Cancel</v-btn>
+                                                                    <v-btn flat color="primary" @click="$refs.dialogfrom.save(birthdate)">OK</v-btn>
+                                                                </v-date-picker>
+                                                            </v-dialog>
+                                                        </v-flex>
+                                                    </v-layout>
+                                                </v-flex>
+                                                <!-- Placement ID and Position -->
+                                                <v-flex xs12 md12>
+                                                    <v-layout row wrap>
+                                                        <v-flex xs12 md6>
+                                                            <v-text-field outline small transparent  id="placement" type="text" label="Placement-ID" v-model="placement" disabled required prepend-inner-icon="device_hub"/>
+                                                        </v-flex>
+
+                                                        <v-flex xs12 md6>
+                                                            <v-text-field outline small transparent  id="position" type="text" label="Position" v-model="position" disabled required prepend-inner-icon="code"/>
+                                                                <!-- <v-select :items="items" label="Outline small transparent style" outline small transparent  required prepend-inner-icon="code"></v-select> -->
+                                                        </v-flex>
+                                                    </v-layout>
+                                                </v-flex>
+                                            </v-layout>
+                                        </v-container>
+                                        <v-flex xs12 md12>
+                                            <v-btn large round outline small transparent  type="submit" color="amber darken-3" @click=""> Register</v-btn>
+                                        </v-flex>
+                                    </v-form>
+                                </v-card-text>
+                            </v-card>
+                        </v-dialog>
+                    </v-layout>
                 </v-img>
+                <!-- Else if Account is not Bronze -->
                 <v-layout v-else xs12 md10 lg10 justify-center>
                     <v-card width="600px">
                         <v-toolbar color="amber darken-3">
@@ -254,80 +411,36 @@
                                 <v-container grid-list-sm bt-0>
                                     <!-- Pin Code -->
                                     <v-flex xs12 md12>
-                                        <v-text-field outline id="sponsor" type="text" label="Pin Code" v-model="sponsor" required prepend-inner-icon="dialpad"/>
+                                        <v-text-field outline small transparent  id="sponsor" type="text" label="Pin Code" v-model="sponsor" required prepend-inner-icon="dialpad"/>
                                     </v-flex>
                                      <!-- Activation Code -->
                                     <v-flex xs12 md12>
-                                        <v-text-field outline id="sponsor" type="text" label="Activitaion Code" v-model="sponsor" required prepend-inner-icon="dialpad"/>
+                                        <v-text-field outline small transparent  id="sponsor" type="text" label="Activitaion Code" v-model="sponsor" required prepend-inner-icon="dialpad"/>
                                     </v-flex>
                                      <!-- Sponsor ID -->
                                     <v-flex xs12 md12>
-                                        <v-text-field outline id="sponsor" type="text" label="Sponsor" v-model="sponsor" required prepend-inner-icon="group_add"/>
+                                        <v-text-field outline small transparent id="sponsor" type="text" label="Sponsor" v-model="sponsor" disabled required prepend-inner-icon="group_add"/>
                                     </v-flex>
                                     <!-- Placement ID and Position -->
                                     <v-flex xs12 md12>
                                         <v-layout row wrap>
                                             <v-flex xs12 md6>
-                                                <v-text-field outline id="placement" type="text" label="Placement-ID" v-model="email" required prepend-inner-icon="device_hub"/>
+                                                <v-text-field outline small transparent id="placement" type="text" label="Placement-ID" v-model="email" disabled required prepend-inner-icon="device_hub"/>
                                             </v-flex>
 
                                             <v-flex xs12 md6>
-                                                <v-select outline id="position" label="Position" :items="items" required prepend-inner-icon="code"/>
+                                                <v-select outline small transparent id="position" label="Position" :items="items" disabled required prepend-inner-icon="code"/>
                                             </v-flex>
                                         </v-layout>
                                     </v-flex>
 
                                     <v-flex xs12 md12>
-                                        <v-btn large round outline type="submit" color="amber darken-3">Unlock Bronze</v-btn>
+                                        <v-btn large round outline small transparent type="submit" color="amber darken-3">Unlock Bronze</v-btn>
                                     </v-flex>
                                 </v-container>
                             </v-form>
                         </v-card-text>
                     </v-card>
-                </v-layout>
-                <v-layout row justify-center>
-                    <v-dialog v-model="ProfileDialog" persistent max-width="600px">
-                        <v-card>
-                            <v-card-title :class="{'body-1': $vuetify.breakpoint.smAndDown, 'headline': $vuetify.breakpoint.mdAndUp}">Account Information
-                                <v-spacer></v-spacer>
-                                <v-btn small fab @click="ProfileDialog=false">
-                                <v-icon>close</v-icon>
-                                </v-btn>
-                            </v-card-title>
-                            <v-card-text>
-                                <v-container  :grid-list-xl="$vuetify.breakpoint.mdAndUp" :grid-list-xs="$vuetify.breakpoint.smAndDown">
-                                        <v-layout row wrap align-start>
-                                            <v-flex xs12 md6>
-                                            <v-layout row wrap align-center justify-center>
-                                                    <v-flex xs12 md12>
-                                                        <v-avatar size="250px">
-                                                            <img :src="genealogiesInfo.photo" alt="alt">
-                                                        </v-avatar>
-                                                    </v-flex>
-                                                </v-layout>
-                                            </v-flex>
-                                            <v-flex xs12 md6>
-                                            <v-layout row wrap align-center justify-center>
-                                                    <v-flex xs12 md12>
-                                                        <v-layout column wrap align-start>
-                                                                <p>{{genealogiesInfo.code}}</p>
-                                                                <p>{{genealogiesInfo.name}}</p>
-                                                                <p>{{genealogiesInfo.email}}</p>
-                                                                <!-- <p>{{genealogiesInfo.downline.left}}</p>
-                                                                <p>{{genealogiesInfo.downline.right}}</p> -->
-                                                        </v-layout>
-                                                    </v-flex>
-                                                </v-layout>
-                                            </v-flex>
-                                        </v-layout>
-                                    </v-container>
-                            </v-card-text>
-                            <v-card-actions>
-                                <v-spacer></v-spacer>
-                                <v-btn primary flat @click="retrieveGenealogyTree(genealogiesInfo.id);">Genealogy Tree</v-btn>
-                            </v-card-actions>
-                        </v-card>
-                    </v-dialog>
                 </v-layout>
               </v-card-text>
           </v-card>
@@ -341,12 +454,28 @@
     data: () => ({
         genealogies: [],
         genealogiesInfo: [],
-        sponsor: '',
-        email: '',
+        name : "",
+        lastname : "",
+        firstname : "",
+        mi : "",
+        email : "",
+        password : "",
+        password_confirmation : "",
+        address: "",
+        sponsor: sessionStorage.getItem('code'), //who invited this user
+        contact: "(+63)",
+        birthdate: "",
+        position: '',
+        placement: '',
+        show1: false, //hide password text
+        show2: false, //hide confirm password text
+        modal: false, //for birthday modal
         Bronze: true,
         items: ['Left', 'Right'],
         ProfileDialog: false,
-        current_ID: '',
+        NewDialog: false,
+        current_layer: sessionStorage.getItem('id'),
+
     }),
 
     computed: {
@@ -369,7 +498,7 @@
         }
       },
       current(){
-        if (this.genealogiesInfo.id == sessionStorage.getItem('id')){
+        if (this.current_layer == sessionStorage.getItem('id')){
             return false
         }
         else{
@@ -385,7 +514,6 @@
             .then(response => {
                 var data = response.data
                 this.genealogiesInfo = data
-                consol.log(this.genealogies)
             })
             .catch(response => {
                 console.log(response)
@@ -398,7 +526,7 @@
             .then(response => {
                 var data = response.data
                 this.genealogies = data.genealogy_tree
-                console.log(this.genealogies)
+                this.current_layer = user_id
             })
             .catch(response => {
                 console.log(response)
@@ -407,6 +535,8 @@
         getReferalTree(){
             this.retrieveGenealogyTree(this.genealogiesInfo.reference);
             this.retrieveGenealogyInformation(this.genealogiesInfo.reference);
+            this.current_layer(this.genealogiesInfo.reference);
+            
 
         },
         changecolor (details) {
@@ -423,9 +553,17 @@
                 return 'blue darken-3'
             }
        },
-       passID(id){
-           this.retrieveGenealogyInformation(id)
-           this.ProfileDialog = true
+       InfoDialog(id, reference, position){
+           if (id =='None') {
+               if (reference !== 'None') {
+                   this.placement = reference
+                   this.position = position
+                   this.NewDialog = true
+               }
+           } else {
+               this.retrieveGenealogyInformation(id)
+               this.ProfileDialog = true
+           }
        },
     },
 
