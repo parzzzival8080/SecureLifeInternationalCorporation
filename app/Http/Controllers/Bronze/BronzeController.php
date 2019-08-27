@@ -248,7 +248,7 @@ class BronzeController extends Controller
         return new BronzeResource($userProductLog); // Return user product log as a response
     }
 
-    private function retrieve_upstream_genea($genea, $upstream_genea_collection = []) {
+    public function retrieve_upstream_genea($genea, $upstream_genea_collection = []) {
         // Get upstream genea of current genea
         $upStream = (Genealogy::where('user_id', $genea->reference_id)->get())[0];
         // Add retrieve genealogy object to $upstream_genea_collection
