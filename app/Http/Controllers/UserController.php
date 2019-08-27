@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Genealogy;
 use App\Http\Controllers\Bronze\BronzeController;
+use ErrorException;
 use Illuminate\Http\Request;
 
 use Illuminate\Support\Facades\Auth;
@@ -39,18 +40,12 @@ class UserController extends Controller
 
     public function registerDiamond(Request $request)
     {
-        $str = '';
-        $user = User::where(\DB::raw('substr(code, 1, 3)'), '=', 'SLD')->latest()->value('code');
-        
-        $str = $user;
-        if ($user = '')
-        {
-            $code = 'SLD-00001';
-        }
-        else
-        {
-            $code = str_pad(substr($str, 4) +1,5,0,STR_PAD_LEFT);
+        try {
+            $user = User::where(\DB::raw('substr(code, 1, 3)'), '=', 'SLD')->get()->last()->code;
+            $code = str_pad(substr($user, 4) +1,5,0,STR_PAD_LEFT);
             $code = 'SLD-'.$code;
+        } catch (ErrorException $exception) {
+            $code = 'SLD-00001';
         }
         $request['code']=$code;
         //check if sponsor is valid
@@ -142,18 +137,12 @@ class UserController extends Controller
 
     public function registerBronze(Request $request)
     {
-        $str = '';
-        $user = User::where(\DB::raw('substr(code, 1, 3)'), '=', 'SLB')->latest()->value('code');
-        
-        $str = $user;
-        if ($user = '')
-        {
-            $code = 'SLB-00001';
-        }
-        else
-        {
-            $code = str_pad(substr($str, 4) +1,5,0,STR_PAD_LEFT);
-            $code = 'SLB-'.$code;
+        try {
+            $user = User::where(\DB::raw('substr(code, 1, 3)'), '=', 'SLB')->get()->last()->code;
+            $code = str_pad(substr($user, 4) +1,5,0,STR_PAD_LEFT);
+            $code = 'SLD-'.$code;
+        } catch (ErrorException $exception) {
+            $code = 'SLD-00001';
         }
         $request['code']=$code;
         //check if sponsor is valid
