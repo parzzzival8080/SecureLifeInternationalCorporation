@@ -60,7 +60,7 @@ class KeysController extends Controller
                         return response()->json(['error' => 'Incorrect Placement ID']);
                     }
                     
-                    $genea = Genealogy::where('reference_id', '=', $request['reference_id'])->where('position', '=', $request['position'])->get();
+                    $genea = Genealogy::where('reference_id', '=', $request['referal_id'])->where('position', '=', $request['position'])->get();
 
                     if (!$genea->isEmpty())
                     {
