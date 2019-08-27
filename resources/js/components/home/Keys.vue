@@ -135,7 +135,7 @@
         }
         let invest = this.investment
         axios.post('api/key',{
-          user_id: '1',
+          user_id: this.thisid,
           key: this.key,
           pin: this.pin,
           status: 'Inactive',
