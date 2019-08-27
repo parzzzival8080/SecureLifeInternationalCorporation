@@ -125,23 +125,30 @@
                         }
                     }).then(response => {
                         if(!response.data.data){
-                            swal.fire("Failed!",
-                            "It seems you have entered a wrong key. Enter again",
-                            "error")
-                            return false
+                            swal.fire({
+                                allowOutsideClick: false,
+                                title: 'Failed!',
+                                text: 'It seems you have entered a wrong combination. Enter again',
+                                type: 'error',
+                                showCancelButton: false,
+                                confirmButtonText: 'Okay'
+                            })
                         }
-                    })
-                    sessionStorage.setItem('status', 'Active')
-                    swal.fire({
-                        allowOutsideClick: false,
-                        title: 'Congratulations!',
-                        text: 'Succesfully Activated',
-                        type: 'success',
-                        showCancelButton: false,
-                        confirmButtonText: 'Okay'
-                    }).then((result)=>{
-                        if(result.value){
-                            this.$router.go('/dashboard')
+                        else
+                        {
+                            sessionStorage.setItem('status', 'Active')
+                            swal.fire({
+                                allowOutsideClick: false,
+                                title: 'Congratulations!',
+                                text: 'Succesfully Activated',
+                                type: 'success',
+                                showCancelButton: false,
+                                confirmButtonText: 'Okay'
+                            }).then((result)=>{
+                                if(result.value){
+                                    this.$router.go('/dashboard')
+                                }
+                            })
                         }
                     })
                     return false
