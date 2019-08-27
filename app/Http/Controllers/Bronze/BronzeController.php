@@ -137,9 +137,6 @@ class BronzeController extends Controller
     // CREATE GENEALOGY POST API, params = [user_id, reference_id, referal_id, position]
     public function create_genealogy(Request $request){
         $data = [];
-        $referal_genea = Genealogy::find('user_id', $request->referal_id);
-        $reference_genea = Genealogy::find('user_id', $request->reference_id);
-        $reference_genea_upstreams = $this->retrieve_upstream_genea($reference_genea);
         
         // Check if user ID already exist
         if(Genealogy::where('user_id', $request->user_id)->count() != 0){
@@ -148,68 +145,75 @@ class BronzeController extends Controller
         } elseif ((Genealogy::where('reference_id', $request->reference_id)->where('position', $request->position)->get()->count()) > 0) {
             // Add error message to data array
            $data[] = ["msg" => "Reference ID position is already taken"];
-        } elseif (!(in_array($referal_genea, $reference_genea_upstreams))) {
-            $data[] = ["msg" => "Referal ID doesnt exist within Reference ID upline"];
         } else {
-            // Create new genealogy object
-            $genealogy = Genealogy::create([
-                'user_id' => $request->user_id,
-                'reference_id' => $request->reference_id,
-                'referal_id' => $request->referal_id,
-                'position' => $request->position,
-            ]);
-            // Create new genealogy match point object
-            $genealogyMatchPoint = GenealogyMatchPoint::create([
-                'genealogy_id' => $genealogy->id,
-            ]);
-            
-            // Get user object then create new wallet
-            $user = User::find($request->user_id);
-            if($user->userAccountStatus->status == 'cd') {
-                $wallet = Wallet::create([
-                    'user_id' => $genealogy->user->id,
-                    'current_balance' => -3995,
-                    'total_earnings' => -3995,
-                ]);
-            } else {
-                $wallet = Wallet::create([
-                    'user_id' => $genealogy->user->id,
-                ]);
-            }
+            $referal_genea = Genealogy::find('user_id', $request->referal_id);
+            $reference_genea = Genealogy::find('user_id', $request->reference_id);
+            $reference_genea_upstreams = $this->retrieve_upstream_genea($reference_genea);
+            array_push($reference_genea_upstreams, $reference_genea);
 
-            // Check if genea position is Root
-            if($request->position != 'Root') {
-                // Call check_upstream_matches
-                $this->check_upstream_matches($genealogy);
-                // Genea referal reward
-                $referalGenea = Genealogy::find($request->referal_id); // Retrieve genea using referal id
+            if(in_array($referal_genea, $reference_genea_upstreams)) {
+                // Create new genealogy object
+                $genealogy = Genealogy::create([
+                    'user_id' => $request->user_id,
+                    'reference_id' => $request->reference_id,
+                    'referal_id' => $request->referal_id,
+                    'position' => $request->position,
+                ]);
+                // Create new genealogy match point object
+                $genealogyMatchPoint = GenealogyMatchPoint::create([
+                    'genealogy_id' => $genealogy->id,
+                ]);
 
-                // Retrieve genea wallet
-                $referalWallet = $referalGenea->user->wallet; // Retrieve wallet of referalGenea
-                // Retrieve user account status
-                $userAccountStatus = $referalGenea->user->userAccountStatus; // Get user account status
-                if($userAccountStatus->status == 'cd') {
-                    $referalWallet->current_balance = (int) $referalWallet->current_balance + 450;
-                    $referalWallet->total_earnings = (int) $referalWallet->total_earnings + 450; // Add referal reward to total earnings                    
+                // Get user object then create new wallet
+                $user = User::find($request->user_id);
+                if($user->userAccountStatus->status == 'cd') {
+                    $wallet = Wallet::create([
+                        'user_id' => $genealogy->user->id,
+                        'current_balance' => -3995,
+                        'total_earnings' => -3995,
+                    ]);
                 } else {
-                    $referalWallet->current_balance = (int) $referalWallet->current_balance + 450;
-                    $referalWallet->total_earnings = (int) $referalWallet->total_earnings + 500; // Add referal reward to total earnings
+                    $wallet = Wallet::create([
+                        'user_id' => $genealogy->user->id,
+                    ]);
                 }
-                $referalWallet->save();
-                
-                // Add wallet log
-                WalletLog::create([
-                    'wallet_id' => $referalWallet->id,
-                    'amount' => 500,
-                    'remarks' => 'Referal Reward'
-                ]);
+
+                // Check if genea position is Root
+                if($request->position != 'Root') {
+                    // Call check_upstream_matches
+                    $this->check_upstream_matches($genealogy);
+                    // Genea referal reward
+                    $referalGenea = Genealogy::find($request->referal_id); // Retrieve genea using referal id
+
+                    // Retrieve genea wallet
+                    $referalWallet = $referalGenea->user->wallet; // Retrieve wallet of referalGenea
+                    // Retrieve user account status
+                    $userAccountStatus = $referalGenea->user->userAccountStatus; // Get user account status
+                    if($userAccountStatus->status == 'cd') {
+                        $referalWallet->current_balance = (int) $referalWallet->current_balance + 450;
+                        $referalWallet->total_earnings = (int) $referalWallet->total_earnings + 450; // Add referal reward to total earnings                    
+                    } else {
+                        $referalWallet->current_balance = (int) $referalWallet->current_balance + 450;
+                        $referalWallet->total_earnings = (int) $referalWallet->total_earnings + 500; // Add referal reward to total earnings
+                    }
+                    $referalWallet->save();
+                    
+                    // Add wallet log
+                    WalletLog::create([
+                        'wallet_id' => $referalWallet->id,
+                        'amount' => 500,
+                        'remarks' => 'Referal Reward'
+                    ]);
+                }
+                // Add msg, genealogy, and match points to data
+                $data[] = [
+                    "msg" => "New Genealogy Added",
+                    'genealogy' => $genealogy,
+                    'genealogy_match_point' => $genealogyMatchPoint,
+                ];
+            } else {
+                $data[] = ["msg" => "Referal ID doesnt exist within Reference ID upline"];
             }
-            // Add msg, genealogy, and match points to data
-            $data[] = [
-                "msg" => "New Genealogy Added",
-                'genealogy' => $genealogy,
-                'genealogy_match_point' => $genealogyMatchPoint,
-            ];
         }
         return new BronzeResource($data); // Return data
     }

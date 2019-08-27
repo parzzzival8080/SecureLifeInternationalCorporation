@@ -160,7 +160,7 @@ class UserController extends Controller
         $sponsor= User::where('code', '=', $request['sponsor'])->get();
 
         $request['reference_id'] = User::where('code', '=', $request['sponsor'])->value('id');
-        $request['referal_id'] = User::where('code', '=', $request['sponsor'])->value('id');
+        $request['referal_id'] = User::where('code', '=', $request['placement'])->value('id');
         
         //if sponsor is valid
         if (!$sponsor->isEmpty()){
