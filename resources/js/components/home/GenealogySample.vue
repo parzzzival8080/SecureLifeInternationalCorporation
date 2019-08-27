@@ -389,20 +389,20 @@
                                                 </v-flex>
                                                 <v-flex xs12 md12>
                                                     <v-layout row wrap>
-                                                       <!-- Pin Code -->
-                                                        <v-flex xs12 md6>
-                                                            <v-text-field outline small transparent  id="sponsor" type="text" label="Pin Code" v-model="sponsor" required prepend-inner-icon="dialpad"/>
-                                                        </v-flex>
                                                         <!-- Activation Code -->
                                                         <v-flex xs12 md6>
-                                                            <v-text-field outline small transparent  id="sponsor" type="text" label="Activitaion Code" v-model="sponsor" required prepend-inner-icon="dialpad"/>
+                                                            <v-text-field outline small transparent id="activationcode" type="text" label="Activitaion Code" v-model="activationcode" required prepend-inner-icon="dialpad"/>
+                                                        </v-flex>
+                                                       <!-- Pin Code -->
+                                                        <v-flex xs12 md6>
+                                                            <v-text-field outline small transparent id="pin" type="text" label="Pin Code" v-model="pin" required prepend-inner-icon="dialpad"/>
                                                         </v-flex>
                                                     </v-layout>
                                                 </v-flex>
                                             </v-layout>
                                         </v-container>
                                         <v-flex xs12 md12>
-                                            <v-btn large round outline small transparent  type="submit" color="amber darken-3" @click=""> Register</v-btn>
+                                            <v-btn large round outline small transparent type="submit" color="amber darken-3" @click.prevent="registerBronze"> Register</v-btn>
                                         </v-flex>
                                     </v-form>
                                 </v-card-text>
@@ -423,11 +423,11 @@
                                 <v-container grid-list-sm bt-0>
                                     <!-- Pin Code -->
                                     <v-flex xs12 md12>
-                                        <v-text-field outline small transparent  id="sponsor" type="text" label="Pin Code" v-model="sponsor" required prepend-inner-icon="dialpad"/>
+                                        <v-text-field outline small transparent  id="sponsor" type="text" label="Pin Code" v-model="pin" required prepend-inner-icon="dialpad"/>
                                     </v-flex>
                                      <!-- Activation Code -->
                                     <v-flex xs12 md12>
-                                        <v-text-field outline small transparent  id="sponsor" type="text" label="Activitaion Code" v-model="sponsor" required prepend-inner-icon="dialpad"/>
+                                        <v-text-field outline small transparent  id="sponsor" type="text" label="Activitaion Code" v-model="activationcode" required prepend-inner-icon="dialpad"/>
                                     </v-flex>
                                      <!-- Sponsor ID -->
                                     <v-flex xs12 md12>
@@ -479,6 +479,8 @@
         birthdate: "",
         position: '',
         placement: '',
+        pin: '',
+        activationcode: '',
         show1: false, //hide password text
         show2: false, //hide confirm password text
         modal: false, //for birthday modal
@@ -565,7 +567,7 @@
                 return 'blue darken-3'
             }
        },
-       InfoDialog(id, reference, position){
+        InfoDialog(id, reference, position){
            if (id =='None') {
                if (reference !== 'None') {
                    this.placement = reference
@@ -576,7 +578,79 @@
                this.retrieveGenealogyInformation(id)
                this.ProfileDialog = true
            }
-       },
+        },
+        registerBronze()
+        {
+            if (!this.password === this.password_confirmation && !this.password.length >= 8)
+            {
+                this.password = ""
+                this.passwordConfirm = ""
+                swal.fire(
+                    'Warning!',
+                    'Passwords don\'t match',
+                    'error'
+                )
+                return false
+            }
+
+            //submit data to User Controller
+            if (this.mi.trim() == '')
+            {
+                this.name = this.firstname + " " + this.lastname
+            }
+            else
+            {   
+                this.name = this.firstname + " " + this.mi + ". " + this.lastname
+            }
+           axios.post('api/user/registerActivateBronze', {
+                name: this.name,
+                firstname: this.firstname,
+                lastname: this.lastname,
+                mi: this.mi,
+                email: this.email,
+                password: this.password,
+                c_password : this.password_confirmation,
+                photo: 'https://res.cloudinary.com/tim0923/image/upload/v1565588396/SecureLife/profile_pictures/user_wvwscz.png', //user pic
+                status: 'Active',
+                address: this.address,
+                sponsor: this.sponsor, //who invited this user
+                contact: this.contact, 
+                birthdate: this.birthdate,
+                activationcode: this.activationcode, //code from admin
+                pin: this.pin, //pin from admin
+                placement: this.placement, //code from admin
+                position: this.position, //code from admin
+            })
+            .then(response => {
+                if (response.data.success){
+                    swal.fire({
+                        allowOutsideClick: false,
+                        title: 'Thankyou!',
+                        text: 'You have successfully registered',
+                        type: 'success',
+                        showCancelButton: false,
+                        confirmButtonText: 'Okay'
+                    }).then((result)=>{
+                        window.location.reload()
+                    })
+                }
+                else{
+                    swal.fire(
+                        'Warning!',
+                        response.data.error,
+                        'warning'
+                    )
+                }
+            })
+            .catch(error => {
+                this.code = ""
+                swal.fire(
+                    'Error!',
+                    error.message,
+                    'error'
+                )
+            });
+        }
     },
 
     created() {
