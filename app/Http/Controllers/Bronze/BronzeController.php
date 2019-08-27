@@ -146,8 +146,8 @@ class BronzeController extends Controller
             // Add error message to data array
            $data[] = ["msg" => "Reference ID position is already taken"];
         } else {
-            $referal_genea = Genealogy::find('user_id', $request->referal_id);
-            $reference_genea = Genealogy::find('user_id', $request->reference_id);
+            $referal_genea = Genealogy::where('user_id', $request->referal_id)->get()->first();
+            $reference_genea = Genealogy::where('user_id', $request->reference_id)->get()->first();
             $reference_genea_upstreams = $this->retrieve_upstream_genea($reference_genea);
             array_push($reference_genea_upstreams, $reference_genea);
 
