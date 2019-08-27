@@ -387,6 +387,18 @@
                                                         </v-flex>
                                                     </v-layout>
                                                 </v-flex>
+                                                <v-flex xs12 md12>
+                                                    <v-layout row wrap>
+                                                       <!-- Pin Code -->
+                                                        <v-flex xs12 md6>
+                                                            <v-text-field outline small transparent  id="sponsor" type="text" label="Pin Code" v-model="sponsor" required prepend-inner-icon="dialpad"/>
+                                                        </v-flex>
+                                                        <!-- Activation Code -->
+                                                        <v-flex xs12 md6>
+                                                            <v-text-field outline small transparent  id="sponsor" type="text" label="Activitaion Code" v-model="sponsor" required prepend-inner-icon="dialpad"/>
+                                                        </v-flex>
+                                                    </v-layout>
+                                                </v-flex>
                                             </v-layout>
                                         </v-container>
                                         <v-flex xs12 md12>
