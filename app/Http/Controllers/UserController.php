@@ -159,8 +159,8 @@ class UserController extends Controller
         //check if sponsor is valid
         $sponsor= User::where('code', '=', $request['sponsor'])->get();
 
-        $request['reference_id'] = User::where('code', '=', $request['sponsor'])->value('id');
-        $request['referal_id'] = User::where('code', '=', $request['placement'])->value('id');
+        $request['referal_id'] = User::where('code', '=', $request['sponsor'])->value('id');
+        $request['reference_id'] = User::where('code', '=', $request['placement'])->value('id');
         
         //if sponsor is valid
         if (!$sponsor->isEmpty()){
@@ -173,7 +173,7 @@ class UserController extends Controller
                 return response()->json(['error' => 'Incorrect Placement ID']);
             }
             
-            $genea = Genealogy::where('reference_id', '=', $request['referal_id'])->where('position', '=', $request['position'])->get();
+            $genea = Genealogy::where('reference_id', '=', $request['reference_id'])->where('position', '=', $request['position'])->get();
 
             if (!$genea->isEmpty())
             {

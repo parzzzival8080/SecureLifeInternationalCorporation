@@ -53,14 +53,14 @@ class KeysController extends Controller
                 }
                 else{
                     //check genea
-                    $genea = Genealogy::where('user_id', '=', $request['reference_id'])->get();
+                    $genea = Genealogy::where('user_id', '=', $request['referal_id'])->get();
 
                     if ($genea->isEmpty())
                     {
                         return response()->json(['error' => 'Incorrect Placement ID']);
                     }
                     
-                    $genea = Genealogy::where('reference_id', '=', $request['referal_id'])->where('position', '=', $request['position'])->get();
+                    $genea = Genealogy::where('reference_id', '=', $request['reference_id'])->where('position', '=', $request['position'])->get();
 
                     if (!$genea->isEmpty())
                     {
