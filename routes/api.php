@@ -124,7 +124,7 @@ Route::group(['prefix'=> 'notification'], function($router) {
 Route::post('bronze/genealogy/create', 'Bronze\BronzeController@create_genealogy');
 // GET API for viewing current user's genealogy information, can accept a user_id as parameter to view specific genealogy
 Route::get('bronze/genealogy/information', 'Bronze\BronzeController@geanalogy_information');
-// GET API for viewing current user's genealogy, can accept a user_id as parameter to view specific genealogy
+// GET API for viewing current user's genealogy, can accept a current_user_id and search_user_id as parameter to view specific genealogy
 Route::get('bronze/genealogy', 'Bronze\BronzeController@genealogy');
 // GET API for viewing current user's dashboard
 Route::get('bronze/dashboard', 'Bronze\BronzeController@dashboard');

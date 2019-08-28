@@ -122,20 +122,45 @@ class BronzeController extends Controller
     
     // GENEALOGY GET API, params=[user_id]
     public function genealogy(Request $request) {
-        // Check if request contains a user_id
-        if($request->user_id) {
-            $user = User::find($request->user_id); // Get user object using supplied user_id
-            $genea = $user->genealogy; // Get genealogy object of user
-            $genealogy_tree = $this->genealogy_tree($genea); // Call GeneList function
-            $data = [
-                'genealogy_tree' => $genealogy_tree, // Add user genealogy tree
+        if($request->search_user_id) {
+            $current_user = User::find($request->current_user_id);
+            $current_user_check_match = $this->check_match([$current_user->genealogy]);
+            $current_user_result = $this->gene_list([$current_user->genealogy]);
+            $current_user_genea = [
+                'id' => $current_user->id, 'code' => $current_user->code, 'photo' => $current_user->informations->photo, 'name' => $current_user->name,
+                'downline' => ['total' => (int) $current_user_check_match[0]['left'] + (int) $current_user_check_match[0]['right'], 'left' => (int) $current_user_check_match[0]['left'], 'right' => (int) $current_user_check_match[0]['right']]
             ];
-            return new BronzeResource($data); // Return data
+            $current_user_result = array_merge([$current_user_genea], $current_user_result['left_genea'], $current_user_result['right_genea']);
+
+            $search_user = User::find($request->search_user_id);
+            $search_user_check_match = $this->check_match([$search_user->genealogy]);
+            $search_user_genea = [
+                'id' => $search_user->id, 'code' => $search_user->code, 'photo' => $search_user->informations->photo, 'name' => $search_user->name,
+                'downline' => ['total' => (int) $search_user_check_match[0]['left'] + (int) $search_user_check_match[0]['right'], 'left' => (int) $search_user_check_match[0]['left'], 'right' => (int) $search_user_check_match[0]['right']]
+            ];
+
+            if(in_array($search_user_genea, $current_user_result)) {
+                $genealogy_tree = $this->genealogy_tree($search_user->genealogy); // Call gene_list function
+                $data = [
+                    'genealogy_tree' => $genealogy_tree, // Add user genealogy tree
+                ];
+            } else {
+                $data = [
+                    'error' => 'User ID doesnt exist within your downline', // Add user genealogy tree
+                ];
+            }
+        } else {
+            $user = User::find($request->current_user_id);
+            $genealogy_list = $this->gene_list([$user->genealogy]);
+            $data = [
+                'genealogy_list' => $genealogy_list, // Add user genealogy tree
+            ];
         }
+        return new BronzeResource($data);
     }
 
     // CREATE GENEALOGY POST API, params = [user_id, reference_id, referal_id, position]
-    public function create_genealogy(Request $request){
+    public function create_genealogy(Request $request) {
         $data = [];
         
         // Check if user ID already exist
@@ -219,7 +244,7 @@ class BronzeController extends Controller
     }
 
     // PRODUCT PURCHASE POST API
-    public function product_purchase(Request $request){
+    public function product_purchase(Request $request) {
         $user = User::find($request->user_id); // Retrieve user object, using user_id
         $product = Product::find($request->product_id); // Retrieve product object, using product_id
         $quantity = $request->quantity; // Get quantity
@@ -400,7 +425,7 @@ class BronzeController extends Controller
         }
     }
 
-    private function check_upstream_matches($genea){
+    private function check_upstream_matches($genea) {
         // Retrieve upstream genea
         $upstreams = $this->retrieve_upstream_genea($genea);
         // Perform Check match to each up stream
@@ -596,6 +621,119 @@ class BronzeController extends Controller
 
         $genealogy_tree = $first_row + $second_row + $third_row + $fourth_row;
         return $genealogy_tree;
+    }
+
+    private function gene_list($right_genes=[], $left_genes=[], $right_genea=[], $left_genea=[], $flag=true) {
+        // Variable to store new left/right genes
+        $new_right_genes = [];
+        $new_left_genes = [];
+        // Condition for root gene. If this is the first time the function is called.
+        if($flag) {
+            // Iterate over first parameter
+            foreach($right_genes as $gene) {
+                $result = $this->check_match([$gene]);
+                $user = User::findOrFail($gene->user_id);  // Retrieve customer object of current gene objecet
+                $children = Genealogy::where('reference_id', $gene->user_id)->get(); // Retrieve children of current gene object
+                // Add customer data into gene collection/array
+                $gene_array[] = [
+                    'id' => $user->id, 'code' => $user->code, 'photo' => $user->informations->photo, 'name' => $user->name,
+                    'downline' => ['total' => (int) $result[0]['left'] + (int) $result[0]['right'], 'left' => (int) $result[0]['left'], 'right' => (int) $result[0]['right']]
+                ];
+                // Iterate over children
+                foreach($children as $child) {
+                    // Check child position
+                    if(($child->position) == 'Left') {
+                        $new_left_genes[] = $child; // Add left child to left genes collection/array
+                        // $left_genes_counter++; // Increament left genes counter
+                        $result = $this->check_match([$child]);
+                        $user = User::findOrFail($child->user_id); // Retrieve user object of genea
+                        $reference = User::findOrFail($child->reference_id); // Refreive user object of reference
+                        // Add new item to gene_array 
+                        $gene_array[] = [
+                            'id' => $user->id, 'code' => $user->code, 'photo' => $user->informations->photo, 'name' => $user->name,
+                            'downline' => ['total' => (int) $result[0]['left'] + (int) $result[0]['right'], 'left' => (int) $result[0]['left'], 'right' => (int) $result[0]['right']]
+                        ];
+                        $left_genea[] = [
+                            'id' => $user->id, 'code' => $user->code, 'photo' => $user->informations->photo, 'name' => $user->name,
+                            'downline' => ['total' => (int) $result[0]['left'] + (int) $result[0]['right'], 'left' => (int) $result[0]['left'], 'right' => (int) $result[0]['right']]
+                        ];
+                    } elseif(($child->position) == 'Right') {
+                        $new_right_genes[] = $child; // Add right child to right genes collection/array
+                        // $right_genes_counter++; // Increament right genes counter
+                        $result = $this->check_match([$child]);
+                        $user = User::findOrFail($child->user_id); // Retrieve user object of genea
+                        $reference = User::findOrFail($child->reference_id); // Refreive user object of reference
+                        // Add new item to gene_array 
+                        $gene_array[] = [
+                            'id' => $user->id, 'code' => $user->code, 'photo' => $user->informations->photo, 'name' => $user->name,
+                            'downline' => ['total' => (int) $result[0]['left'] + (int) $result[0]['right'], 'left' => (int) $result[0]['left'], 'right' => (int) $result[0]['right']]
+                        ];
+                        $right_genea[] = [
+                            'id' => $user->id, 'code' => $user->code, 'photo' => $user->informations->photo, 'name' => $user->name,
+                            'downline' => ['total' => (int) $result[0]['left'] + (int) $result[0]['right'], 'left' => (int) $result[0]['left'], 'right' => (int) $result[0]['right']]
+                        ];
+                    }
+                }
+                return $this->gene_list($new_right_genes, $new_left_genes, $right_genea, $left_genea, false); // Call the function again, passing new parameters
+            }
+        } else {
+            // Iterate over left genes collection/array
+            foreach($left_genes as $gene) {
+                $children = Genealogy::where('reference_id', $gene->user_id)->get(); // Retrieve children of current gene object
+                // $children_count = $children->count(); // Count number of children
+                // $left_genes_counter += $children_count; // Increament left gene counter
+                // Iterate over children
+                foreach($children as $child) {
+                    $new_left_genes[] = $child;  // Add right child to left genes collection/array
+                    $result = $this->check_match([$child]);
+                    $user = User::findOrFail($child->user_id); // Retrieve user object of genea
+                    $reference = User::findOrFail($child->reference_id); // Refreive user object of reference
+                    // Add new item to gene_array 
+                    $gene_array[] = [
+                        'id' => $user->id, 'code' => $user->code, 'photo' => $user->informations->photo, 'name' => $user->name,
+                        'downline' => ['total' => (int) $result[0]['left'] + (int) $result[0]['right'], 'left' => (int) $result[0]['left'], 'right' => (int) $result[0]['right']]
+                    ];
+                    $left_genea[] = [
+                        'id' => $user->id, 'code' => $user->code, 'photo' => $user->informations->photo, 'name' => $user->name,
+                        'downline' => ['total' => (int) $result[0]['left'] + (int) $result[0]['right'], 'left' => (int) $result[0]['left'], 'right' => (int) $result[0]['right']]
+                    ];
+                }
+            }
+
+            // Iterate over right genes collection/array
+            foreach($right_genes as $gene) {
+                $children = Genealogy::where('reference_id', $gene->user_id)->get(); // Retrieve children of current gene object
+                // $children_count = $children->count(); // Count number of children
+                // $right_genes_counter += $children_count; // Increament right gene counter
+                // Iterate over children
+                foreach($children as $child) {
+                    $new_right_genes[] = $child;  // Add right child to right genes collection/array
+                    $result = $this->check_match([$child]);
+                    $user = User::findOrFail($child->user_id); // Retrieve user object of genea
+                    $reference = User::findOrFail($child->reference_id); // Refreive user object of reference
+                    // Add new item to gene_array 
+                    $gene_array[] = [
+                        'id' => $user->id, 'code' => $user->code, 'photo' => $user->informations->photo, 'name' => $user->name,
+                        'downline' => ['total' => (int) $result[0]['left'] + (int) $result[0]['right'], 'left' => (int) $result[0]['left'], 'right' => (int) $result[0]['right']]
+                    ];
+                    $right_genea[] = [
+                        'id' => $user->id, 'code' => $user->code, 'photo' => $user->informations->photo, 'name' => $user->name,
+                        'downline' => ['total' => (int) $result[0]['left'] + (int) $result[0]['right'], 'left' => (int) $result[0]['left'], 'right' => (int) $result[0]['right']]
+                    ];
+                }
+            }
+
+            // Check number of items inside left/right genes collection/array. If all are 0 then return $gene_array, else call function again
+            if((count($right_genes)) == 0 || (count($left_genes)) == 0) {
+                $data = [
+                    'left_genea' => $left_genea,
+                    'right_genea' => $right_genea,
+                ];
+                return ($data); // Return gene collection/array
+            } else {
+                return $this->gene_list($new_right_genes, $new_left_genes, $right_genea, $left_genea, false); // Call the function again, passing new parameters
+            }
+        }
     }
 }
 
