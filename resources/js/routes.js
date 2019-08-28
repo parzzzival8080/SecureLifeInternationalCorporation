@@ -18,6 +18,8 @@ import Wallet from './components/home/Wallet.vue'
 import Points from './components/home/Points.vue'
 import Keys from './components/home/Keys.vue'
 import Requests from './components/home/Requests.vue'
+import Cashier from './components/POS/Cashier.vue'
+import Inventory from './components/POS/Inventory.vue'
 
 export const routes = [
   { path: '/', name: 'main', component: Main, 
@@ -27,6 +29,8 @@ export const routes = [
         { path: '/login', name: 'login', components: {main: Login}},
         { path: '/register', name: 'register', components: {main: Register}},
         { path: '/activate', name: 'activate', components: {main: Activate}},
+        { path: '/cashier', name: 'cashier', components: {main: Cashier}},
+        { path: '/inventory', name: 'inventory', components: {main: Inventory}},
     ]
   },
   { path: '/home', name: 'home', component: Home, 

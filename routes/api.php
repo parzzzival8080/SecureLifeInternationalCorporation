@@ -113,6 +113,10 @@ Route::group(['prefix'=> 'notification'], function($router) {
 
 });
 
+Route::group(['prefix'=> 'cashier'], function ($router){
+    Route::get('/getProducts', "CashierController@index");
+});
+
 
 
 // Route::get('bronze/test', 'Bronze\GenealogyController@test');
