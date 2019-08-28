@@ -217,9 +217,8 @@
                     }
                 ).then(response => {
                     if(response.data.data){
-                        this.$Progress.finish();
                         swal.fire({
-                        allowOutsideClick: false,
+                            allowOutsideClick: false,
                         title: 'Thank you!',
                         text: 'Succesfully Requested for a key',
                         type: 'success',
@@ -227,6 +226,7 @@
                         confirmButtonText: 'Okay'
                         }).then((result)=>{
                             if(result.value){
+                                this.$Progress.finish();
                                 this.$router.go('/dashboard')
                             }
                         })

@@ -40,7 +40,7 @@
         methods : {
             handleSubmit(e){
                 e.preventDefault()
-
+                this.$Progress.start();
                 if (this.password.length > 0) {
                     axios.post('api/user/login', {
                     username: this.username,
@@ -57,16 +57,19 @@
                                 sessionStorage.setItem('status',response.data.success.status)
 
                             if (sessionStorage.getItem('id') != null){
+                                this.$Progress.finish();
                                 this.$router.go('/dashboard')
                             }
                         }
                         else{
+                            this.$Progress.fail();
                             swal.fire("Failed!",
                             "Incorrect Username/Password",
                             "error")
                         }
                     })
                     .catch(function (error) {
+                        this.$Progress.fail();
                         swal.fire("Failed!",
                         "Incorrect Username/Password",
                         "error")

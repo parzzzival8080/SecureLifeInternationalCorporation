@@ -87,14 +87,17 @@
     },
     methods: {
       deleteCode(id){
+        this.$Progress.start();
         //put swal here
         axios.delete('api/key/deletekey/' + id)
         .then(response =>
         {
+          this.$Progress.finish();
           window.location.reload();
         })
       },
       saveinvestment() {
+        this.$Progress.start();
         if (this.type == 'Diamond Package')
         {
           if (this.investment %20000 != 0 && this.investment<=0){
@@ -106,6 +109,7 @@
               showCancelButton: false,
               confirmButtonText: 'Okay'
             })
+            this.$Progress.fail();
             return false
           }
         }
@@ -161,6 +165,7 @@
           showCancelButton: false,
           confirmButtonText: 'Okay'
         })
+        this.$Progress.finish();
       },
     },
     //this is there the component start

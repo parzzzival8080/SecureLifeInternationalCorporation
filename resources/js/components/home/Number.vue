@@ -90,6 +90,7 @@
           $('#imgupload').trigger('click');
       },
       UploadPicture(e){
+          this.$Progress.start();
           let file = e.target.files[0];
           let reader = new FileReader();
           reader.onloadend = (file) => {
@@ -97,6 +98,7 @@
               this.image = reader.result;
           }
           reader.readAsDataURL(file);
+          this.$Progress.finish();
       },
       saveinvestment() {
         this.$Progress.start();
@@ -130,6 +132,7 @@
         this.$Progress.finish();
       },
       activateuser(){
+        this.$Progress.start();
         //check if key entered is not yet activated
         axios.get('api/key/checkKey/', {
           params: {
@@ -152,6 +155,7 @@
                   confirmButtonText: 'Okay'
                 }).then((result)=>{
                   if(result.value){
+                    this.$Progress.finish();
                     window.location.reload();
                   }
                 })
@@ -160,6 +164,7 @@
               swal.fire("Failed!",
               "It seems you have entered a wrong key. Enter again",
               "error")
+              this.$Progress.fail();
           }
         })
       },

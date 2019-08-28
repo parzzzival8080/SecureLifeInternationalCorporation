@@ -11,8 +11,8 @@ import Dashboard from './components/home/Dashboard.vue'
 import UserList from './components/home/UserList.vue'
 import UserProfile from './components/home/UserProfile.vue'
 import MyNumber from './components/home/Number.vue'
+import AdminNumberList from './components/home/AdminNumberList.vue'
 import Genealogy from './components/home/Genealogy.vue'
-import GenealogySample from './components/home/GenealogySample.vue'
 import Notification from './components/home/Notification.vue'
 import Wallet from './components/home/Wallet.vue'
 import Points from './components/home/Points.vue'
@@ -35,8 +35,8 @@ export const routes = [
         { path: '/users', components: {home: UserList}},
         { path: '/profile', components: {home: UserProfile}},
         { path: '/number', components: {home: MyNumber}},
-        { path: '/numbers', components: {home: Genealogy}},
-        { path: '/genealogy', components: {home: GenealogySample}},
+        { path: '/numbers', components: {home: AdminNumberList}},
+        { path: '/genealogy', components: {home: Genealogy}},
         { path: '/notification', components: {home: Notification} },
         { path: '/wallet', components: {home: Wallet} },
         { path: '/points', components: {home: Points} },

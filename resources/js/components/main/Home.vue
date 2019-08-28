@@ -12,9 +12,11 @@
         <p class="subheading font-weight-regular" v-if="admin">Admin Account</p>
       </div>
       <!-- Profile Picture Dialog -->
-      <v-dialog v-model="PicDialog" fullscreen>
-            <v-img :src="pic"  max-height="100%" max-width="100%" contain alt="Profile">
-            </v-img>
+      <v-dialog v-model="PicDialog">
+        <div class="d-flex justify-content-center align-items-center">
+          <v-img :src="photo"  :max-height="profile_size" :max-width="profile_size" contain alt="Profile">
+          </v-img>
+        </div>
       </v-dialog>
       <v-list dense expand three-line>
         <!-- Start Navigation List -->
@@ -207,7 +209,18 @@
       pic: '',
     }),
     props:['user'],
-    
+
+    computed: {
+      profile_size () {
+        switch (this.$vuetify.breakpoint.name) {
+          case 'xs': return '400px'
+          case 'sm': return '400px'
+          case 'md': return '400px'
+          case 'lg': return '600px'
+          case 'xl': return '700px'
+        }
+      },
+    },
     methods:{
       logout() {
         sessionStorage.clear();
