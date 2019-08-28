@@ -465,6 +465,8 @@
   export default {
     data: () => ({
         genealogies: [],
+        left_genealogies: [],
+        right_genealogies: [],
         genealogiesInfo: [],
         name : "",
         lastname : "",
@@ -536,7 +538,7 @@
 
         retrieveGenealogyTree(user_id) {
             this.ProfileDialog = false;
-            axios.get('/api/bronze/genealogy', {params: {user_id: user_id}})
+            axios.get('/api/bronze/genealogy', {params: {current_user_id: user_id, search_user_id: user_id}})
             .then(response => {
                 var data = response.data
                 this.genealogies = data.genealogy_tree
@@ -546,13 +548,25 @@
                 console.log(response)
             })
         },
+        // Function for displaying GENEALOGY LIST!!!
+        retrieveGenealogyList() {
+            axios.get('/api/bronze/genealogy', {params: {current_user_id: sessionStorage.getItem('id')}})
+            .then(response => {
+                var data = response.data
+                this.left_genealogies = data.genealogy_list.left_genea
+                this.right_genealogies = data.genealogy_list.right_genealogies
+            })
+            .catch(response => {
+                console.log(response)
+            })
+        },
+
         getReferalTree(){
             this.retrieveGenealogyTree(this.genealogiesInfo.reference);
             this.retrieveGenealogyInformation(this.genealogiesInfo.reference);
             this.current_layer(this.genealogiesInfo.reference);
-            
-
         },
+
         changecolor (details) {
             if (details == "None"){
                 return 'grey darken-3'
@@ -654,6 +668,7 @@
     },
 
     created() {
+        this.retrieveGenealogyList();
         this.retrieveGenealogyTree(sessionStorage.getItem('id'));
         this.retrieveGenealogyInformation(sessionStorage.getItem('id'));
 
