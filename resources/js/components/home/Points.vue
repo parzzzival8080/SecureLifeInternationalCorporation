@@ -74,7 +74,7 @@
                               <v-card color="cyan darken-3">
                                 <v-card-text class="text-xs-center">
                                   <!-- Insert Prev Mont Maintaenance Balance Here -->
-                                  <p class="display-2 white--text">0</p>
+                                  <p class="display-2 white--text">{{product_purchase}}</p>
                                   <p class="title">Cash</p>
                                 </v-card-text>
                               </v-card>
@@ -83,7 +83,7 @@
                               <v-card color="teal darken-3">
                                 <v-card-text class="text-xs-center">
                                   <!-- Insert Current Mont Maintaenance Balance Here -->
-                                  <p class="display-2 white--text">0</p>
+                                  <p class="display-2 white--text">{{product_points}}</p>
                                   <p class="title">Points</p>
                                 </v-card-text>
                               </v-card>
@@ -108,8 +108,8 @@
                             <v-flex xs12 md4>
                               <v-card>
                                 <v-card-text class="text-xs-center">
-                                  <v-avatar size="200px">
-                                    <img src="img/car.png" alt="Profile">
+                                  <v-avatar tile size="250px">
+                                    <img src="img/car-montero.png" alt="Profile">
                                   </v-avatar>
                                   <!-- Insert Condition For claim Incentive -->
                                   <v-btn @click="EncashAmtDialog = true" color="primary" round large disabled>Claim</v-btn>
@@ -134,6 +134,7 @@
   export default {
     data(){
       return {
+        product_purchase: 0,
         product_points: 0,
         incentives_points: 0,
         left_group_sales_points: 0,
@@ -143,16 +144,14 @@
 
     methods: {
       retrievePoints() {
-        axios.get('/api/bronze/points', {params: {user_id: localStorage.getItem('id')}})
+        axios.get('/api/bronze/points', {params: {user_id: sessionStorage.getItem('id')}})
         .then(response => {
           var data = response.data
-          console.log(data)
+          this.product_purchase = data.product_purchase
           this.product_points = data.product_points
           this.incentives_points = data.incentives_points
           this.left_group_sales_points = data.left_group_sales_points
           this.right_group_sales_points = data.right_group_sales_points
-
-          // localStorage.getItem('id')
         })
         .catch(response => {
           console.log(response)

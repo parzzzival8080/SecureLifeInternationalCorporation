@@ -123,7 +123,7 @@
          <v-menu full-width transition="slide-x-transition" offset-y origin="center center" class="elelvation-1" :nudge-bottom="14" >
               <v-btn icon flat slot="activator" @click="markAsRead">
                   <v-badge color="red" overlap>
-                      <span slot="badge">{{allNotifications.length}}</span>
+                      <span slot="badge">{{notifCount}}</span>
                       <v-icon medium>notifications</v-icon>
                   </v-badge>
               </v-btn>
@@ -205,6 +205,7 @@
       admin: false,
       code: '',
       pic: '',
+      notifCount: 0
     }),
     props:['user'],
     
@@ -218,13 +219,14 @@
         {
           id: this.userId
         });
+        this.notifCount=0
       },
       refresh(){
-        if (localStorage.getItem('id'))
+        if (sessionStorage.getItem('id'))
         {
           setTimeout(function()
           {
-              localStorage.clear();
+              sessionStorage.clear();
               window.location.replace('/')
           },100000)
         }
@@ -245,6 +247,7 @@
       }).then(response=>{
         this.allNotifications=response.data.dta;
       })
+      this.notifCount = this.allNotifications.length
       
       // this.refresh()
       // document.addEventListener('click', this.refresh)

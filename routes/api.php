@@ -30,6 +30,7 @@ Route::group(['prefix'=> 'user'], function($router) {
     Route::post('/login', 'UserController@login');
     Route::post('/registerDiamond', 'UserController@registerDiamond');
     Route::post('/registerBronze', 'UserController@registerBronze');
+    Route::post('/registerActivateBronze', 'UserController@registerActivateBronze');
 
     Route::put('/{any}', 'UserController@update');
 
@@ -125,6 +126,8 @@ Route::group(['prefix'=> 'cashier'], function ($router){
 // Needs 4 parameters user_id, reference_id, referal_id, and position
 // Returns the new genealogy and match point object
 Route::post('bronze/genealogy/create', 'Bronze\BronzeController@create_genealogy');
+// GET API for viewing current user's genealogy information, can accept a user_id as parameter to view specific genealogy
+Route::get('bronze/genealogy/information', 'Bronze\BronzeController@geanalogy_information');
 // GET API for viewing current user's genealogy, can accept a user_id as parameter to view specific genealogy
 Route::get('bronze/genealogy', 'Bronze\BronzeController@genealogy');
 // GET API for viewing current user's dashboard

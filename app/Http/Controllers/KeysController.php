@@ -19,14 +19,16 @@ class KeysController extends Controller
     public function checkKey(Request $request)
     {
         $keys= Keys::where('key', '=', $request['key'])
+        ->where('pin', '=', $request['pin'])
         ->where('status', '=', 'Inactive')
         ->where('user_id', '=', $request['userid'])
         ->get();
         $msg = false;
         if ($keys->isEmpty()){
             $keys= Keys::where('key', '=', $request['key'])
+            ->where('pin', '=', $request['pin'])
             ->where('status', '=', 'Inactive')
-            ->where('user_id', '=', '1')
+            ->where('user_id', '=', User::where('role_id', '=', '1')->value('id'))
             ->get();
             $msg = false;
             if ($keys->isEmpty()){
@@ -51,23 +53,45 @@ class KeysController extends Controller
                 }
                 else{
                     //check genea
-                    $genea = Genealogy::where('user_id', '=', $request['reference_id'])->get();
+                    $referal_genea = Genealogy::where('user_id', $request->referal_id)->get()->first();
+                    $reference_genea = Genealogy::where('user_id', $request->reference_id)->get()->first();
+                    $bonzecontroller = new BronzeController;
+                    $reference_genea_upstreams = $bonzecontroller->retrieve_upstream_genea($reference_genea);
+                    array_push($reference_genea_upstreams, $reference_genea);
 
-                    if ($genea->isEmpty())
-                    {
-                        return response()->json(['error' => 'Incorrect Placement ID']);
+                    if(in_array($referal_genea, $reference_genea_upstreams)) {
+                        $genea = Genealogy::where('user_id', '=', $request['referal_id'])->get();
+
+                        if ($genea->isEmpty())
+                        {
+                            return response()->json(['error' => 'Incorrect Placement ID']);
+                        }
+                        
+                        $genea = Genealogy::where('reference_id', '=', $request['reference_id'])->where('position', '=', $request['position'])->get();
+
+                        if (!$genea->isEmpty())
+                        {
+                            return response()->json(['error' => 'Position is taken']);
+                        }
                     }
-                    
-                    $genea = Genealogy::where('reference_id', '=', $request['reference_id'])->where('position', '=', $request['position'])->get();
-
-                    if (!$genea->isEmpty())
+                    else
                     {
-                        return response()->json(['error' => 'Incorrect Placement ID']);
+                        return response()->json(['error' => 'Cross-Lining is not allowed!']);
+                    }
+
+                    $status = '';
+                    if (substr($request['key'], 0, 4) == 'SLCD')
+                    {
+                        $status = 'cd';
+                    }
+                    else
+                    {
+                        $status = 'active';
                     }
 
                     UserAccountStatus::create([
                         'user_id'=>$request['userid'],
-                        'status'=>'active',
+                        'status'=>$status,
                     ]);
                     User::where('id', '=', $request['userid'])->update(['status'=>'Active']);
 
@@ -96,24 +120,28 @@ class KeysController extends Controller
                 }
                 else{
                     //check genea
-                    $genea = Genealogy::where('user_id', '=', $request['placement'])->get();
+                    $genea = Genealogy::where('user_id', '=', $request['reference_id'])->get();
 
                     if ($genea->isEmpty())
                     {
                         return response()->json(['error' => 'Incorrect Placement ID']);
                     }
                     
-                    $genea = Genealogy::where('reference_id', '=', $request['placement'])->where('position', '=', $request['position'])->get();
+                    $genea = Genealogy::where('reference_id', '=', $request['reference_id'])->where('position', '=', $request['position'])->get();
 
                     if (!$genea->isEmpty())
                     {
                         return response()->json(['error' => 'Incorrect Placement ID']);
                     }
 
-                    User::where('id', '=', $request['id'])->update(['status'=>'Active']);
+                    UserAccountStatus::create([
+                        'user_id'=>$request['userid'],
+                        'status'=>'active',
+                    ]);
+                    User::where('id', '=', $request['userid'])->update(['status'=>'Active']);
 
                     $geneaController = new BronzeController;
-                    $geneaController->create($request);
+                    $geneaController->create_genealogy($request);
                     $msg = true;
                 }
         }
@@ -207,12 +235,7 @@ class KeysController extends Controller
 
     public function store(Request $request)
     {
-        $key=Keys::create([
-            'user_id' => $request['user_id'],
-            'key' => $request['key'],
-            'status' => $request['status'],
-            'investment' => $request['investment'],
-        ]);
+        $key=Keys::create($request->all());
         
         return $key->id;
     }
@@ -230,7 +253,7 @@ class KeysController extends Controller
     //get all keys for Keys.vue
     public function getAllKeys()
     {
-        return Keys::select('id', 'key', 'investment', 'status')->where('key', '<>', 'lala')->get();
+        return Keys::select('id', 'key', 'pin', 'investment', 'status')->where('key', '<>', 'lala')->get();
     }
 
     //get available keys for Activate.vue

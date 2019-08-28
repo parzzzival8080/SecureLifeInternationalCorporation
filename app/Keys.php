@@ -13,6 +13,7 @@ class Keys extends Model
     protected $fillable = [
         'user_id',
         'key',
+        'pin',
         'investment',
         'status'
     ];

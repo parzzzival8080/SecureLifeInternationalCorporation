@@ -7,15 +7,15 @@
                 </v-toolbar>
                 <v-card-text>
                     Available Keys:
-                    <p v-for="(thisrequest, index) in keys" :key="index">{{thisrequest.key}}</p>
+                    <p v-for="(thisrequest, index) in keys" :key="index">{{thisrequest.key}} - {{thisrequest.pin}}</p>
                     <v-form>
 
                         <v-flex xs12 md12>
-                            <v-text-field outline id="code" type="code" label="Pin Code" v-model="code" required autofocus prepend-inner-icon="dialpad"/>
+                            <v-text-field outline id="code" type="code" label="Activation Code" v-model="code" required autofocus prepend-inner-icon="dialpad"/>
                         </v-flex>
 
                         <v-flex xs12 md12>
-                            <v-text-field outline id="code" type="code" label="Activation Code" v-model="code" required autofocus prepend-inner-icon="dialpad"/>
+                            <v-text-field outline id="pin" type="code" label="Pin Code" v-model="pin" required autofocus prepend-inner-icon="dialpad"/>
                         </v-flex>
 
                         <v-flex class="justify-center layout px-0" xs12 md12>
@@ -71,6 +71,7 @@
         data(){
             return {
                 code : "",
+                pin : "",
                 proof: "",
                 image: "",
                 keys: [],
@@ -114,6 +115,7 @@
                         params: {
                             userid: sessionStorage.getItem('id'),
                             key: this.code,
+                            pin: this.pin,
                             name: sessionStorage.getItem('name'),
                             email: sessionStorage.getItem('email'),
                             reference_id: sessionStorage.getItem('reference_id'),
@@ -121,18 +123,32 @@
                             position: sessionStorage.getItem('position'),
                             user_id: sessionStorage.getItem('id'),
                         }
-                    })
-                    sessionStorage.setItem('status', 'Active')
-                    swal.fire({
-                        allowOutsideClick: false,
-                        title: 'Congratulations!',
-                        text: 'Succesfully Activated',
-                        type: 'success',
-                        showCancelButton: false,
-                        confirmButtonText: 'Okay'
-                    }).then((result)=>{
-                        if(result.value){
-                            this.$router.go('/dashboard')
+                    }).then(response => {
+                        if(!response.data.data){
+                            swal.fire({
+                                allowOutsideClick: false,
+                                title: 'Failed!',
+                                text: 'It seems you have entered a wrong combination. Enter again',
+                                type: 'error',
+                                showCancelButton: false,
+                                confirmButtonText: 'Okay'
+                            })
+                        }
+                        else
+                        {
+                            sessionStorage.setItem('status', 'Active')
+                            swal.fire({
+                                allowOutsideClick: false,
+                                title: 'Congratulations!',
+                                text: 'Succesfully Activated',
+                                type: 'success',
+                                showCancelButton: false,
+                                confirmButtonText: 'Okay'
+                            }).then((result)=>{
+                                if(result.value){
+                                    this.$router.go('/dashboard')
+                                }
+                            })
                         }
                     })
                     return false
@@ -142,6 +158,7 @@
                     params: {
                         userid: sessionStorage.getItem('id'),
                         key: this.code,
+                        pin: this.pin,
                         name: sessionStorage.getItem('name'),
                         email: sessionStorage.getItem('email'),
                     }

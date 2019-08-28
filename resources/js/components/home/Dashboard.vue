@@ -201,7 +201,7 @@
     },
     methods:{
       retrieveBronzeDashboard() {
-        axios.get('/api/bronze/dashboard', {params: {user_id: localStorage.getItem('id')}})
+        axios.get('/api/bronze/dashboard', {params: {user_id: sessionStorage.getItem('id')}})
         .then(response => {
           var data = response.data
           this.match_earnings = data.match_earnings
@@ -213,7 +213,6 @@
           this.product_points = data.product_points
           this.left_downline = data.left_downline
           this.right_downline = data.right_downline
-          console.log(data)
         })
         .catch(response => {
           console.log(response)
@@ -221,7 +220,8 @@
       },
     },
     created() {
-      this.retrieveBronzeDashboard
+      this.retrieveBronzeDashboard()
+
       if (sessionStorage.getItem('type') == "admin"){
         this.admin = true
       }

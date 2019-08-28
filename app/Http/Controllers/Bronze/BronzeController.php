@@ -21,15 +21,43 @@ use App\Http\Resources\Bronze as BronzeResource;
 
 class BronzeController extends Controller
 {   
-    // GET API
+    // GET API, params=[user_id]
+    public function geanalogy_information(Request $request) {
+        if($request->user_id) {
+            $user = User::find($request->user_id);
+            $genealogy = $user->genealogy;
+            $checkMatchResult = $this->check_match([$genealogy]);
+            $user_information = $user->informations;
+            $wallet = $user->wallet;
+            $data =  [
+                'id' => $user->id,
+                'code' => $user->code,
+                'name' => $user->name,
+                'email' => $user->email,
+                'photo' => $user_information->photo,
+                'downline' => [
+                    'left' => $checkMatchResult[0]['left'],
+                    'right' => $checkMatchResult[0]['right'],
+                ],
+                'reference' => $user->genealogy->reference_id,
+            ];
+            return new BronzeResource($data); // Return data
+        }
+    }
+
+    // POINTS GET API, params=[user_id]
     public function points(Request $request) {
         if($request->user_id) {
             $user = User::find($request->user_id); // auth()->user->id; // Get current user object
             $point = $user->genealogy->genealogyMatchPoint; // Get match point object of current user
-            $productPurchase = (int) UserProductLog::where('user_id', $request->user_id)->sum('total');
+
+            $previousMonth = new DateTime(date('Y-m', strtotime('-1 month')));
+            $product_purchase = UserProductLog::where('user_id', $user->id)->whereBetween('created_at', [$previousMonth->format('Y-m-')."01", $previousMonth->format('Y-m-t')])->sum('total');
+            $product_points = UserProductLog::where('user_id', $user->id)->whereBetween('created_at', [$previousMonth->format('Y-m-')."01", $previousMonth->format('Y-m-t')])->sum('points');
+
             $data = [
-                'product_purchase' => $productPurchase, // Add user product points to $data
-                'product_points' => $point->product_points, // Add user product points to $data
+                'product_purchase' => $product_purchase, // Add user product points to $data
+                'product_points' => $product_points, // Add user product points to $data
                 'incentives_points' => $point->incentives_points, // Add user incentives points to $data
                 'left_group_sales_points' => $point->left_group_sales_points, // Add user group sales points to $data
                 'right_group_sales_points' => $point->right_group_sales_points, // Add user group sales points to $data
@@ -38,7 +66,7 @@ class BronzeController extends Controller
         }
     }
 
-    // GET API
+    // WALLET GET API, params=[user_id]
     public function wallet(Request $request) {
         if($request->user_id) {
             $user = User::find($request->user_id); // auth()->user->id; // Get current user object
@@ -46,19 +74,21 @@ class BronzeController extends Controller
             $walletLog = $wallet->walletLog; // Get all wallet logs of current user
             $referalEarnings = WalletLog::where('wallet_id', $wallet->id)->where('remarks', 'Referal Reward')->sum('amount');
             $matchEarnings = WalletLog::where('wallet_id', $wallet->id)->where('remarks', 'Match Point Reward')->sum('amount');
+            $groupSalesEarnings = WalletLog::where('wallet_id', $wallet->id)->where('remarks', 'Group Sales Match Reward')->sum('amount');
         
             $data = [
                 'current_balance' => $wallet->current_balance, // Add user current balance to $data
                 'total_earnings' => $wallet->total_earnings, // Add user total earnings to $data
                 'referal_earnings' => $referalEarnings, // Add user total earnings to $data
                 'match_earnings' => $matchEarnings, // Add user total earnings to $data
+                'group_sales_earnings' => $groupSalesEarnings, // Add user total earnings to $data
                 'wallet_logs' => $walletLog, // Add user wallet logs to $data
             ];
             return new BronzeResource($data); // Return data
         }
     }
 
-    // GET API 
+    // DASHBOARD GET API, params=[user_id]
     public function dashboard(Request $request) {
         if($request->user_id) {
             $user = User::find($request->user_id); // auth()->user->id; // Get current user object
@@ -90,7 +120,7 @@ class BronzeController extends Controller
         }
     }
     
-    // GET API, optional params=[user_id]
+    // GENEALOGY GET API, params=[user_id]
     public function genealogy(Request $request) {
         // Check if request contains a user_id
         if($request->user_id) {
@@ -104,9 +134,10 @@ class BronzeController extends Controller
         }
     }
 
-    // POST API, params = [user_id, reference_id, referal_id, position]
+    // CREATE GENEALOGY POST API, params = [user_id, reference_id, referal_id, position]
     public function create_genealogy(Request $request){
         $data = [];
+        
         // Check if user ID already exist
         if(Genealogy::where('user_id', $request->user_id)->count() != 0){
             // Add error message to data array
@@ -115,67 +146,79 @@ class BronzeController extends Controller
             // Add error message to data array
            $data[] = ["msg" => "Reference ID position is already taken"];
         } else {
-            // Create new genealogy object
-            $genealogy = Genealogy::create([
-                'user_id' => $request->user_id,
-                'reference_id' => $request->reference_id,
-                'referal_id' => $request->referal_id,
-                'position' => $request->position,
-            ]);
-            // Create new genealogy match point object
-            $genealogyMatchPoint = GenealogyMatchPoint::create([
-                'genealogy_id' => $genealogy->id,
-            ]);
-            
-            // Get user object then create new wallet
-            $user = User::find($request->user_id);
-            if($user->userAccountStatus->status == 'cd') {
-                $wallet = Wallet::create([
-                    'user_id' => $genealogy->user->id,
-                    'current_balance' => -3995,
+            $referal_genea = Genealogy::where('user_id', $request->referal_id)->get()->first();
+            $reference_genea = Genealogy::where('user_id', $request->reference_id)->get()->first();
+            $reference_genea_upstreams = $this->retrieve_upstream_genea($reference_genea);
+            array_push($reference_genea_upstreams, $reference_genea);
+
+            if(in_array($referal_genea, $reference_genea_upstreams)) {
+                // Create new genealogy object
+                $genealogy = Genealogy::create([
+                    'user_id' => $request->user_id,
+                    'reference_id' => $request->reference_id,
+                    'referal_id' => $request->referal_id,
+                    'position' => $request->position,
                 ]);
+                // Create new genealogy match point object
+                $genealogyMatchPoint = GenealogyMatchPoint::create([
+                    'genealogy_id' => $genealogy->id,
+                ]);
+
+                // Get user object then create new wallet
+                $user = User::find($request->user_id);
+                if($user->userAccountStatus->status == 'cd') {
+                    $wallet = Wallet::create([
+                        'user_id' => $genealogy->user->id,
+                        'current_balance' => -3995,
+                        'total_earnings' => -3995,
+                    ]);
+                } else {
+                    $wallet = Wallet::create([
+                        'user_id' => $genealogy->user->id,
+                    ]);
+                }
+
+                // Check if genea position is Root
+                if($request->position != 'Root') {
+                    // Call check_upstream_matches
+                    $this->check_upstream_matches($genealogy);
+                    // Genea referal reward
+                    $referalGenea = Genealogy::find($request->referal_id); // Retrieve genea using referal id
+
+                    // Retrieve genea wallet
+                    $referalWallet = $referalGenea->user->wallet; // Retrieve wallet of referalGenea
+                    // Retrieve user account status
+                    $userAccountStatus = $referalGenea->user->userAccountStatus; // Get user account status
+                    if($userAccountStatus->status == 'cd') {
+                        $referalWallet->current_balance = (int) $referalWallet->current_balance + 450;
+                        $referalWallet->total_earnings = (int) $referalWallet->total_earnings + 450; // Add referal reward to total earnings                    
+                    } else {
+                        $referalWallet->current_balance = (int) $referalWallet->current_balance + 450;
+                        $referalWallet->total_earnings = (int) $referalWallet->total_earnings + 500; // Add referal reward to total earnings
+                    }
+                    $referalWallet->save();
+                    
+                    // Add wallet log
+                    WalletLog::create([
+                        'wallet_id' => $referalWallet->id,
+                        'amount' => 500,
+                        'remarks' => 'Referal Reward'
+                    ]);
+                }
+                // Add msg, genealogy, and match points to data
+                $data[] = [
+                    "msg" => "New Genealogy Added",
+                    'genealogy' => $genealogy,
+                    'genealogy_match_point' => $genealogyMatchPoint,
+                ];
             } else {
-                $wallet = Wallet::create([
-                    'user_id' => $genealogy->user->id,
-                ]);
+                $data[] = ["msg" => "Referal ID doesnt exist within Reference ID upline"];
             }
-
-            // Check if genea position is Root
-            if($request->position != 'Root') {
-                // Call check_upstream_matches
-                $this->check_upstream_matches($genealogy);
-                // Genea referal reward
-                $referalGenea = Genealogy::find($request->referal_id); // Retrieve genea using referal id
-
-                // Retrieve genea wallet
-                // $referalReward = 500;
-                // $referalWallet = Wallet::where('genealogy_id', $referalGenea->id)->first(); // Retrieve wallet of referalGenea
-                $referalWallet = $referalGenea->user->wallet; // Retrieve wallet of referalGenea
-
-                // Retrieve user account status
-                $userAccountStatus = $referalGenea->user->userAccountStatus; // Get user account status
-                $referalWallet->current_balance = (int) $referalWallet->current_balance + 450;
-                $referalWallet->total_earnings = (int) $referalWallet->total_earnings + 500; // Add referal reward to total earnings
-                $referalWallet->save();
-                
-                // Add wallet log
-                WalletLog::create([
-                    'wallet_id' => $referalWallet->id,
-                    'amount' => 500,
-                    'remarks' => 'Referal Reward'
-                ]);
-            }
-            // Add msg, genealogy, and match points to data
-            $data[] = [
-                "msg" => "New Genealogy Added",
-                'genealogy' => $genealogy,
-                'genealogy_match_point' => $genealogyMatchPoint,
-            ];
         }
         return new BronzeResource($data); // Return data
     }
 
-     // PRODUCT PURCHASE POST API
+    // PRODUCT PURCHASE POST API
     public function product_purchase(Request $request){
         $user = User::find($request->user_id); // Retrieve user object, using user_id
         $product = Product::find($request->product_id); // Retrieve product object, using product_id
@@ -188,8 +231,10 @@ class BronzeController extends Controller
         $userMatchPoint->product_points = $productPoints; // Set user product points
         $userMatchPoint->save(); // Save changes
 
-        $this->check_upstream_group_sales_2($user->genealogy, $totalProductPoints); // Run check_upstream_group_sales for uplines
-
+        if($user->name != 'SecureLife01') {
+            $this->check_upstream_group_sales($user->genealogy, $totalProductPoints); // Run check_upstream_group_sales for uplines
+        }
+        
         // Create new user product log
         $userProductLog = UserProductLog::create([
             'user_id' => $user->id,
@@ -203,7 +248,7 @@ class BronzeController extends Controller
         return new BronzeResource($userProductLog); // Return user product log as a response
     }
 
-    private function retrieve_upstream_genea($genea, $upstream_genea_collection = []) {
+    public function retrieve_upstream_genea($genea, $upstream_genea_collection = []) {
         // Get upstream genea of current genea
         $upStream = (Genealogy::where('user_id', $genea->reference_id)->get())[0];
         // Add retrieve genealogy object to $upstream_genea_collection
@@ -216,81 +261,12 @@ class BronzeController extends Controller
         }
     }
 
-    private function check_group_sales($right_genes, $left_genes=[], $right_group_sales=0, $left_group_sales=0, $flag=true) {
-        // Variable to store new left/right genes
-        $new_right_genes = [];
-        $new_left_genes = [];
-
-        // Condition for root gene. If this is the first time the function is called.
-        if($flag) {
-            // Iterate over first parameter
-            foreach($right_genes as $gene) {
-                $children = Genealogy::where('reference_id', $gene->user_id)->get(); // Retrieve children of current gene object
-                // Iterate over children
-                foreach($children as $child) {
-                    // Check child position
-                    if(($child->position) == 'Left') {
-                        $new_left_genes[] = $child; // Add left child to left genes collection/array
-                        $left_group_sales+=$child->genealogyMatchPoint->product_points; // Increament left group sales counter
-                    } elseif(($child->position) == 'Right') {
-                        $new_right_genes[] = $child; // Add right child to right genes collection/array
-                        $right_group_sales+=$child->genealogyMatchPoint->product_points; // Increament right group sales counter
-                    }
-                }
-                return $this->check_group_sales($new_right_genes, $new_left_genes, $right_group_sales, $left_group_sales, false); // Call the function again, passing new parameters
-            }
-        } else {
-            // Iterate over right genes collection/array
-            foreach($right_genes as $gene) {
-                $children = Genealogy::where('reference_id', $gene->user_id)->get(); // Retrieve children of current gene object
-                $children_count = $children->count(); // Count number of children
-                // Iterate over children
-                foreach($children as $child) {
-                    $new_right_genes[] = $child; // Add child to new right genes collection/array
-                    $right_group_sales+=$child->genealogyMatchPoint->product_points; // Increament right group sales counter
-                }
-            }
-            // Iterate over left genes collection/array
-            foreach($left_genes as $gene) {
-                $children = Genealogy::where('reference_id', $gene->user_id)->get(); // Retrieve children of current gene object
-                $children_count = $children->count(); // Count number of children
-                // Iterate over children
-                foreach($children as $child) {
-                    $new_left_genes[] = $child; // Add child to new left genes collection/array
-                    $left_group_sales+=$child->genealogyMatchPoint->product_points; // Increament left group sales counter
-                }
-            }
-            // Check number of items inside left/right genes collection/array. If all are 0 then return an array, else call function again
-            if((count($right_genes)) == 0 || (count($left_genes)) == 0) {
-                if($right_group_sales >= 500 and $left_group_sales >= 500) {
-                    $right_group_sales_point = floor($right_group_sales/500);
-                    $left_group_sales_point = floor($left_group_sales/500);
-
-                    $group_sales = $right_group_sales_point <= $left_group_sales_point ? $right_group_sales_point : $left_group_sales_point;
-
-                    return array([
-                        'group_sales' => $group_sales,
-                        'left' => $left_group_sales,
-                        'right' => $right_group_sales,
-                    ]);
-                } else {
-                    return array([
-                        'group_sales' => 0,
-                        'left' => $left_group_sales,
-                        'right' => $right_group_sales,
-                        ]);
-                }
-            } else {
-                return $this->check_group_sales($new_right_genes, $new_left_genes, $right_group_sales, $left_group_sales, false); // Call the function again, passing new parameters
-            }
-        }
-    }
-
-    private function check_upstream_group_sales_2($genea, $points) {
+    private function check_upstream_group_sales($genea, $points) {
         $upstreams = $this->retrieve_upstream_genea($genea); // Retrieve upstream genea
         $upstreams = (count($upstreams) > 15) ? array_slice($upstreams, 0, 15) : $upstreams;
         // Iterate over upstream with index
         foreach ($upstreams as $key => $value) {
+
             // Check if upstream is first item
             // Retrieve reference position of previous genea in array. For first item, use the given genea parameter
             if ($key == 0) {
@@ -298,39 +274,46 @@ class BronzeController extends Controller
             } else {
                 $position = Genealogy::where('reference_id', $value->id)->where('user_id', $upstreams[(int) $key - 1]->id)->first()->position;
             }
-            // Retrieve genea match point object
-            $geneaMatchPoints = $value->genealogyMatchPoint;
-            // Check reference position of previous genea, to know where to add product points
-            if($position == 'Left') {
-                $geneaMatchPoints->left_group_sales_points = $geneaMatchPoints->left_group_sales_points + $points;
-            } else if ($position == 'Right') {
-                $geneaMatchPoints->right_group_sales_points = $geneaMatchPoints->right_group_sales_points + $points;
-            }
-            $geneaMatchPoints->save(); // Save changes
 
-            $left_group_sales = $geneaMatchPoints->left_group_sales_points; // Retrieve left group sales points
-            $right_group_sales = $geneaMatchPoints->right_group_sales_points; // Retrieve right group sales points
+            // Check if user maintained a balance of Php 1500 last month
+            $previousMonth = new DateTime(date('Y-m', strtotime('-1 month')));
+            $maintained = UserProductLog::where('user_id', $value->user->id)->whereBetween('created_at', [$previousMonth->format('Y-m-')."01", $previousMonth->format('Y-m-t')])->sum('total');
+            $check = $maintained >= 1500 ? true : false;
 
-            if(($left_group_sales >= 500) and ($right_group_sales >= 500)) {
-                $left_group_sales = floor($left_group_sales / 500); // Get the floor equivalent of left group sales divided by 500
-                $right_group_sales = floor($right_group_sales / 500); // Get the floor equivalent of right group sales divided by 500
-                $group_sales = $right_group_sales <= $left_group_sales ? $right_group_sales : $left_group_sales;
-
-                $firstMonth = new DateTime('2019-08');
-                if((date('Y-m-d') >= $firstMonth->format('Y-m-')."01") and (date('Y-m-d') <= $firstMonth->format('Y-m-t'))) {
-                    $check = true;
-                } else {
-                    $previousMonth = new DateTime(date('Y-m', strtotime('-1 month')));
-                    $maintained = UserProductLog::where('user_id', $value->user->id)->whereBetween('created_at', [$previousMonth->format('Y-m-')."01", $previousMonth->format('Y-m-t')])->sum('total');
-                    $check = $maintained >= 1500 ? true : false;
+            if($check) {
+                // Retrieve genea match point object
+                $geneaMatchPoints = $value->genealogyMatchPoint;
+                // Check reference position of previous genea, to know where to add product points
+                if($position == 'Left') {
+                    $geneaMatchPoints->left_group_sales_points = $geneaMatchPoints->left_group_sales_points + $points;
+                } else if ($position == 'Right') {
+                    $geneaMatchPoints->right_group_sales_points = $geneaMatchPoints->right_group_sales_points + $points;
                 }
+                $geneaMatchPoints->save(); // Save changes
 
-                if($check) {
+                $left_group_sales = $geneaMatchPoints->left_group_sales_points; // Retrieve left group sales points
+                $right_group_sales = $geneaMatchPoints->right_group_sales_points; // Retrieve right group sales points
+
+                if(($left_group_sales >= 500) and ($right_group_sales >= 500)) {
+                    $left_group_sales = floor($left_group_sales / 500); // Get the floor equivalent of left group sales divided by 500
+                    $right_group_sales = floor($right_group_sales / 500); // Get the floor equivalent of right group sales divided by 500
+                    $group_sales = $right_group_sales <= $left_group_sales ? $right_group_sales : $left_group_sales;
+    
                     $geneaWallet = $value->user->wallet; // Retrieve genea wallet
-                    $geneaWallet->current_balance = (int) $geneaWallet->current_balance + (950 * (int) $group_sales);
-                    $geneaWallet->total_earnings = (int) $geneaWallet->total_earnings + (1000 * (int) $group_sales);
+                    $userAccountStatus = $value->user->userAccountStatus; // Get user account status
+
+                    if($userAccountStatus->status == 'cd') {
+                        $geneaWallet->current_balance = (int) $geneaWallet->current_balance + (900 * (int) $group_sales);
+                        $geneaWallet->total_earnings = (int) $geneaWallet->total_earnings + (900 * (int) $group_sales);
+                    } else {
+                        $geneaWallet->current_balance = (int) $geneaWallet->current_balance + (900 * (int) $group_sales);
+                        $geneaWallet->total_earnings = (int) $geneaWallet->total_earnings + (1000 * (int) $group_sales);
+                    }
                     $geneaWallet->save();
+
                     $geneaMatchPoints->incentives_points = (int) $geneaMatchPoints->incentives_points + (int) $group_sales; // Add group sales to incentive points
+                    $geneaMatchPoints->left_group_sales_points = (int) $geneaMatchPoints->left_group_sales_points - ((int) $group_sales * 500); // Deduct total group sales * 500 from left_group_sales_points
+                    $geneaMatchPoints->right_group_sales_points = (int) $geneaMatchPoints->right_group_sales_points - ((int) $group_sales * 500); // Deduct total group sales * 500 from right_group_sales_points
                     $geneaMatchPoints->save(); // Save changes
 
                     // Add wallet log
@@ -347,50 +330,6 @@ class BronzeController extends Controller
                         'remarks' => "Group Sales Match!"
                     ]);
                 }
-
-                $geneaMatchPoints->left_group_sales_points = (int) $geneaMatchPoints->left_group_sales_points - ((int) $group_sales * 500); // Deduct total group sales * 500 from left_group_sales_points
-                $geneaMatchPoints->right_group_sales_points = (int) $geneaMatchPoints->right_group_sales_points - ((int) $group_sales * 500); // Deduct total group sales * 500 from right_group_sales_points
-                $geneaMatchPoints->save(); // Save changes
-            }
-        }
-    }
-
-    private function check_upstream_group_sales($genea) {
-        $upstreams = $this->retrieve_upstream_genea($genea); // Retrieve upstream genea
-        // Perform Check match to each up stream
-        foreach ($upstreams as $genea) {
-            $result = $this->check_group_sales([$genea]);  // Run check_group_sales function to current genea
-            $recent_group_sales = $result[0]['group_sales'];  // Get recent group sales
-            $old_group_sales = GenealogyMatchPoint::select('group_sales_points')->where('genealogy_id', $genea->id)->first()->group_sales_points;  // Get old group sales
-            // Compare recent and old group sales
-            if((int) $old_group_sales < (int) $recent_group_sales) {
-                $salesMatches = (int) $recent_group_sales - (int) $old_group_sales; // Get total recent sales
-                $geneaMatchPoint = $genea->genealogyMatchPoint; // Retrive genealogy match point object of current genea
-                $geneaMatchPoint->group_sales_points = (int) $geneaMatchPoint->group_sales_points + (int) $salesMatches; // Add total recent group sales to old group sales
-                $geneaMatchPoint->save(); // Save updates
-
-                // $geneaWallet = $genea->bronzeWallet; // $geneaWallet = Wallet::where('genealogy_id', $genea->id)->first();
-                $geneaWallet = $genea->user->wallet; // $geneaWallet = Wallet::where('genealogy_id', $genea->id)->first();
-
-                // Retrieve user account status
-                $userAccountStatus = $genea->user->userAccountStatus; // Get user account status
-                $geneaWallet->current_balance = (int) $geneaWallet->current_balance + ((int) $salesMatches * 900);
-                $geneaWallet->total_earnings = (int) $geneaWallet->total_earnings + ((int) $salesMatches * 1000); // Add 1000 to total earnings
-                $geneaWallet->save();
-
-                // Add wallet log
-                WalletLog::create([
-                    'wallet_id' => $geneaWallet->id,
-                    'amount' => 1000,
-                    'remarks' => 'Group Sales Match Reward'
-                ]);
-
-                // Create group sales log
-                GroupSalesLog::create([
-                    'genealogy_id' => $genea->id,
-                    'matches' => $salesMatches,
-                    'remarks' => "Group Sales Match!"
-                ]);
             }
         }
     }
@@ -509,14 +448,16 @@ class BronzeController extends Controller
                     $geneaMatchPoints->save();
 
                     // Retrieve Wallet object of current genea and add match point reward/incentives
-                    // $referalReward = 750;
-                    // $geneaWallet = $genea->bronzeWallet; // $geneaWallet = Wallet::where('genealogy_id', $genea->id)->first();
                     $geneaWallet = $genea->user->wallet; // $geneaWallet = Wallet::where('genealogy_id', $genea->id)->first();
-
                     // Retrieve user account status
                     $userAccountStatus = $genea->user->userAccountStatus; // Get user account status
-                    $geneaWallet->current_balance = (int) $geneaWallet->current_balance + 675;
-                    $geneaWallet->total_earnings = (int) $geneaWallet->total_earnings + 750; // Add 750 to total earnings
+                    if($userAccountStatus->status == 'cd') {
+                        $geneaWallet->current_balance = (int) $geneaWallet->current_balance + 675;
+                        $geneaWallet->total_earnings = (int) $geneaWallet->total_earnings + 675; // Add 750 to total earnings
+                    } else {
+                        $geneaWallet->current_balance = (int) $geneaWallet->current_balance + 675;
+                        $geneaWallet->total_earnings = (int) $geneaWallet->total_earnings + 750; // Add 750 to total earnings
+                    }
                     $geneaWallet->save();
 
                     // Add wallet log
@@ -533,127 +474,308 @@ class BronzeController extends Controller
     public function genealogy_tree($genea) {
         // 1st Row
         $first_row = [];
-        $first_row[1] = ['id' => $genea->user->id, 'code' => $genea->user->code, 'name' => $genea->user->name, 'email' => $genea->user->email, 'photo' => $genea->user->photo, 'position' => 'root', 'referal' => 'none',];
+        $first_row[1] = ['id' => $genea->user->id, 'type' => $genea->user->userAccountStatus->status,'code' => $genea->user->code, 'name' => $genea->user->name, 'email' => $genea->user->email, 'photo' => $genea->user->informations->photo, 'position' => 'root', 'referal' => 'none',];
 
         // 2nd Row
         $second_row = [];
 
         $left_child = Genealogy::where('reference_id', $genea->user_id)->where('position', 'Left')->get()->first();
         $second_row[2] = $left_child ? [
-            'id' => $left_child->user->id, 'code' => $left_child->user->code, 'name' => $left_child->user->name, 'email' => $left_child->user->email, 
-            'photo' => $left_child->user->photo, 'position' => 'right', 'referal' => [ 'id' => $left_child->reference->id, 'name' => $left_child->reference->name, ],
-        ] : ['id' => 'None', 'code' => 'None', 'name' => 'None', 'email' => 'None', 'photo' => 'None', 'position' => 'None', 'referal' => 'None',];;
+            'id' => $left_child->user->id, 'type' => $left_child->user->userAccountStatus->status,'code' => $left_child->user->code, 'name' => $left_child->user->name, 'email' => $left_child->user->email, 
+            'photo' => $left_child->user->informations->photo, 'position' => 'right', 'referal' => [ 'id' => $left_child->reference->id, 'name' => $left_child->reference->name, ],
+        ] : ['id' => 'None', 'type' => 'None', 'code' => 'None', 'name' => 'None', 'email' => 'None', 'photo' => 'None', 'position' => 'None', 'referal' => 'None',];;
 
         $right_child = Genealogy::where('reference_id', $genea->user_id)->where('position', 'Right')->get()->first();
         $second_row[3] = $right_child ? [
-            'id' => $right_child->user->id, 'code' => $right_child->user->code, 'name' => $right_child->user->name, 'email' => $right_child->user->email, 
-            'photo' => $right_child->user->photo, 'position' => 'right', 'referal' => [ 'id' => $right_child->reference->id, 'name' => $right_child->reference->name, ],
-        ] : ['id' => 'None', 'code' => 'None', 'name' => 'None', 'email' => 'None', 'photo' => 'None', 'position' => 'None', 'referal' => 'None',];;
+            'id' => $right_child->user->id, 'type' => $right_child->user->userAccountStatus->status,'code' => $right_child->user->code, 'name' => $right_child->user->name, 'email' => $right_child->user->email, 
+            'photo' => $right_child->user->informations->photo, 'position' => 'right', 'referal' => [ 'id' => $right_child->reference->id, 'name' => $right_child->reference->name, ],
+        ] : ['id' => 'None', 'type' => 'None', 'code' => 'None', 'name' => 'None', 'email' => 'None', 'photo' => 'None', 'position' => 'None', 'referal' => 'None',];;
 
         // 3rd Row
         $third_row = [];
         if($second_row[2]['id'] == 'None') {
-            $third_row[4] = ['id' => 'None', 'code' => 'None', 'name' => 'None', 'email' => 'None', 'photo' => 'None', 'position' => 'None', 'referal' => 'None',];
-            $third_row[5] = ['id' => 'None', 'code' => 'None', 'name' => 'None', 'email' => 'None', 'photo' => 'None', 'position' => 'None', 'referal' => 'None',];
+            $third_row[4] = ['id' => 'None', 'type' => 'None', 'code' => 'None', 'name' => 'None', 'email' => 'None', 'photo' => 'None', 'position' => 'None', 'referal' => 'None',];
+            $third_row[5] = ['id' => 'None', 'type' => 'None', 'code' => 'None', 'name' => 'None', 'email' => 'None', 'photo' => 'None', 'position' => 'None', 'referal' => 'None',];
         } else {
             $left_child = Genealogy::where('reference_id', $second_row[2]['id'])->where('position', 'Left')->get()->first();
             $third_row[4] = $left_child ? [
-                'id' => $left_child->user['id'], 'code' => $left_child->user->code, 'name' => $left_child->user->name, 'email' => $left_child->user->email, 
-                'photo' => $left_child->user->photo, 'position' => 'right', 'referal' => [ 'id' => $left_child->reference['id'], 'name' => $left_child->reference->name, ],
-            ] : ['id' => 'None', 'code' => 'None', 'name' => 'None', 'email' => 'None', 'photo' => 'None', 'position' => 'None', 'referal' => 'None',];
+                'id' => $left_child->user['id'], 'type' => $left_child->user->userAccountStatus->status,'code' => $left_child->user->code, 'name' => $left_child->user->name, 'email' => $left_child->user->email, 
+                'photo' => $left_child->user->informations->photo, 'position' => 'right', 'referal' => [ 'id' => $left_child->reference['id'], 'name' => $left_child->reference->name, ],
+            ] : ['id' => 'None', 'type' => 'None', 'code' => 'None', 'name' => 'None', 'email' => 'None', 'photo' => 'None', 'position' => 'None', 'referal' => 'None',];
 
             $right_child = Genealogy::where('reference_id', $second_row[2]['id'])->where('position', 'Right')->get()->first();
             $third_row[5] = $right_child ? [
-                'id' => $right_child->user['id'], 'code' => $right_child->user->code, 'name' => $right_child->user->name, 'email' => $right_child->user->email, 
-                'photo' => $right_child->user->photo, 'position' => 'right', 'referal' => [ 'id' => $right_child->reference['id'], 'name' => $right_child->reference->name, ],
-            ] : ['id' => 'None', 'code' => 'None', 'name' => 'None', 'email' => 'None', 'photo' => 'None', 'position' => 'None', 'referal' => 'None',];
+                'id' => $right_child->user['id'], 'type' => $right_child->user->userAccountStatus->status,'code' => $right_child->user->code, 'name' => $right_child->user->name, 'email' => $right_child->user->email, 
+                'photo' => $right_child->user->informations->photo, 'position' => 'right', 'referal' => [ 'id' => $right_child->reference['id'], 'name' => $right_child->reference->name, ],
+            ] : ['id' => 'None', 'type' => 'None', 'code' => 'None', 'name' => 'None', 'email' => 'None', 'photo' => 'None', 'position' => 'None', 'referal' => 'None',];
         }
 
         if($second_row[3]['id'] == 'None') {
-            $third_row[6] = ['id' => 'None', 'code' => 'None', 'name' => 'None', 'email' => 'None', 'photo' => 'None', 'position' => 'None', 'referal' => 'None',];
-            $third_row[7] = ['id' => 'None', 'code' => 'None', 'name' => 'None', 'email' => 'None', 'photo' => 'None', 'position' => 'None', 'referal' => 'None',];
+            $third_row[6] = ['id' => 'None', 'type' => 'None', 'code' => 'None', 'name' => 'None', 'email' => 'None', 'photo' => 'None', 'position' => 'None', 'referal' => 'None',];
+            $third_row[7] = ['id' => 'None', 'type' => 'None', 'code' => 'None', 'name' => 'None', 'email' => 'None', 'photo' => 'None', 'position' => 'None', 'referal' => 'None',];
         } else {
             $left_child = Genealogy::where('reference_id', $second_row[3]['id'])->where('position', 'Left')->get()->first();
             $third_row[6] = $left_child ? [
-                'id' => $left_child->user['id'], 'code' => $left_child->user->code, 'name' => $left_child->user->name, 'email' => $left_child->user->email, 
-                'photo' => $left_child->user->photo, 'position' => 'right', 'referal' => [ 'id' => $left_child->reference['id'], 'name' => $left_child->reference->name, ],
-            ] : ['id' => 'None', 'code' => 'None', 'name' => 'None', 'email' => 'None', 'photo' => 'None', 'position' => 'None', 'referal' => 'None',];
+                'id' => $left_child->user['id'], 'type' => $left_child->user->userAccountStatus->status,'code' => $left_child->user->code, 'name' => $left_child->user->name, 'email' => $left_child->user->email, 
+                'photo' => $left_child->user->informations->photo, 'position' => 'right', 'referal' => [ 'id' => $left_child->reference['id'], 'name' => $left_child->reference->name, ],
+            ] : ['id' => 'None', 'type' => 'None', 'code' => 'None', 'name' => 'None', 'email' => 'None', 'photo' => 'None', 'position' => 'None', 'referal' => 'None',];
 
             $right_child = Genealogy::where('reference_id', $second_row[3]['id'])->where('position', 'Right')->get()->first();
             $third_row[7] = $right_child ? [
-                'id' => $right_child->user['id'], 'code' => $right_child->user->code, 'name' => $right_child->user->name, 'email' => $right_child->user->email, 
-                'photo' => $right_child->user->photo, 'position' => 'right', 'referal' => [ 'id' => $right_child->reference['id'], 'name' => $right_child->reference->name, ],
-            ] : ['id' => 'None', 'code' => 'None', 'name' => 'None', 'email' => 'None', 'photo' => 'None', 'position' => 'None', 'referal' => 'None',];
+                'id' => $right_child->user['id'], 'type' => $right_child->user->userAccountStatus->status,'code' => $right_child->user->code, 'name' => $right_child->user->name, 'email' => $right_child->user->email, 
+                'photo' => $right_child->user->informations->photo, 'position' => 'right', 'referal' => [ 'id' => $right_child->reference['id'], 'name' => $right_child->reference->name, ],
+            ] : ['id' => 'None', 'type' => 'None', 'code' => 'None', 'name' => 'None', 'email' => 'None', 'photo' => 'None', 'position' => 'None', 'referal' => 'None',];
         }
         
         // 4th Row
         $fourth_row = [];
         if($third_row[4]['id'] == 'None') {
-            $fourth_row[8] = ['id' => 'None', 'code' => 'None', 'name' => 'None', 'email' => 'None', 'photo' => 'None', 'position' => 'None', 'referal' => 'None',];
-            $fourth_row[9] = ['id' => 'None', 'code' => 'None', 'name' => 'None', 'email' => 'None', 'photo' => 'None', 'position' => 'None', 'referal' => 'None',];
+            $fourth_row[8] = ['id' => 'None', 'type' => 'None', 'code' => 'None', 'name' => 'None', 'email' => 'None', 'photo' => 'None', 'position' => 'None', 'referal' => 'None',];
+            $fourth_row[9] = ['id' => 'None', 'type' => 'None', 'code' => 'None', 'name' => 'None', 'email' => 'None', 'photo' => 'None', 'position' => 'None', 'referal' => 'None',];
         } else {
             $left_child = Genealogy::where('reference_id', $third_row[4]['id'])->where('position', 'Left')->get()->first();
             $fourth_row[8] = $left_child ? [
-                'id' => $left_child->user['id'], 'code' => $left_child->user->code, 'name' => $left_child->user->name, 'email' => $left_child->user->email, 
-                'photo' => $left_child->user->photo, 'position' => 'right', 'referal' => [ 'id' => $left_child->reference['id'], 'name' => $left_child->reference->name, ],
-            ] : ['id' => 'None', 'code' => 'None', 'name' => 'None', 'email' => 'None', 'photo' => 'None', 'position' => 'None', 'referal' => 'None',];
+                'id' => $left_child->user['id'], 'type' => $left_child->user->userAccountStatus->status,'code' => $left_child->user->code, 'name' => $left_child->user->name, 'email' => $left_child->user->email, 
+                'photo' => $left_child->user->informations->photo, 'position' => 'right', 'referal' => [ 'id' => $left_child->reference['id'], 'name' => $left_child->reference->name, ],
+            ] : ['id' => 'None', 'type' => 'None', 'code' => 'None', 'name' => 'None', 'email' => 'None', 'photo' => 'None', 'position' => 'None', 'referal' => 'None',];
 
             $right_child = Genealogy::where('reference_id', $third_row[4]['id'])->where('position', 'Right')->get()->first();
             $fourth_row[9] = $right_child ? [
-                'id' => $right_child->user['id'], 'code' => $right_child->user->code, 'name' => $right_child->user->name, 'email' => $right_child->user->email, 
-                'photo' => $right_child->user->photo, 'position' => 'right', 'referal' => [ 'id' => $right_child->reference['id'], 'name' => $right_child->reference->name, ],
-            ] : ['id' => 'None', 'code' => 'None', 'name' => 'None', 'email' => 'None', 'photo' => 'None', 'position' => 'None', 'referal' => 'None',];
+                'id' => $right_child->user['id'], 'type' => $right_child->user->userAccountStatus->status,'code' => $right_child->user->code, 'name' => $right_child->user->name, 'email' => $right_child->user->email, 
+                'photo' => $right_child->user->informations->photo, 'position' => 'right', 'referal' => [ 'id' => $right_child->reference['id'], 'name' => $right_child->reference->name, ],
+            ] : ['id' => 'None', 'type' => 'None', 'code' => 'None', 'name' => 'None', 'email' => 'None', 'photo' => 'None', 'position' => 'None', 'referal' => 'None',];
         }
 
         if($third_row[5]['id'] == 'None') {
-            $fourth_row[10] = ['id' => 'None', 'code' => 'None', 'name' => 'None', 'email' => 'None', 'photo' => 'None', 'position' => 'None', 'referal' => 'None',];
-            $fourth_row[11] = ['id' => 'None', 'code' => 'None', 'name' => 'None', 'email' => 'None', 'photo' => 'None', 'position' => 'None', 'referal' => 'None',];
+            $fourth_row[10] = ['id' => 'None', 'type' => 'None', 'code' => 'None', 'name' => 'None', 'email' => 'None', 'photo' => 'None', 'position' => 'None', 'referal' => 'None',];
+            $fourth_row[11] = ['id' => 'None', 'type' => 'None', 'code' => 'None', 'name' => 'None', 'email' => 'None', 'photo' => 'None', 'position' => 'None', 'referal' => 'None',];
         } else {
             $left_child = Genealogy::where('reference_id', $third_row[5]['id'])->where('position', 'Left')->get()->first();
             $fourth_row[10] = $left_child ? [
-                'id' => $left_child->user['id'], 'code' => $left_child->user->code, 'name' => $left_child->user->name, 'email' => $left_child->user->email, 
-                'photo' => $left_child->user->photo, 'position' => 'right', 'referal' => [ 'id' => $left_child->reference['id'], 'name' => $left_child->reference->name, ],
-            ] : ['id' => 'None', 'code' => 'None', 'name' => 'None', 'email' => 'None', 'photo' => 'None', 'position' => 'None', 'referal' => 'None',];
+                'id' => $left_child->user['id'], 'type' => $left_child->user->userAccountStatus->status,'code' => $left_child->user->code, 'name' => $left_child->user->name, 'email' => $left_child->user->email, 
+                'photo' => $left_child->user->informations->photo, 'position' => 'right', 'referal' => [ 'id' => $left_child->reference['id'], 'name' => $left_child->reference->name, ],
+            ] : ['id' => 'None', 'type' => 'None', 'code' => 'None', 'name' => 'None', 'email' => 'None', 'photo' => 'None', 'position' => 'None', 'referal' => 'None',];
             $right_child = Genealogy::where('reference_id', $third_row[5]['id'])->where('position', 'Right')->get()->first();
             $fourth_row[11] = $right_child ? [
-                'id' => $right_child->user['id'], 'code' => $right_child->user->code, 'name' => $right_child->user->name, 'email' => $right_child->user->email, 
-                'photo' => $right_child->user->photo, 'position' => 'right', 'referal' => [ 'id' => $right_child->reference['id'], 'name' => $right_child->reference->name, ],
-            ] : ['id' => 'None', 'code' => 'None', 'name' => 'None', 'email' => 'None', 'photo' => 'None', 'position' => 'None', 'referal' => 'None',];
+                'id' => $right_child->user['id'], 'type' => $right_child->user->userAccountStatus->status,'code' => $right_child->user->code, 'name' => $right_child->user->name, 'email' => $right_child->user->email, 
+                'photo' => $right_child->user->informations->photo, 'position' => 'right', 'referal' => [ 'id' => $right_child->reference['id'], 'name' => $right_child->reference->name, ],
+            ] : ['id' => 'None', 'type' => 'None', 'code' => 'None', 'name' => 'None', 'email' => 'None', 'photo' => 'None', 'position' => 'None', 'referal' => 'None',];
         }
 
         if($third_row[6]['id'] == 'None') {
-            $fourth_row[12] = ['id' => 'None', 'code' => 'None', 'name' => 'None', 'email' => 'None', 'photo' => 'None', 'position' => 'None', 'referal' => 'None',];
-            $fourth_row[13] = ['id' => 'None', 'code' => 'None', 'name' => 'None', 'email' => 'None', 'photo' => 'None', 'position' => 'None', 'referal' => 'None',];
+            $fourth_row[12] = ['id' => 'None', 'type' => 'None', 'code' => 'None', 'name' => 'None', 'email' => 'None', 'photo' => 'None', 'position' => 'None', 'referal' => 'None',];
+            $fourth_row[13] = ['id' => 'None', 'type' => 'None', 'code' => 'None', 'name' => 'None', 'email' => 'None', 'photo' => 'None', 'position' => 'None', 'referal' => 'None',];
         } else {
             $left_child = Genealogy::where('reference_id', $third_row[6]['id'])->where('position', 'Left')->get()->first();
             $fourth_row[12] = $left_child ? [
-                'id' => $left_child->user['id'], 'code' => $left_child->user->code, 'name' => $left_child->user->name, 'email' => $left_child->user->email, 
-                'photo' => $left_child->user->photo, 'position' => 'right', 'referal' => [ 'id' => $left_child->reference['id'], 'name' => $left_child->reference->name, ],
-            ] : ['id' => 'None', 'code' => 'None', 'name' => 'None', 'email' => 'None', 'photo' => 'None', 'position' => 'None', 'referal' => 'None',];
+                'id' => $left_child->user['id'], 'type' => $left_child->user->userAccountStatus->status,'code' => $left_child->user->code, 'name' => $left_child->user->name, 'email' => $left_child->user->email, 
+                'photo' => $left_child->user->informations->photo, 'position' => 'right', 'referal' => [ 'id' => $left_child->reference['id'], 'name' => $left_child->reference->name, ],
+            ] : ['id' => 'None', 'type' => 'None', 'code' => 'None', 'name' => 'None', 'email' => 'None', 'photo' => 'None', 'position' => 'None', 'referal' => 'None',];
             $right_child = Genealogy::where('reference_id', $third_row[6]['id'])->where('position', 'Right')->get()->first();
             $fourth_row[13] = $right_child ? [
-                'id' => $right_child->user['id'], 'code' => $right_child->user->code, 'name' => $right_child->user->name, 'email' => $right_child->user->email, 
-                'photo' => $right_child->user->photo, 'position' => 'right', 'referal' => [ 'id' => $right_child->reference['id'], 'name' => $right_child->reference->name, ],
-            ] : ['id' => 'None', 'code' => 'None', 'name' => 'None', 'email' => 'None', 'photo' => 'None', 'position' => 'None', 'referal' => 'None',];
+                'id' => $right_child->user['id'], 'type' => $right_child->user->userAccountStatus->status,'code' => $right_child->user->code, 'name' => $right_child->user->name, 'email' => $right_child->user->email, 
+                'photo' => $right_child->user->informations->photo, 'position' => 'right', 'referal' => [ 'id' => $right_child->reference['id'], 'name' => $right_child->reference->name, ],
+            ] : ['id' => 'None', 'type' => 'None', 'code' => 'None', 'name' => 'None', 'email' => 'None', 'photo' => 'None', 'position' => 'None', 'referal' => 'None',];
         }
 
         if($third_row[7]['id'] == 'None') {
-            $fourth_row[14] = ['id' => 'None', 'code' => 'None', 'name' => 'None', 'email' => 'None', 'photo' => 'None', 'position' => 'None', 'referal' => 'None',];
-            $fourth_row[15] = ['id' => 'None', 'code' => 'None', 'name' => 'None', 'email' => 'None', 'photo' => 'None', 'position' => 'None', 'referal' => 'None',];
+            $fourth_row[14] = ['id' => 'None', 'type' => 'None', 'code' => 'None', 'name' => 'None', 'email' => 'None', 'photo' => 'None', 'position' => 'None', 'referal' => 'None',];
+            $fourth_row[15] = ['id' => 'None', 'type' => 'None', 'code' => 'None', 'name' => 'None', 'email' => 'None', 'photo' => 'None', 'position' => 'None', 'referal' => 'None',];
         } else {
             $left_child = Genealogy::where('reference_id', $third_row[7]['id'])->where('position', 'Left')->get()->first();
             $fourth_row[14] = $left_child ? [
-                'id' => $left_child->user['id'], 'code' => $left_child->user->code, 'name' => $left_child->user->name, 'email' => $left_child->user->email, 
-                'photo' => $left_child->user->photo, 'position' => 'right', 'referal' => [ 'id' => $left_child->reference['id'], 'name' => $left_child->reference->name, ],
-            ] : ['id' => 'None', 'code' => 'None', 'name' => 'None', 'email' => 'None', 'photo' => 'None', 'position' => 'None', 'referal' => 'None',];
+                'id' => $left_child->user['id'], 'type' => $left_child->user->userAccountStatus->status,'code' => $left_child->user->code, 'name' => $left_child->user->name, 'email' => $left_child->user->email, 
+                'photo' => $left_child->user->informations->photo, 'position' => 'right', 'referal' => [ 'id' => $left_child->reference['id'], 'name' => $left_child->reference->name, ],
+            ] : ['id' => 'None', 'type' => 'None', 'code' => 'None', 'name' => 'None', 'email' => 'None', 'photo' => 'None', 'position' => 'None', 'referal' => 'None',];
             $right_child = Genealogy::where('reference_id', $third_row[7]['id'])->where('position', 'Right')->get()->first();
             $fourth_row[15] = $right_child ? [
-                'id' => $right_child->user['id'], 'code' => $right_child->user->code, 'name' => $right_child->user->name, 'email' => $right_child->user->email, 
-                'photo' => $right_child->user->photo, 'position' => 'right', 'referal' => [ 'id' => $right_child->reference['id'], 'name' => $right_child->reference->name, ],
-            ] : ['id' => 'None', 'code' => 'None', 'name' => 'None', 'email' => 'None', 'photo' => 'None', 'position' => 'None', 'referal' => 'None',];
+                'id' => $right_child->user['id'], 'type' => $right_child->user->userAccountStatus->status,'code' => $right_child->user->code, 'name' => $right_child->user->name, 'email' => $right_child->user->email, 
+                'photo' => $right_child->user->informations->photo, 'position' => 'right', 'referal' => [ 'id' => $right_child->reference['id'], 'name' => $right_child->reference->name, ],
+            ] : ['id' => 'None', 'type' => 'None', 'code' => 'None', 'name' => 'None', 'email' => 'None', 'photo' => 'None', 'position' => 'None', 'referal' => 'None',];
         }
 
         $genealogy_tree = $first_row + $second_row + $third_row + $fourth_row;
         return $genealogy_tree;
     }
 }
+
+    // To be deleted
+    // private function check_group_sales($right_genes, $left_genes=[], $right_group_sales=0, $left_group_sales=0, $flag=true) {
+    //     // Variable to store new left/right genes
+    //     $new_right_genes = [];
+    //     $new_left_genes = [];
+
+    //     // Condition for root gene. If this is the first time the function is called.
+    //     if($flag) {
+    //         // Iterate over first parameter
+    //         foreach($right_genes as $gene) {
+    //             $children = Genealogy::where('reference_id', $gene->user_id)->get(); // Retrieve children of current gene object
+    //             // Iterate over children
+    //             foreach($children as $child) {
+    //                 // Check child position
+    //                 if(($child->position) == 'Left') {
+    //                     $new_left_genes[] = $child; // Add left child to left genes collection/array
+    //                     $left_group_sales+=$child->genealogyMatchPoint->product_points; // Increament left group sales counter
+    //                 } elseif(($child->position) == 'Right') {
+    //                     $new_right_genes[] = $child; // Add right child to right genes collection/array
+    //                     $right_group_sales+=$child->genealogyMatchPoint->product_points; // Increament right group sales counter
+    //                 }
+    //             }
+    //             return $this->check_group_sales($new_right_genes, $new_left_genes, $right_group_sales, $left_group_sales, false); // Call the function again, passing new parameters
+    //         }
+    //     } else {
+    //         // Iterate over right genes collection/array
+    //         foreach($right_genes as $gene) {
+    //             $children = Genealogy::where('reference_id', $gene->user_id)->get(); // Retrieve children of current gene object
+    //             $children_count = $children->count(); // Count number of children
+    //             // Iterate over children
+    //             foreach($children as $child) {
+    //                 $new_right_genes[] = $child; // Add child to new right genes collection/array
+    //                 $right_group_sales+=$child->genealogyMatchPoint->product_points; // Increament right group sales counter
+    //             }
+    //         }
+    //         // Iterate over left genes collection/array
+    //         foreach($left_genes as $gene) {
+    //             $children = Genealogy::where('reference_id', $gene->user_id)->get(); // Retrieve children of current gene object
+    //             $children_count = $children->count(); // Count number of children
+    //             // Iterate over children
+    //             foreach($children as $child) {
+    //                 $new_left_genes[] = $child; // Add child to new left genes collection/array
+    //                 $left_group_sales+=$child->genealogyMatchPoint->product_points; // Increament left group sales counter
+    //             }
+    //         }
+    //         // Check number of items inside left/right genes collection/array. If all are 0 then return an array, else call function again
+    //         if((count($right_genes)) == 0 || (count($left_genes)) == 0) {
+    //             if($right_group_sales >= 500 and $left_group_sales >= 500) {
+    //                 $right_group_sales_point = floor($right_group_sales/500);
+    //                 $left_group_sales_point = floor($left_group_sales/500);
+
+    //                 $group_sales = $right_group_sales_point <= $left_group_sales_point ? $right_group_sales_point : $left_group_sales_point;
+
+    //                 return array([
+    //                     'group_sales' => $group_sales,
+    //                     'left' => $left_group_sales,
+    //                     'right' => $right_group_sales,
+    //                 ]);
+    //             } else {
+    //                 return array([
+    //                     'group_sales' => 0,
+    //                     'left' => $left_group_sales,
+    //                     'right' => $right_group_sales,
+    //                     ]);
+    //             }
+    //         } else {
+    //             return $this->check_group_sales($new_right_genes, $new_left_genes, $right_group_sales, $left_group_sales, false); // Call the function again, passing new parameters
+    //         }
+    //     }
+    // }
+
+    // To be deleted
+    // private function check_upstream_group_sales($genea) {
+    //     $upstreams = $this->retrieve_upstream_genea($genea); // Retrieve upstream genea
+    //     // Perform Check match to each up stream
+    //     foreach ($upstreams as $genea) {
+    //         $result = $this->check_group_sales([$genea]);  // Run check_group_sales function to current genea
+    //         $recent_group_sales = $result[0]['group_sales'];  // Get recent group sales
+    //         $old_group_sales = GenealogyMatchPoint::select('group_sales_points')->where('genealogy_id', $genea->id)->first()->group_sales_points;  // Get old group sales
+    //         // Compare recent and old group sales
+    //         if((int) $old_group_sales < (int) $recent_group_sales) {
+    //             $salesMatches = (int) $recent_group_sales - (int) $old_group_sales; // Get total recent sales
+    //             $geneaMatchPoint = $genea->genealogyMatchPoint; // Retrive genealogy match point object of current genea
+    //             $geneaMatchPoint->group_sales_points = (int) $geneaMatchPoint->group_sales_points + (int) $salesMatches; // Add total recent group sales to old group sales
+    //             $geneaMatchPoint->save(); // Save updates
+
+    //             // $geneaWallet = $genea->bronzeWallet; // $geneaWallet = Wallet::where('genealogy_id', $genea->id)->first();
+    //             $geneaWallet = $genea->user->wallet; // $geneaWallet = Wallet::where('genealogy_id', $genea->id)->first();
+
+    //             // Retrieve user account status
+    //             $userAccountStatus = $genea->user->userAccountStatus; // Get user account status
+    //             $geneaWallet->current_balance = (int) $geneaWallet->current_balance + ((int) $salesMatches * 900);
+    //             $geneaWallet->total_earnings = (int) $geneaWallet->total_earnings + ((int) $salesMatches * 1000); // Add 1000 to total earnings
+    //             $geneaWallet->save();
+
+    //             // Add wallet log
+    //             WalletLog::create([
+    //                 'wallet_id' => $geneaWallet->id,
+    //                 'amount' => 1000,
+    //                 'remarks' => 'Group Sales Match Reward'
+    //             ]);
+
+    //             // Create group sales log
+    //             GroupSalesLog::create([
+    //                 'genealogy_id' => $genea->id,
+    //                 'matches' => $salesMatches,
+    //                 'remarks' => "Group Sales Match!"
+    //             ]);
+    //         }
+    //     }
+    // }
+
+    // To be deleted
+    // Check if upstream is first item
+    // Retrieve reference position of previous genea in array. For first item, use the given genea parameter
+    // if ($key == 0) {
+    //     $position = Genealogy::where('reference_id', $value->id)->where('user_id', $genea->id)->first()->position;
+    // } else {
+    //     $position = Genealogy::where('reference_id', $value->id)->where('user_id', $upstreams[(int) $key - 1]->id)->first()->position;
+    // }
+    // // Retrieve genea match point object
+    // $geneaMatchPoints = $value->genealogyMatchPoint;
+    // // Check reference position of previous genea, to know where to add product points
+    // if($position == 'Left') {
+    //     $geneaMatchPoints->left_group_sales_points = $geneaMatchPoints->left_group_sales_points + $points;
+    // } else if ($position == 'Right') {
+    //     $geneaMatchPoints->right_group_sales_points = $geneaMatchPoints->right_group_sales_points + $points;
+    // }
+    // $geneaMatchPoints->save(); // Save changes
+
+    // $left_group_sales = $geneaMatchPoints->left_group_sales_points; // Retrieve left group sales points
+    // $right_group_sales = $geneaMatchPoints->right_group_sales_points; // Retrieve right group sales points
+
+    // if(($left_group_sales >= 500) and ($right_group_sales >= 500)) {
+    //     $left_group_sales = floor($left_group_sales / 500); // Get the floor equivalent of left group sales divided by 500
+    //     $right_group_sales = floor($right_group_sales / 500); // Get the floor equivalent of right group sales divided by 500
+    //     $group_sales = $right_group_sales <= $left_group_sales ? $right_group_sales : $left_group_sales;
+
+    //     $firstMonth = new DateTime('2019-08');
+    //     if((date('Y-m-d') >= $firstMonth->format('Y-m-')."01") and (date('Y-m-d') <= $firstMonth->format('Y-m-t'))) {
+    //         $check = true;
+    //     } else {
+    //         $previousMonth = new DateTime(date('Y-m', strtotime('-1 month')));
+    //         $maintained = UserProductLog::where('user_id', $value->user->id)->whereBetween('created_at', [$previousMonth->format('Y-m-')."01", $previousMonth->format('Y-m-t')])->sum('total');
+    //         $check = $maintained >= 1500 ? true : false;
+    //     }
+
+    //     if($check) {
+    //         $geneaWallet = $value->user->wallet; // Retrieve genea wallet
+    //         $userAccountStatus = $value->user->userAccountStatus; // Get user account status
+    //         if($userAccountStatus->status == 'cd') {
+    //             $geneaWallet->current_balance = (int) $geneaWallet->current_balance + (900 * (int) $group_sales);
+    //             $geneaWallet->total_earnings = (int) $geneaWallet->total_earnings + (900 * (int) $group_sales);
+    //         } else {
+    //             $geneaWallet->current_balance = (int) $geneaWallet->current_balance + (900 * (int) $group_sales);
+    //             $geneaWallet->total_earnings = (int) $geneaWallet->total_earnings + (1000 * (int) $group_sales);
+    //         }
+    //         $geneaWallet->save();
+    //         $geneaMatchPoints->incentives_points = (int) $geneaMatchPoints->incentives_points + (int) $group_sales; // Add group sales to incentive points
+    //         $geneaMatchPoints->save(); // Save changes
+
+    //         // Add wallet log
+    //         WalletLog::create([
+    //             'wallet_id' => $geneaWallet->id,
+    //             'amount' => (1000 * (int) $group_sales),
+    //             'remarks' => 'Group Sales Match Reward'
+    //         ]);
+
+    //         // Create group sales log
+    //         GroupSalesLog::create([
+    //             'genealogy_id' => $value->id,
+    //             'matches' => $group_sales,
+    //             'remarks' => "Group Sales Match!"
+    //         ]);
+    //     }
+
+    //     $geneaMatchPoints->left_group_sales_points = (int) $geneaMatchPoints->left_group_sales_points - ((int) $group_sales * 500); // Deduct total group sales * 500 from left_group_sales_points
+    //     $geneaMatchPoints->right_group_sales_points = (int) $geneaMatchPoints->right_group_sales_points - ((int) $group_sales * 500); // Deduct total group sales * 500 from right_group_sales_points
+    //     $geneaMatchPoints->save(); // Save changes
+    // }

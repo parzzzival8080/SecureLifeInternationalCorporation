@@ -17,6 +17,7 @@ class CreateKeysTable extends Migration
             $table->bigIncrements('id');
             $table->bigInteger('user_id')->unsigned();
             $table->string('key');
+            $table->string('pin');
             $table->string('status');
             $table->Integer('investment');
             $table->timestamps();
