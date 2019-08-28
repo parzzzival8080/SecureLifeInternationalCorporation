@@ -82,12 +82,14 @@ export default {
       $('#imgupload').trigger('click');
     },
     UploadPicture(e){
+      this.$Progress.start();
       let file = e.target.files[0];
       let reader = new FileReader();
       reader.onloadend = (file) => {
         this.photo = reader.result;
       }
       reader.readAsDataURL(file);
+      this.$Progress.finish();
     },
     updateUser(){
       let nopic = true
@@ -123,6 +125,7 @@ export default {
             
           }).then((result)=>{
             if(result.value){
+              this.$Progress.finish();
               window.location.reload();
             }
           })
@@ -153,8 +156,7 @@ export default {
             confirmButtonText: 'Okay'
           }).then((result)=>{
             if(result.value){
-            this.$Progress.finish();
-
+              this.$Progress.finish();
               window.location.reload();
             }
           })

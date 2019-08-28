@@ -156,6 +156,7 @@
     },
     methods: {
       approveEncash(data){
+        this.$Progress.start();
         axios.post('api/wallet',{
           user_id: data.user_id,
           amount: 0-data.amount,
@@ -178,6 +179,7 @@
           confirmButtonText: 'Okay'
         }).then((result)=>{
           if(result.value){
+            this.$Progress.finish();
             window.location.reload()
           }
         })
@@ -192,6 +194,7 @@
           this.pic = pic
       },
       disapproveRequest(data){
+        this.$Progress.start();
         axios.post('api/proof/disapproveRequest',{
           user_id: data.user_id,
           thisid: this.thisid,
@@ -199,10 +202,12 @@
           }
         )
         .then(response=>{
+          this.$Progress.finish();
           window.location.reload();
         })
       },
       saveinvestment() {
+          this.$Progress.start();
           if (this.type == 'Diamond Package')
         {
           if (this.investment %20000 != 0 && this.investment<=0){
@@ -215,6 +220,7 @@
               confirmButtonText: 'Okay'
             })
             return false
+            this.$Progress.fail();
           }
         }
         let keychars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890" //allowed characters for key
@@ -263,6 +269,7 @@
           }).then((result)=>
           {
             if(result.value){
+              this.$Progress.finish();
               window.location.reload();
             }
           })
@@ -271,12 +278,14 @@
     },
     watch: {
       keyRequests: function (val) {
+        this.$Progress.start();
         if (val == true)
         {
           axios.get('api/proof/getRequests')
           .then(response => {
             this.keys = response.data
           })
+          this.$Progress.finish();
         }
         else
         {
@@ -284,6 +293,7 @@
           .then(response => {
             this.encashments = response.data
           })
+          this.$Progress.finish();
         }
       }
     },
