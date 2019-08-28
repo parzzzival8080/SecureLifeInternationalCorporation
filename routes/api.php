@@ -30,6 +30,7 @@ Route::group(['prefix'=> 'user'], function($router) {
     Route::post('/login', 'UserController@login');
     Route::post('/registerDiamond', 'UserController@registerDiamond');
     Route::post('/registerBronze', 'UserController@registerBronze');
+    Route::post('/registerActivateBronze', 'UserController@registerActivateBronze');
 
     Route::put('/{any}', 'UserController@update');
 

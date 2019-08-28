@@ -53,7 +53,7 @@ class SampleController extends Controller
                 'name' => $item['name'],
                 'email' => $item['email'],
                 'username' => $item['name'],
-                'role_id' => 2,
+                'role_id' => 3,
                 'type' => 'bronze',
                 'status' => 'active',
                 'code' => 'SLB-'.str_pad($id,5,0,STR_PAD_LEFT),

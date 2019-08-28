@@ -11,11 +11,11 @@
                     <v-form>
 
                         <v-flex xs12 md12>
-                            <v-text-field outline id="code" type="code" label="Pin Code" v-model="pin" required autofocus prepend-inner-icon="dialpad"/>
+                            <v-text-field outline id="code" type="code" label="Activation Code" v-model="code" required autofocus prepend-inner-icon="dialpad"/>
                         </v-flex>
 
                         <v-flex xs12 md12>
-                            <v-text-field outline id="code" type="code" label="Activation Code" v-model="code" required autofocus prepend-inner-icon="dialpad"/>
+                            <v-text-field outline id="pin" type="code" label="Pin Code" v-model="pin" required autofocus prepend-inner-icon="dialpad"/>
                         </v-flex>
 
                         <v-flex class="justify-center layout px-0" xs12 md12>

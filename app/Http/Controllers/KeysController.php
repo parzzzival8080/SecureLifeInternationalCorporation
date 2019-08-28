@@ -53,18 +53,30 @@ class KeysController extends Controller
                 }
                 else{
                     //check genea
-                    $genea = Genealogy::where('user_id', '=', $request['reference_id'])->get();
+                    $referal_genea = Genealogy::where('user_id', $request->referal_id)->get()->first();
+                    $reference_genea = Genealogy::where('user_id', $request->reference_id)->get()->first();
+                    $bonzecontroller = new BronzeController;
+                    $reference_genea_upstreams = $bonzecontroller->retrieve_upstream_genea($reference_genea);
+                    array_push($reference_genea_upstreams, $reference_genea);
 
-                    if ($genea->isEmpty())
-                    {
-                        return response()->json(['error' => 'Incorrect Placement ID']);
+                    if(in_array($referal_genea, $reference_genea_upstreams)) {
+                        $genea = Genealogy::where('user_id', '=', $request['referal_id'])->get();
+
+                        if ($genea->isEmpty())
+                        {
+                            return response()->json(['error' => 'Incorrect Placement ID']);
+                        }
+                        
+                        $genea = Genealogy::where('reference_id', '=', $request['reference_id'])->where('position', '=', $request['position'])->get();
+
+                        if (!$genea->isEmpty())
+                        {
+                            return response()->json(['error' => 'Position is taken']);
+                        }
                     }
-                    
-                    $genea = Genealogy::where('reference_id', '=', $request['referal_id'])->where('position', '=', $request['position'])->get();
-
-                    if (!$genea->isEmpty())
+                    else
                     {
-                        return response()->json(['error' => 'Incorrect Placement ID']);
+                        return response()->json(['error' => 'Cross-Lining is not allowed!']);
                     }
 
                     $status = '';
