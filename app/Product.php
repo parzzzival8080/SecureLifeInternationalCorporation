@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 class Product extends Model
 {
     protected $fillable = [
-        'genealogy_id', 'matches', 'remarks',
+        'name', 'description', 'price', 'points',
     ];
 
     public function userProductLogs() {

@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Bronze;
 
+use DateTime;
 use App\User;
 use App\Genealogy;
 use App\GenealogyMatchPoint;
@@ -25,7 +26,9 @@ class BronzeController extends Controller
         if($request->user_id) {
             $user = User::find($request->user_id); // auth()->user->id; // Get current user object
             $point = $user->genealogy->genealogyMatchPoint; // Get match point object of current user
+            $productPurchase = (int) UserProductLog::where('user_id', $request->user_id)->sum('total');
             $data = [
+                'product_purchase' => $productPurchase, // Add user product points to $data
                 'product_points' => $point->product_points, // Add user product points to $data
                 'incentives_points' => $point->incentives_points, // Add user incentives points to $data
                 'left_group_sales_points' => $point->left_group_sales_points, // Add user group sales points to $data
@@ -178,20 +181,22 @@ class BronzeController extends Controller
         $product = Product::find($request->product_id); // Retrieve product object, using product_id
         $quantity = $request->quantity; // Get quantity
 
+        $totalProductPoints = ((int) $product->points * $quantity);
+        $totalProductPoints = date('Y-m-d') == date('Y-m-t') ? $totalProductPoints / 2 : $totalProductPoints;
         $userMatchPoint = $user->genealogy->genealogyMatchPoint; // Retrieve user match point object of user
-        $productPoints = $userMatchPoint->product_points + ((int) $product->points * $quantity); // Calculate total product points
+        $productPoints = $userMatchPoint->product_points + $totalProductPoints; // Calculate total product points
         $userMatchPoint->product_points = $productPoints; // Set user product points
         $userMatchPoint->save(); // Save changes
 
-        $this->check_upstream_group_sales_2($user->genealogy, ((int) $product->points * $quantity)); // Run check_upstream_group_sales for uplines
+        $this->check_upstream_group_sales_2($user->genealogy, $totalProductPoints); // Run check_upstream_group_sales for uplines
 
         // Create new user product log
         $userProductLog = UserProductLog::create([
             'user_id' => $user->id,
             'product_id' => $product->id,
-            'points' => ((int) $product->points * $quantity),
+            'points' => $totalProductPoints,
             'total' => ((int) $product->price * $quantity),
-            'remarks' => 'Successful Purchase'
+            'remarks' => 'Successful Purchase',
         ]);
         
         // return new BronzeResource($userProductLog); // Return user product log as a response
@@ -297,9 +302,9 @@ class BronzeController extends Controller
             $geneaMatchPoints = $value->genealogyMatchPoint;
             // Check reference position of previous genea, to know where to add product points
             if($position == 'Left') {
-                $geneaMatchPoints->left_group_sales_points = (int) $geneaMatchPoints->left_group_sales_points + $points;
+                $geneaMatchPoints->left_group_sales_points = $geneaMatchPoints->left_group_sales_points + $points;
             } else if ($position == 'Right') {
-                $geneaMatchPoints->right_group_sales_points = (int) $geneaMatchPoints->right_group_sales_points + $points;
+                $geneaMatchPoints->right_group_sales_points = $geneaMatchPoints->right_group_sales_points + $points;
             }
             $geneaMatchPoints->save(); // Save changes
 
@@ -311,17 +316,17 @@ class BronzeController extends Controller
                 $right_group_sales = floor($right_group_sales / 500); // Get the floor equivalent of right group sales divided by 500
                 $group_sales = $right_group_sales <= $left_group_sales ? $right_group_sales : $left_group_sales;
 
-                $firstMonth = new DateTime('2019-09');
-                if((date('Y-m-d') >= $firstMonth->format('Y-m-j')) and (date('Y-m-d') <= $firstMonth->format('Y-m-t'))) {
+                $firstMonth = new DateTime('2019-08');
+                if((date('Y-m-d') >= $firstMonth->format('Y-m-')."01") and (date('Y-m-d') <= $firstMonth->format('Y-m-t'))) {
                     $check = true;
                 } else {
                     $previousMonth = new DateTime(date('Y-m', strtotime('-1 month')));
-                    $maintained = UserProductLog::where('user_id', $value->user->id)->whereBetween('created_at', [$previousMonth->format('Y-m-j'), $previousMonth->format('Y-m-t')])->sum('total');
+                    $maintained = UserProductLog::where('user_id', $value->user->id)->whereBetween('created_at', [$previousMonth->format('Y-m-')."01", $previousMonth->format('Y-m-t')])->sum('total');
                     $check = $maintained >= 1500 ? true : false;
                 }
 
                 if($check) {
-                    $geneaWallet = $value->wallet; // Retrieve genea wallet
+                    $geneaWallet = $value->user->wallet; // Retrieve genea wallet
                     $geneaWallet->current_balance = (int) $geneaWallet->current_balance + (950 * (int) $group_sales);
                     $geneaWallet->total_earnings = (int) $geneaWallet->total_earnings + (1000 * (int) $group_sales);
                     $geneaWallet->save();

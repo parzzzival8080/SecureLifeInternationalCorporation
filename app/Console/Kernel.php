@@ -24,8 +24,8 @@ class Kernel extends ConsoleKernel
      */
     protected function schedule(Schedule $schedule)
     {
-        // $schedule->command('inspire')
-        //          ->hourly();
+        // $schedule->command('command:resetgroupsalespoints')->cron('59 23 '.date('t').' * *');
+        $schedule->command('command:resetgroupsalespoints')->cron('0 0 1 * *');
     }
 
     /**
