@@ -221,8 +221,10 @@ class BronzeController extends Controller
         $userMatchPoint->product_points = $productPoints; // Set user product points
         $userMatchPoint->save(); // Save changes
 
-        $this->check_upstream_group_sales($user->genealogy, $totalProductPoints); // Run check_upstream_group_sales for uplines
-
+        if($user->name != 'SecureLife01') {
+            $this->check_upstream_group_sales($user->genealogy, $totalProductPoints); // Run check_upstream_group_sales for uplines
+        }
+        
         // Create new user product log
         $userProductLog = UserProductLog::create([
             'user_id' => $user->id,
