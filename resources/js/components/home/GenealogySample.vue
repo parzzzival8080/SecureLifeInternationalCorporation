@@ -7,6 +7,10 @@
                 <v-icon color="white" medium>device_hub</v-icon>
                 <v-toolbar-title>Genealogy</v-toolbar-title>
                 <v-spacer></v-spacer>
+                <v-btn flat @click="getReferalTree">
+                    <span>Back to Root</span>
+                    <v-icon>trending_up</v-icon>
+                </v-btn>
               </v-toolbar>
               <v-card-text pa-0 ma-0> 
                 <v-img v-if="Bronze" class="white--text" size="100%" :src="imagesrc">
@@ -20,12 +24,12 @@
                                             <v-flex :class="{'xs5 md5': $vuetify.breakpoint.smAndDown, 'xs3 md3': $vuetify.breakpoint.mdAndUp}">
                                                 <v-layout row wrap align-center justify-center>
                                                     <v-flex xs6 md6>
-                                                        <v-card color="amber darken-3" @click="retrieveGenealogyInformation(genealogies[0]['id'])">
+                                                        <v-card color="amber darken-3" @click="passID(genealogies[0]['id'])">
                                                             <v-card-text class="text-xs-center">
                                                             <v-avatar :size="profilesize">
                                                                 <img src="https://res.cloudinary.com/tim0923/image/upload/v1565588396/SecureLife/profile_pictures/user_wvwscz.png" alt="alt">
                                                             </v-avatar>
-                                                            <p class="subtitle-2 ma-0 pa-0">{{ genealogies[0]['code'] }}</p>
+                                                            <p :class="{'overline ma-0 pa-0': $vuetify.breakpoint.smAndDown, 'subtitle-2 ma-0 pa-0': $vuetify.breakpoint.mdAndUp}">{{ genealogies[0]['code'] }}</p>
                                                             </v-card-text>
                                                         </v-card>
                                                     </v-flex>
@@ -40,12 +44,12 @@
                                                     <v-flex xs12 md12>
                                                         <v-layout row wrap align-center justify-center>
                                                                 <v-flex  :class="{'xs5 md5': $vuetify.breakpoint.smAndDown, 'xs3 md3': $vuetify.breakpoint.mdAndUp}">
-                                                                    <v-card :color="changecolor(genealogies[1]['code'])">
+                                                                    <v-card :color="changecolor(genealogies[1]['type'])" @click="passID(genealogies[1]['id'])">
                                                                         <v-card-text class="text-xs-center">
                                                                         <v-avatar :size="profilesize">
                                                                             <img src="https://res.cloudinary.com/tim0923/image/upload/v1565588396/SecureLife/profile_pictures/user_wvwscz.png" alt="alt">
                                                                         </v-avatar>
-                                                                        <p class="subtitle-2 ma-0 pa-0">{{ genealogies[1]['code'] }}</p>
+                                                                        <p :class="{'overline ma-0 pa-0': $vuetify.breakpoint.smAndDown, 'subtitle-2 ma-0 pa-0': $vuetify.breakpoint.mdAndUp}">{{ genealogies[1]['code'] }}</p>
                                                                         </v-card-text>
                                                                     </v-card>
                                                                 </v-flex>
@@ -58,12 +62,12 @@
                                                     <v-flex xs12 md12>
                                                         <v-layout row wrap align-center justify-center>
                                                                 <v-flex  :class="{'xs5 md5': $vuetify.breakpoint.smAndDown, 'xs3 md3': $vuetify.breakpoint.mdAndUp}">
-                                                                    <v-card :color="changecolor(genealogies[2]['code'])">
+                                                                    <v-card :color="changecolor(genealogies[2]['type'])" @click="passID(genealogies[2]['id'])">
                                                                         <v-card-text class="text-xs-center">
                                                                         <v-avatar :size="profilesize">
                                                                             <img src="https://res.cloudinary.com/tim0923/image/upload/v1565588396/SecureLife/profile_pictures/user_wvwscz.png" alt="alt">
                                                                         </v-avatar>
-                                                                        <p class="subtitle-2 ma-0 pa-0">{{ genealogies[2]['code'] }}</p>
+                                                                        <p :class="{'overline ma-0 pa-0': $vuetify.breakpoint.smAndDown, 'subtitle-2 ma-0 pa-0': $vuetify.breakpoint.mdAndUp}">{{ genealogies[2]['code'] }}</p>
                                                                         </v-card-text>
                                                                     </v-card>
                                                                 </v-flex>
@@ -78,12 +82,12 @@
                                             <v-flex xs3 md3>
                                             <v-layout row wrap align-center justify-center>
                                                     <v-flex  :class="{'xs10 md10': $vuetify.breakpoint.smAndDown, 'xs6 md6': $vuetify.breakpoint.mdAndUp}">
-                                                        <v-card :color="changecolor(genealogies[3]['code'])">
+                                                        <v-card :color="changecolor(genealogies[3]['type'])" @click="passID(genealogies[3]['id'])">
                                                             <v-card-text class="text-xs-center">
                                                             <v-avatar :size="profilesize">
                                                                 <img src="https://res.cloudinary.com/tim0923/image/upload/v1565588396/SecureLife/profile_pictures/user_wvwscz.png" alt="alt">
                                                             </v-avatar>
-                                                            <p class="subtitle-2 ma-0 pa-0">{{ genealogies[3]['code'] }}</p>
+                                                            <p :class="{'overline ma-0 pa-0': $vuetify.breakpoint.smAndDown, 'subtitle-2 ma-0 pa-0': $vuetify.breakpoint.mdAndUp}">{{ genealogies[3]['code'] }}</p>
                                                             </v-card-text>
                                                         </v-card>
                                                     </v-flex>
@@ -92,12 +96,12 @@
                                             <v-flex xs3 md3>
                                             <v-layout row wrap align-center justify-center>
                                                     <v-flex  :class="{'xs10 md10': $vuetify.breakpoint.smAndDown, 'xs6 md6': $vuetify.breakpoint.mdAndUp}">
-                                                        <v-card :color="changecolor(genealogies[4]['code'])">
+                                                        <v-card :color="changecolor(genealogies[4]['type'])" @click="passID(genealogies[4]['id'])">
                                                             <v-card-text class="text-xs-center">
                                                             <v-avatar :size="profilesize">
                                                                 <img src="https://res.cloudinary.com/tim0923/image/upload/v1565588396/SecureLife/profile_pictures/user_wvwscz.png" alt="alt">
                                                             </v-avatar>
-                                                            <p class="subtitle-2 ma-0 pa-0">{{ genealogies[4]['code'] }}</p>
+                                                            <p :class="{'overline ma-0 pa-0': $vuetify.breakpoint.smAndDown, 'subtitle-2 ma-0 pa-0': $vuetify.breakpoint.mdAndUp}">{{ genealogies[4]['code'] }}</p>
                                                             </v-card-text>
                                                         </v-card>
                                                     </v-flex>
@@ -106,12 +110,12 @@
                                             <v-flex xs3 md3>
                                             <v-layout row wrap align-center justify-center>
                                                     <v-flex  :class="{'xs10 md10': $vuetify.breakpoint.smAndDown, 'xs6 md6': $vuetify.breakpoint.mdAndUp}">
-                                                        <v-card :color="changecolor(genealogies[5]['code'])">
+                                                        <v-card :color="changecolor(genealogies[5]['type'])" @click="passID(genealogies[5]['id'])">
                                                             <v-card-text class="text-xs-center">
                                                             <v-avatar :size="profilesize">
                                                                 <img src="https://res.cloudinary.com/tim0923/image/upload/v1565588396/SecureLife/profile_pictures/user_wvwscz.png" alt="alt">
                                                             </v-avatar>
-                                                            <p class="subtitle-2 ma-0 pa-0">{{ genealogies[5]['code'] }}</p>
+                                                            <p :class="{'overline ma-0 pa-0': $vuetify.breakpoint.smAndDown, 'subtitle-2 ma-0 pa-0': $vuetify.breakpoint.mdAndUp}">{{ genealogies[5]['code'] }}</p>
                                                             </v-card-text>
                                                         </v-card>
                                                     </v-flex>
@@ -120,12 +124,12 @@
                                             <v-flex xs3 md3>
                                             <v-layout row wrap align-center justify-center>
                                                     <v-flex  :class="{'xs10 md10': $vuetify.breakpoint.smAndDown, 'xs6 md6': $vuetify.breakpoint.mdAndUp}">
-                                                        <v-card :color="changecolor(genealogies[6]['code'])">
+                                                        <v-card :color="changecolor(genealogies[6]['type'])" @click="passID(genealogies[6]['id'])">
                                                             <v-card-text class="text-xs-center">
                                                             <v-avatar :size="profilesize">
                                                                 <img src="https://res.cloudinary.com/tim0923/image/upload/v1565588396/SecureLife/profile_pictures/user_wvwscz.png" alt="alt">
                                                             </v-avatar>
-                                                            <p class="subtitle-2 ma-0 pa-0">{{ genealogies[6]['code'] }}</p>
+                                                            <p :class="{'overline ma-0 pa-0': $vuetify.breakpoint.smAndDown, 'subtitle-2 ma-0 pa-0': $vuetify.breakpoint.mdAndUp}">{{ genealogies[6]['code'] }}</p>
                                                             </v-card-text>
                                                         </v-card>
                                                     </v-flex>
@@ -138,46 +142,22 @@
                                             <v-flex xs3 md3>
                                                 <v-layout row wrap align-start>
                                                     <v-flex xs6 md6>
-                                                        <v-card :color="changecolor(genealogies[7]['code'])">
+                                                        <v-card :color="changecolor(genealogies[7]['type'])" @click="passID(genealogies[7]['id'])">
                                                             <v-card-text class="text-xs-center">
                                                             <v-avatar :size="profilesize">
                                                                 <img src="https://res.cloudinary.com/tim0923/image/upload/v1565588396/SecureLife/profile_pictures/user_wvwscz.png" alt="alt">
                                                             </v-avatar>
-                                                            <p class="subtitle-2 ma-0 pa-0">{{ genealogies[7]['code'] }}</p>
+                                                            <p :class="{'overline ma-0 pa-0': $vuetify.breakpoint.smAndDown, 'subtitle-2 ma-0 pa-0': $vuetify.breakpoint.mdAndUp}">{{ genealogies[7]['code'] }}</p>
                                                             </v-card-text>
                                                         </v-card>
                                                     </v-flex>
                                                     <v-flex xs6 md6>
-                                                        <v-card :color="changecolor(genealogies[8]['code'])">
+                                                        <v-card :color="changecolor(genealogies[8]['type'])" @click="passID(genealogies[8]['id'])">
                                                             <v-card-text class="text-xs-center">
                                                             <v-avatar :size="profilesize">
                                                                 <img src="https://res.cloudinary.com/tim0923/image/upload/v1565588396/SecureLife/profile_pictures/user_wvwscz.png" alt="alt">
                                                             </v-avatar>
-                                                            <p class="subtitle-2 ma-0 pa-0">{{ genealogies[8]['code'] }}</p>
-                                                            </v-card-text>
-                                                        </v-card>
-                                                    </v-flex>
-                                                </v-layout>
-                                            </v-flex>
-                                            <v-flex xs3 md3>
-                                                <v-layout row wrap align-start>
-                                                    <v-flex xs6 md6>
-                                                        <v-card :color="changecolor(genealogies[9]['code'])">
-                                                            <v-card-text class="text-xs-center">
-                                                            <v-avatar :size="profilesize">
-                                                                <img src="https://res.cloudinary.com/tim0923/image/upload/v1565588396/SecureLife/profile_pictures/user_wvwscz.png" alt="alt">
-                                                            </v-avatar>
-                                                            <p class="subtitle-2 ma-0 pa-0">{{ genealogies[9]['code'] }}</p>
-                                                            </v-card-text>
-                                                        </v-card>
-                                                    </v-flex>
-                                                    <v-flex xs6 md6>
-                                                        <v-card :color="changecolor(genealogies[10]['code'])">
-                                                            <v-card-text class="text-xs-center">
-                                                            <v-avatar :size="profilesize">
-                                                                <img src="https://res.cloudinary.com/tim0923/image/upload/v1565588396/SecureLife/profile_pictures/user_wvwscz.png" alt="alt">
-                                                            </v-avatar>
-                                                            <p class="subtitle-2 ma-0 pa-0">{{ genealogies[10]['code'] }}</p>
+                                                            <p :class="{'overline ma-0 pa-0': $vuetify.breakpoint.smAndDown, 'subtitle-2 ma-0 pa-0': $vuetify.breakpoint.mdAndUp}">{{ genealogies[8]['code'] }}</p>
                                                             </v-card-text>
                                                         </v-card>
                                                     </v-flex>
@@ -186,22 +166,22 @@
                                             <v-flex xs3 md3>
                                                 <v-layout row wrap align-start>
                                                     <v-flex xs6 md6>
-                                                        <v-card :color="changecolor(genealogies[11]['code'])">
+                                                        <v-card :color="changecolor(genealogies[9]['type'])" @click="passID(genealogies[9]['id'])">
                                                             <v-card-text class="text-xs-center">
                                                             <v-avatar :size="profilesize">
                                                                 <img src="https://res.cloudinary.com/tim0923/image/upload/v1565588396/SecureLife/profile_pictures/user_wvwscz.png" alt="alt">
                                                             </v-avatar>
-                                                            <p class="subtitle-2 ma-0 pa-0">{{ genealogies[11]['code'] }}</p>
+                                                            <p :class="{'overline ma-0 pa-0': $vuetify.breakpoint.smAndDown, 'subtitle-2 ma-0 pa-0': $vuetify.breakpoint.mdAndUp}">{{ genealogies[9]['code'] }}</p>
                                                             </v-card-text>
                                                         </v-card>
                                                     </v-flex>
                                                     <v-flex xs6 md6>
-                                                        <v-card :color="changecolor(genealogies[12]['code'])">
+                                                        <v-card :color="changecolor(genealogies[10]['type'])" @click="passID(genealogies[10]['id'])">
                                                             <v-card-text class="text-xs-center">
                                                             <v-avatar :size="profilesize">
                                                                 <img src="https://res.cloudinary.com/tim0923/image/upload/v1565588396/SecureLife/profile_pictures/user_wvwscz.png" alt="alt">
                                                             </v-avatar>
-                                                            <p class="subtitle-2 ma-0 pa-0">{{ genealogies[12]['code'] }}</p>
+                                                            <p :class="{'overline ma-0 pa-0': $vuetify.breakpoint.smAndDown, 'subtitle-2 ma-0 pa-0': $vuetify.breakpoint.mdAndUp}">{{ genealogies[10]['code'] }}</p>
                                                             </v-card-text>
                                                         </v-card>
                                                     </v-flex>
@@ -210,22 +190,46 @@
                                             <v-flex xs3 md3>
                                                 <v-layout row wrap align-start>
                                                     <v-flex xs6 md6>
-                                                        <v-card :color="changecolor(genealogies[13]['code'])">
+                                                        <v-card :color="changecolor(genealogies[11]['type'])" @click="passID(genealogies[11]['id'])">
                                                             <v-card-text class="text-xs-center">
                                                             <v-avatar :size="profilesize">
                                                                 <img src="https://res.cloudinary.com/tim0923/image/upload/v1565588396/SecureLife/profile_pictures/user_wvwscz.png" alt="alt">
                                                             </v-avatar>
-                                                            <p class="subtitle-2 ma-0 pa-0">{{ genealogies[13]['code'] }}</p>
+                                                            <p :class="{'overline ma-0 pa-0': $vuetify.breakpoint.smAndDown, 'subtitle-2 ma-0 pa-0': $vuetify.breakpoint.mdAndUp}">{{ genealogies[11]['code'] }}</p>
                                                             </v-card-text>
                                                         </v-card>
                                                     </v-flex>
                                                     <v-flex xs6 md6>
-                                                        <v-card :color="changecolor(genealogies[14]['code'])">
+                                                        <v-card :color="changecolor(genealogies[12]['type'])" @click="passID(genealogies[12]['id'])">
                                                             <v-card-text class="text-xs-center">
                                                             <v-avatar :size="profilesize">
                                                                 <img src="https://res.cloudinary.com/tim0923/image/upload/v1565588396/SecureLife/profile_pictures/user_wvwscz.png" alt="alt">
                                                             </v-avatar>
-                                                            <p class="subtitle-2 ma-0 pa-0">{{ genealogies[14]['code'] }}</p>
+                                                            <p :class="{'overline ma-0 pa-0': $vuetify.breakpoint.smAndDown, 'subtitle-2 ma-0 pa-0': $vuetify.breakpoint.mdAndUp}">{{ genealogies[12]['code'] }}</p>
+                                                            </v-card-text>
+                                                        </v-card>
+                                                    </v-flex>
+                                                </v-layout>
+                                            </v-flex>
+                                            <v-flex xs3 md3>
+                                                <v-layout row wrap align-start>
+                                                    <v-flex xs6 md6>
+                                                        <v-card :color="changecolor(genealogies[13]['type'])" @click="passID(genealogies[13]['id'])">
+                                                            <v-card-text class="text-xs-center">
+                                                            <v-avatar :size="profilesize">
+                                                                <img src="https://res.cloudinary.com/tim0923/image/upload/v1565588396/SecureLife/profile_pictures/user_wvwscz.png" alt="alt">
+                                                            </v-avatar>
+                                                            <p :class="{'overline ma-0 pa-0': $vuetify.breakpoint.smAndDown, 'subtitle-2 ma-0 pa-0': $vuetify.breakpoint.mdAndUp}">{{ genealogies[13]['code'] }}</p>
+                                                            </v-card-text>
+                                                        </v-card>
+                                                    </v-flex>
+                                                    <v-flex xs6 md6>
+                                                        <v-card :color="changecolor(genealogies[14]['type'])" @click="passID(genealogies[14]['id'])">
+                                                            <v-card-text class="text-xs-center">
+                                                            <v-avatar :size="profilesize">
+                                                                <img src="https://res.cloudinary.com/tim0923/image/upload/v1565588396/SecureLife/profile_pictures/user_wvwscz.png" alt="alt">
+                                                            </v-avatar>
+                                                            <p :class="{'overline ma-0 pa-0': $vuetify.breakpoint.smAndDown, 'subtitle-2 ma-0 pa-0': $vuetify.breakpoint.mdAndUp}">{{ genealogies[14]['code'] }}</p>
                                                             </v-card-text>
                                                         </v-card>
                                                     </v-flex>
@@ -282,6 +286,50 @@
                         </v-card-text>
                     </v-card>
                 </v-layout>
+                <v-layout row justify-center>
+                    <v-dialog v-model="ProfileDialog" persistent max-width="600px">
+                        <v-card>
+                            <v-card-title :class="{'body-1': $vuetify.breakpoint.smAndDown, 'headline': $vuetify.breakpoint.mdAndUp}">Account Information
+                                <v-spacer></v-spacer>
+                                <v-btn small fab @click="ProfileDialog=false">
+                                <v-icon>close</v-icon>
+                                </v-btn>
+                            </v-card-title>
+                            <v-card-text>
+                                <v-container  :grid-list-xl="$vuetify.breakpoint.mdAndUp" :grid-list-xs="$vuetify.breakpoint.smAndDown">
+                                        <v-layout row wrap align-start>
+                                            <v-flex xs12 md6>
+                                            <v-layout row wrap align-center justify-center>
+                                                    <v-flex xs12 md12>
+                                                        <v-avatar size="250px">
+                                                            <img src="https://res.cloudinary.com/tim0923/image/upload/v1565588396/SecureLife/profile_pictures/user_wvwscz.png" alt="alt">
+                                                        </v-avatar>
+                                                    </v-flex>
+                                                </v-layout>
+                                            </v-flex>
+                                            <v-flex xs12 md6>
+                                            <v-layout row wrap align-center justify-center>
+                                                    <v-flex xs12 md12>
+                                                        <v-layout column wrap align-start>
+                                                                <p>{{genealogiesInfo.code}}</p>
+                                                                <p>{{genealogiesInfo.name}}</p>
+                                                                <p>{{genealogiesInfo.email}}</p>
+                                                                <!-- <p>{{genealogiesInfo.downline.left}}</p>
+                                                                <p>{{genealogiesInfo.downline.right}}</p> -->
+                                                        </v-layout>
+                                                    </v-flex>
+                                                </v-layout>
+                                            </v-flex>
+                                        </v-layout>
+                                    </v-container>
+                            </v-card-text>
+                            <v-card-actions>
+                                <v-spacer></v-spacer>
+                                <v-btn primary flat @click="retrieveGenealogyTree(genealogiesInfo.id);">Genealogy Tree</v-btn>
+                            </v-card-actions>
+                        </v-card>
+                    </v-dialog>
+                </v-layout>
               </v-card-text>
           </v-card>
       </v-flex>
@@ -293,10 +341,13 @@
   export default {
     data: () => ({
         genealogies: [],
+        genealogiesInfo: [],
         sponsor: '',
         email: '',
         Bronze: true,
-        items: ['Left', 'Right']
+        items: ['Left', 'Right'],
+        ProfileDialog: false,
+        current_ID: '',
     }),
 
     computed: {
@@ -326,7 +377,7 @@
             axios.get('/api/bronze/genealogy/information', {params: {user_id: user_id}})
             .then(response => {
                 var data = response.data
-                console.log(data)
+                this.genealogiesInfo = data
             })
             .catch(response => {
                 console.log(response)
@@ -334,23 +385,38 @@
         },
 
         retrieveGenealogyTree(user_id) {
+            this.ProfileDialog = false;
             axios.get('/api/bronze/genealogy', {params: {user_id: user_id}})
             .then(response => {
                 var data = response.data
                 this.genealogies = data.genealogy_tree
+                console.log(this.genealogies)
             })
             .catch(response => {
                 console.log(response)
             })
         },
+        getReferalTree(){
+            this.retrieveGenealogyTree(this.genealogiesInfo.reference);
+        },
         changecolor (details) {
-        if (details == "None"){
-          return 'grey darken-3'
-        }
-        else{
-          return 'amber darken-3'
-        }
-      },
+            if (details == "None"){
+                return 'grey darken-3'
+            }
+            else if(details == "active"){
+                return 'amber darken-3'
+            }
+            else if(details == "cd"){
+                return 'red darken-3'
+            }
+            else{
+                return 'blue darken-3'
+            }
+       },
+       passID(id){
+           this.retrieveGenealogyInformation(id)
+           this.ProfileDialog = true
+       },
     },
 
     created() {
