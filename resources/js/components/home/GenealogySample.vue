@@ -7,8 +7,7 @@
                 <v-icon color="white" medium>device_hub</v-icon>
                 <v-toolbar-title>Genealogy</v-toolbar-title>
                 <v-spacer></v-spacer>
-                <v-btn flat @click="getReferalTree">
-                    <span>Back to Root</span>
+                <v-btn fab @click="getReferalTree">
                     <v-icon>trending_up</v-icon>
                 </v-btn>
               </v-toolbar>
@@ -398,6 +397,8 @@
         },
         getReferalTree(){
             this.retrieveGenealogyTree(this.genealogiesInfo.reference);
+            this.retrieveGenealogyInformation(this.genealogiesInfo.reference);
+
         },
         changecolor (details) {
             if (details == "None"){
