@@ -38,7 +38,8 @@ class BronzeController extends Controller
                 'downline' => [
                     'left' => $checkMatchResult[0]['left'],
                     'right' => $checkMatchResult[0]['right'],
-                ]
+                ],
+                'reference' => $user->genealogy->reference_id,
             ];
             return new BronzeResource($data); // Return data
         }
